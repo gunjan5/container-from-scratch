@@ -1,5 +1,5 @@
 # container-from-scratch
-make container from scratch using Golang
+Make container from scratch using Golang
 
 ## 3 main components of a container:
 1. **Namespaces:**
@@ -38,7 +38,18 @@ make container from scratch using Golang
   ```
 
 2. **cgroups:**
+  ```
+  Control group  is a Linux kernel feature that limits, accounts for, and isolates
+  the resource usage (CPU, memory, disk I/O, network, etc.) of a collection of processes.
+
+  If Namespace is for isolation, Cgroup is for sharing resources fairly.
+  ```
+
 3. **Layered Filesystem:**
+  ```
+  Multilayer filesystem, so some base layers (e.g linux base layers) can be shared by multiple containers.
+  Layers are usually read-only, and containers make copy if they have to modify the layer.
+  ```
 
 
 ### Credit:
