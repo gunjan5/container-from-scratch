@@ -1,6 +1,10 @@
 # container-from-scratch
 Make container from scratch using Golang
 
+## Where do containers come from? :bird: & :honeybee:
+![how is it made](https://raw.githubusercontent.com/gunjan5/container-from-scratch/master/container.png)
+
+
 ## 3 main components of a container:
 1. **Namespaces:**
   - PID:
@@ -54,4 +58,5 @@ Make container from scratch using Golang
 
 ### Credit:
 - This is based on @doctor_julz's blog post about containers
+- Container image from @onsijoe's talk at CF Summit
 
