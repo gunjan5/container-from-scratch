@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/codegangsta/cli"
-	"github.com/gunjan5/container-from-scratch/cmd"
+	cmd "github.com/gunjan5/container-from-scratch/cmd"
 )
 
 func main() {
