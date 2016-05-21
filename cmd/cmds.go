@@ -1,4 +1,4 @@
-package commands
+package cmd
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func Run(ctx *cli.Context) error {
 		fmt.Println("ERROR", err)
 		os.Exit(1)
 	}
-   return nil
+	return nil
 }
 
 func Child(ctx *cli.Context) error {
@@ -40,7 +40,7 @@ func Child(ctx *cli.Context) error {
 		fmt.Println("ERROR", err)
 		os.Exit(1)
 	}
-   return nil
+	return nil
 }
 
 func check(err error) {
