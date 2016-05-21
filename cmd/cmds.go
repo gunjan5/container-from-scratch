@@ -2,10 +2,11 @@ package commands
 
 import (
 	"fmt"
-	"github.com/codegangsta/cli"
 	"os"
 	"os/exec"
 	"syscall"
+
+	"github.com/codegangsta/cli"
 )
 
 func Run(ctx *cli.Context) error {

@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/exec"
-	"syscall"
 
 	"github.com/codegangsta/cli"
 	"github.com/gunjan5/container-from-scratch/cmd"
