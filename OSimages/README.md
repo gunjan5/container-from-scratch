@@ -12,3 +12,13 @@
 OR 
 
 - Single command: `zcat core.gz | sudo cpio -i`
+
+### NOTE: 
+- Some Linux distributions have initial ram disk compressed in a different format, even though file extension is `.gz`, so you can't use `gunzip` on them.
+- Slitaz, for example, has it's initial RAM file `rootfs4.gz` compressed with LZMA
+- Best way to find that out is to use the `file` command: 
+```bash
+$ file rootfs4.gz
+rootfs4.gz: LZMA compressed data, streamed
+```
+- To unzip it, use `unlzma rootfs4.gz -S .gz`
