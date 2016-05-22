@@ -1,0 +1,3 @@
+This package contains all default boot scripts to get SliTaz GNU/Linux up to a 
+runable, and more importantly, usable, state.
+

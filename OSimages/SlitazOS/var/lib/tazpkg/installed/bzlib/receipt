@@ -1,0 +1,20 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="36.0K"
+UNPACKED_SIZE="96.0K"
+PACKAGE="bzlib"
+VERSION="1.0.6"
+CATEGORY="utilities"
+SHORT_DESC="High-quality data compressor libraries."
+DEPENDS="glibc-base"
+MAINTAINER="pascal.bellard@slitaz.org"
+WEB_SITE="http://www.bzip.org/"
+WANTED="bzip2"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $src/libbz2.so* $fs/usr/lib
+	ln -s libbz2.so.$VERSION $fs/usr/lib/libbz2.so
+}

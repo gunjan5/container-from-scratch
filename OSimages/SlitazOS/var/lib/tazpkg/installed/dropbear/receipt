@@ -1,0 +1,83 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="96.0K"
+UNPACKED_SIZE="252.0K"
+PACKAGE="dropbear"
+VERSION="2011.54"
+CATEGORY="security"
+SHORT_DESC="Light SSH client and server."
+MAINTAINER="pascal.bellard@slitaz.org"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+DEPENDS="zlib"
+BUILD_DEPENDS="zlib zlib-dev pam pam-dev"
+SUGGESTED="sftp-server"
+WEB_SITE="http://matt.ucc.asn.au/dropbear/dropbear.html"
+WGET_URL="http://matt.ucc.asn.au/dropbear/releases/$TARBALL"
+CONFIG_FILES="/etc/dropbear"
+PROVIDE="ssh"
+TAGS="ssh"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	local i
+	local DROPBEARS
+	DROPBEARS="dropbearkey dropbearconvert dbclient scp"
+	cd $src
+	sed -i  -e 's|/usr/.*/xauth|/usr/bin/xauth|' \
+		-e 's|/usr/.*/sftp-server|/usr/sbin/sftp-server|' \
+ 		-e 's|ENABLE_SVR_PAM_AUTH|ENABLE_SVR_PASSWORD_AUTH|' \
+		options.h
+	./configure --prefix=/usr --without-pam $CONFIGURE_ARGS &&
+	make PROGRAMS="dropbear $DROPBEARS" MULTI=1 &&
+	install -d -m 755 $DESTDIR/usr/sbin &&
+	install -m 755 dropbearmulti $DESTDIR/usr/sbin/dropbear &&
+	chown root $DESTDIR/usr/sbin/dropbear &&
+	chgrp 0 $DESTDIR/usr/sbin/dropbear &&
+	sed -i 's|ENABLE_SVR_PASSWORD_AUTH|ENABLE_SVR_PAM_AUTH|' \
+		options.h
+	./configure --prefix=/usr --enable-pam $CONFIGURE_ARGS &&
+	make PROGRAMS="dropbear $DROPBEARS" MULTI=1 &&
+	install -m 755 dropbearmulti $DESTDIR/usr/sbin/dropbear-pam &&
+	chown root $DESTDIR/usr/sbin/dropbear-pam &&
+	chgrp 0 $DESTDIR/usr/sbin/dropbear-pam &&
+	install -d -m 755 $DESTDIR/usr/bin &&
+	for i in $DROPBEARS ssh; do
+		ln -s ../sbin/dropbear $DESTDIR/usr/bin/$i
+	done
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr
+	cp -a $_pkg/usr/bin $fs/usr
+	cp -a $_pkg/usr/sbin $fs/usr
+	rm -f $fs/usr/sbin/dropbear-pam
+	# Config file and init script.
+	mkdir -p $fs/etc
+	cp -a $stuff/dropbear $fs/etc
+	cp -a $stuff/init.d $fs/etc
+	cp -a $stuff/sshx $fs/usr/bin
+	touch   $fs/etc/dropbear/dropbear_dss_host_key \
+		$fs/etc/dropbear/dropbear_rsa_host_key
+	
+	# Fix dropbear initscript perms
+	chown -R root.root $fs
+}
+
+# Post message when installing.
+post_install()
+{
+	while read dropbear openssh ; do
+		[ -s $openssh ] || continue
+		dropbearconvert openssh dropbear $1$openssh $1$dropbear
+		dropbearkey -y -f $1$dropbear | grep Fingerprint
+	done <<EOT
+/etc/dropbear/dropbear_rsa_host_key	/etc/ssh/ssh_host_rsa_key
+/etc/dropbear/dropbear_dss_host_key	/etc/ssh/ssh_host_dsa_key
+EOT
+	echo -e "\nTo starts $PACKAGE server you can run :\n"
+	echo "/etc/init.d/$PACKAGE start"
+	echo -e "Or add $PACKAGE to RUN_DAEMONS in /etc/rcS.conf\n"
+}

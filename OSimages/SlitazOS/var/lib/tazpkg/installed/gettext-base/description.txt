@@ -1,0 +1,3 @@
+This package offers to programmers, translators, and even users, a well 
+integrated set of tools and documentation to develop native language support for
+applications.

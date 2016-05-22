@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt" lang="pt">
+<head>
+	<title>Manual TazUSB (pt)</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+
+<!-- Header -->
+<div id="header">
+	<h1>Manual TazUSB</h1>
+</div>
+
+<!-- Start content -->
+<div id="content">
+
+<h2>NOME</h2>
+<p>
+TazUSB - SliTaz LiveUSB utility
+</p>
+
+<h2>SINTAXE</h2>
+<pre>
+tazusb [command] [compression|device]
+</pre>
+
+<h2>DESCRIÇÃO</h2>
+<p>
+TazUSB é um utilitário desenvolvido para instalar o SliTaz em um dispositivo
+USB. Diferente de uma instalação no disco rígido, o sistema de arquivos é 
+mantido no arquivo comprimido "rootfs.gz". O sistema de arquivo é carregado
+totalmente na memória no momento da inicialização. Isto aumenta o tempo de 
+resposta, proteje o arquivo de sistemas de corrupções acidentais e reduz as
+leituras/escritas no dispositivo USB. Uma vez configurado, este utilitário
+também pode reescrever o sistema de arquivos com qualquer mudança que tenha sido
+feita desde o momento da inicialização, oferecendo os mesmos benefícios de uma
+instalação no disco rígido.
+</p>
+<p>
+TazUSB suporta drives formatados tanto em FAT32 como em EXT3, usando SYSLINUX
+e EXTLINUX, respectivamente. O diretório "/home" é montado no momento da
+inicialização usando o UUID do dispositivo. Ao contrário do nome do dispositivo, o
+UUID possui o benefício de nunca mudar de máquina para máquina.
+</p>
+
+<h2>COMANDOS</h2>
+<a name="usage"></a>
+<h3>usage</h3>
+<p>
+	Mostra um resumo de todos os comandos disponíveis:
+</p>
+<pre>
+# tazusb usage
+</pre>
+
+<a name="writefs"></a>
+<h3>writefs</h3>
+<p>
+Este comando cria um arquivo "rootfs.gz" a partir do sistema de arquivos
+carregado atualmente na memória. Se o seu drive USB está montado como /home (o 
+comportamento padrão), o novo sistema de arquivos será copiado para o drive 
+para você, caso contrário será copiado na raíz do drive. O sistema de arquivos
+antigo será renomeado para "previous.gz" e pode ser acessado no momento da 
+inicialização ao se digitar "previous" no prompt "boot: ". Todos os sistemas
+de arquivos anteriores são renomeados para "rootfs.gz.unixtimestamp". Eles não
+são removidos automaticamente, então você deve deletá-los periodicamente para
+manter baixa a utilização da capacidade do drive.
+</p>
+<p>
+A compressão do sistema de arquivos é suportada na forma lzma, gzip ou none.
+Não usar compressão é rápido (em torno de 5 segundos) e útil se você está
+experimentando várias mudanças. Por comparação, usando lzma ou gzip demora-se
+alguns minutos mas reduz drasticamente o tamanho do arquivo. Isto é recomendado
+ao se fazer mudanças permamentes no sistema de arquivos.
+</p>
+<pre>
+ # tazusb writefs compression
+</pre>
+Exemplo:
+<pre>
+ # tazusb writefs lzma
+</pre>
+
+<a name="format"></a>
+<h3>format</h3>
+<p>
+Este comando é usado para formatar o dispositivo a ser utilizado como LiveUSB.
+Atualmente só suporta formatação em EXT3.
+</p>
+<pre>
+ # tazusb format /dev/name
+</pre>
+Exemplo:
+<pre>
+ # tazusb format /dev/sda1
+</pre>
+
+<a name="gen-liveusb"></a>
+<h3>gen-liveusb</h3>
+<p>
+Instala uma nova MBR, marca sua partição como inicializável e instala 
+syslinux/extlinux dependendo do sistema de arquivos detectado. Copia, então,
+o kernel e o sistema de arquivos do drive de cdrom, e os colocam no drive USB
+especificado, criando uma cópia inicializável do SliTaz no drive USB:
+</p>
+<pre>
+ # tazusb gen-liveusb /dev/name
+</pre>
+Exemplo:
+<pre>
+ # tazusb gen-liveusb /dev/sda1
+</pre>
+<a name="gen-swap"></a>
+<h3>gen-swap</h3>
+<p>
+O comando 'gen-swap' cria (ou recria) um arquivo de troca (swap) no
+diretório /home que será ativado a cada boot. Isto é útil para sistemas
+antigos que possuem pouca memória RAM.
+</p>
+<pre> # tazusb gen-swap
+</pre>
+
+<a name="gen-iso2usb"></a>
+<h3>gen-iso2usb</h3>
+<p>
+Este comando faz praticamente o mesmo que o comando gen-liveusb, mas copia
+o kernel e o sistema de arquivos de uma imagem iso em vez de copiá-los 
+a partir do CDROM.
+</p>
+<pre> # tazusb gen-iso2usb /caminho/para/a/iso
+</pre>
+Exemplo:
+<pre> # tazusb gen-iso2usb /home/tux/slitaz.iso
+</pre>
+
+<a name="clean"></a>
+<h3>clean</h3>
+<p>
+Remove os antigos sistemas de arquivos rootfs.gz.unixtimestamp (veja
+writefs) para manter baixo o uso do disco.
+</p>
+<pre> # tazusb clean
+</pre>
+
+<h2>MAINTAINER</h2>
+<p>
+	Eric Joseph-Alexandre &lt;erjo at slitaz.org&gt;
+</p>
+
+<!-- End content -->
+</div>
+
+</body>
+</html>

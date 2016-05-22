@@ -1,0 +1,144 @@
+/lib/modules/2.6.37-slitaz/kernel/fs/fat/msdos.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/fs/binfmt_misc.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/fs/fuse/cuse.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/parport/parport.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/parport/parport_pc.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/parport/parport.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/misc/tifm_core.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/misc/cb710/cb710.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/ssb/ssb.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/acpi/button.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/acpi/video.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/video/output.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/block/floppy.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/i2c/i2c-core.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/watchdog/softdog.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/ide/ide-cs.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/ni52.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/via-velocity.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/hp-plus.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/8390p.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/sky2.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/bnx2.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/eexpress.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/sis190.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/3c59x.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/lance.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/vmxnet3/vmxnet3.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/ipg.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/davicom.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/libphy.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/smsc.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/libphy.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/broadcom.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/libphy.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/qsemi.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/libphy.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/cicada.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/libphy.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/marvell.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/libphy.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/libphy.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/lxt.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/libphy.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/wd.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/sunhme.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/smc9194.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/lp486e.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/eth16i.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/starfire.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/3c501.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/ni65.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/atlx/atl2.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/tg3.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/libphy.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/e2100.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/skge.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/3c505.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/cs89x0.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/sungem_phy.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/3c509.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/smc-ultra.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/8390p.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/sc92031.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/sungem.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/sungem_phy.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/3c515.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/eepro.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/pcmcia/xirc2ps_cs.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/pcmcia/pcnet_cs.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/pcmcia/smc91c92_cs.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/pcmcia/3c589_cs.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/pcmcia/nmclan_cs.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/pcmcia/fmvj18x_cs.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/pcmcia/axnet_cs.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/pcmcia/3c574_cs.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/hp.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/8390p.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/ne.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/8390p.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/smsc9420.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/libphy.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/typhoon.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/dm9601.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/usbnet.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/net1080.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/usbnet.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/smsc75xx.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/usbnet.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/zaurus.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/cdc_ether.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/usbnet.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/ipheth.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/cdc_eem.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/usbnet.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/asix.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/usbnet.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/usbnet.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/int51x1.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/usbnet.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/cdc_ether.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/usbnet.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/rndis_host.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/cdc_ether.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/usbnet.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/cdc_subset.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/usb/usbnet.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/r6040.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/libphy.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/atl1c/atl1c.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/fealnx.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/tulip/uli526x.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/tulip/tulip.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/82596.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/amd8111e.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/depca.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/arcnet/rfc1201.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/arcnet/arcnet.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/arcnet/com90xx.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/arcnet/arcnet.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/arcnet/arcnet.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/cassini.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/dl2k.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/dnet.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/phy/libphy.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/e1000/e1000.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/3c503.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/net/8390p.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/atl1e/atl1e.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/ewrk3.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/hp100.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/net/b44.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/ssb/ssb.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/i82092.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_rsrc.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pd6729.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_rsrc.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_rsrc.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/i82365.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_rsrc.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/yenta_socket.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_rsrc.ko.gz /lib/modules/2.6.37-slitaz/kernel/drivers/pcmcia/pcmcia_core.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/usb/class/cdc-acm.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/usb/class/usblp.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/usb/host/xhci-hcd.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/usb/mon/usbmon.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/usb/serial/ch341.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/usb/serial/usbserial.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/usb/serial/pl2303.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/usb/serial/usbserial.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/usb/serial/usbserial.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/char/lp.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/parport/parport.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/char/rtc.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/char/i8k.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/char/genrtc.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/mmc/core/mmc_core.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/input/gameport/gameport.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/input/mouse/logibm.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/input/mouse/sermouse.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/input/mouse/pc110pad.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/input/mouse/inport.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/hwmon/coretemp.ko.gz: /lib/modules/2.6.37-slitaz/kernel/drivers/hwmon/hwmon.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/drivers/hwmon/hwmon.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/drivers/video/output.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/sound/core/snd.ko.gz: /lib/modules/2.6.37-slitaz/kernel/sound/soundcore.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/sound/soundcore.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/sound/ac97_bus.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/net/rfkill/rfkill.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/net/netfilter/nfnetlink_log.ko.gz: /lib/modules/2.6.37-slitaz/kernel/net/netfilter/nfnetlink.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/net/netfilter/nfnetlink.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/net/netfilter/nf_conntrack.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/net/ipv4/netfilter/ipt_REJECT.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/net/sunrpc/auth_gss/rpcsec_gss_krb5.ko.gz: /lib/modules/2.6.37-slitaz/kernel/net/sunrpc/auth_gss/auth_rpcgss.ko.gz
+/lib/modules/2.6.37-slitaz/kernel/net/sunrpc/auth_gss/auth_rpcgss.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/net/llc/llc.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/lib/ts_bm.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/lib/crc-itu-t.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/lib/crc7.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/lib/ts_fsm.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/lib/raid6/raid6_pq.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/lib/libcrc32c.ko.gz:
+/lib/modules/2.6.37-slitaz/kernel/lib/ts_kmp.ko.gz:

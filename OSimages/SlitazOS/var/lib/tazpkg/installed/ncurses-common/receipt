@@ -1,0 +1,44 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="20.0K"
+UNPACKED_SIZE="116.0K"
+PACKAGE="ncurses-common"
+VERSION="5.9"
+CATEGORY="base-system"
+SHORT_DESC="Common files for the ncurses and ncursesw library."
+MAINTAINER="pankso@slitaz.org"
+DEPENDS="glibc-base"
+WANTED="ncurses"
+WEB_SITE="http://invisible-island.net/ncurses/"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	# Terminfo.
+    mkdir -p $fs/usr/share/terminfo
+    for dir in a l r v x
+    do
+        mkdir $fs/usr/share/terminfo/$dir
+    done
+    cp $_pkg/usr/share/terminfo/a/ansi \
+    $fs/usr/share/terminfo/a
+    cp $_pkg/usr/share/terminfo/l/linux \
+    $fs/usr/share/terminfo/l
+    cp $_pkg/usr/share/terminfo/r/rxvt \
+    $fs/usr/share/terminfo/r
+    cp $_pkg/usr/share/terminfo/x/xterm \
+    $fs/usr/share/terminfo/x
+    cp $_pkg/usr/share/terminfo/x/xterm-color \
+    $fs/usr/share/terminfo/x
+    cp $_pkg/usr/share/terminfo/x/xterm-new \
+    $fs/usr/share/terminfo/x
+    cp $_pkg/usr/share/terminfo/x/xterm-vt220 \
+    $fs/usr/share/terminfo/x
+    cp $_pkg/usr/share/terminfo/v/vt100 \
+    $fs/usr/share/terminfo/v
+    cp $_pkg/usr/share/terminfo/v/vt102* \
+    $fs/usr/share/terminfo/v
+    
+    # Tabset.
+    cp -a $_pkg/usr/share/tabset $fs/usr/share
+}

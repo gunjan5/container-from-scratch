@@ -1,0 +1,40 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="264.0K"
+UNPACKED_SIZE="748.0K"
+PACKAGE="cdrkit"
+VERSION="1.1.11"
+CATEGORY="utilities"
+SHORT_DESC="Wodim for recording/blanking CDs/DVDs and genisoimage for ISO."
+MAINTAINER="pankso@slitaz.org"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.cdrkit.org/"
+WGET_URL="http://cdrkit.org/releases/$TARBALL"
+
+DEPENDS="libcap zlib bzlib attr"
+BUILD_DEPENDS="cmake libcap-dev zlib-dev bzip2-dev attr-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	sed -i -e '/USE_MAGIC/d' -e '/(MAGICLIBS magic)/d' \
+		genisoimage/CMakeLists.txt
+	#patch -p1 < $stuff/$PACKAGE-1.1.9-glibc-2.10.patch || return 1
+	#grep -qs 'define u8' libusal/scsi-linux-sg.c ||
+	#sed -i 's|#include <scsi/scsi.h>|#define u8 __u8\n&|' libusal/scsi-linux-sg.c
+	make PREFIX=/usr && make install PREFIX=/usr
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/bin
+	cp $_pkg/usr/bin/genisoimage $fs/usr/bin
+	cp $_pkg/usr/bin/wodim $fs/usr/bin	
+	# Make symlinks for cdrtools compatibility
+	cd $fs/usr/bin
+	ln -s wodim cdrecord
+	ln -s genisoimage mkisofs
+	ln -s genisoimage mkhybrid
+}

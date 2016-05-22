@@ -1,0 +1,21 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="228.0K"
+UNPACKED_SIZE="916.0K"
+PACKAGE="gcc-lib-base"
+VERSION="4.5.2"
+CATEGORY="development"
+SHORT_DESC="GCC base libraries, libgcc_s and libstdc++."
+WEB_SITE="http://gcc.gnu.org/"
+MAINTAINER="pankso@slitaz.org"
+WANTED="gcc"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $_pkg/usr/lib/libgcc_s.so* $fs/usr/lib
+	cp -a $_pkg/usr/lib/libstdc++.so* $fs/usr/lib
+	rm $fs/usr/lib/*-gdb.py
+}
+

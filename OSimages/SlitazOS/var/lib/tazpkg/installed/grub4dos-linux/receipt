@@ -1,0 +1,24 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="168.0K"
+UNPACKED_SIZE="780.0K"
+PACKAGE="grub4dos-linux"
+VERSION="0.4.4"
+CATEGORY="system-tools"
+SHORT_DESC="Some enhancments of grub boot loader - linux files."
+MAINTAINER="pascal.bellard@slitaz.org"
+WEB_SITE="http://grub4dos.sourceforge.net/"
+WANTED="grub4dos"
+PROVIDE="grub"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	libarch=$(basename `ls $_pkg/usr/lib/grub`)
+	mkdir -p $fs/usr/lib/grub/$libarch
+	cp -a $_pkg/usr/bin $fs/usr
+	cp -a $_pkg/usr/sbin $fs/usr
+	cp -a  $_pkg/usr/lib/grub/$libarch/*stage* \
+		$fs/usr/lib/grub/$libarch
+}
+

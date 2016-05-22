@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=X defaults behavior
+Name[ru]=Поведение X по умолчанию
+Icon=preferences-system-session
+Exec=edit-dot-xdefaults
+Categories=Settings;

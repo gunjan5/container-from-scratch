@@ -1,0 +1,7 @@
+/usr/bin/isohybrid
+/usr/share/boot/sdi.c32
+/usr/share/boot/pxelinux.0.lzma
+/usr/share/boot/mbr.bin
+/usr/share/boot/memdisk.lzma
+/bin/syslinux
+/bin/extlinux

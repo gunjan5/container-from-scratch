@@ -1,0 +1,98 @@
+########################################################################
+# This is the SliTaz main library (/usr/lib/slitaz/libtaz).
+# libtaz is modular : see explanation of the function source_lib below.
+#
+# Author :	Antoine Bodin <gokhlayeh@mailoo.org>
+#
+# Version : 0.0.1 (alpha1)
+#
+# Documentation : none (will be available with beta version)
+# The documentation will include an explanation of all functions, how to 
+# use them and how to improve this library.
+#
+# Devnotes (suppress while beta is released) :
+# Add a generic download script ? -> download from tazlito & tazwok
+# Add a generic create/cleanup script for tmp files ?
+# check_for (pkg on cmd line, pkg, receipt, etc.) -> tazwok,tazpkg,list
+#
+# Note: as the work is in progress some parts are dirty code or others
+# are not finished. I will update this because we need the libdep.
+#
+########################################################################
+# INITIALIZATION
+########################
+# Load the Slitaz main configuration file : /etc/slitaz/slitaz.conf.
+# Don't load it if an application is called by one already, 
+# to avoid options overwrite.
+
+. /etc/slitaz/slitaz.conf
+
+# Load the command as some modules use it.
+log_command="$0 $@"
+
+# Define & create a temporary directory as it's used by report.
+tmp=/tmp/$(basename $0)-$$
+mkdir -p $tmp
+
+########################################################################
+# EXIT FUNCTIONS
+########################
+# run_on_exit commands are executed when apps exit (whatever the reason)
+# run_on_kill commands are executed only when apps are killed (or Ctrl+C)
+# Note : one command per line in the variable.
+run_on_exit="rm -rf $tmp"
+run_on_kill=""
+trap run_on_exit EXIT
+trap run_on_kill INT KILL
+
+run_on_exit()
+{
+	echo "$run_on_exit" | while read c; do
+		run_on_exit=$(echo "$run_on_exit" | sed 1d)
+		$c
+	done
+	trap - EXIT
+	exit
+}
+
+run_on_kill()
+{
+	echo "$run_on_kill" | while read c; do
+		run_on_kill=$(echo "$run_on_kill" | sed 1d)
+		$c
+	done
+	trap - INT KILL
+	run_on_exit
+}
+
+########################################################################
+# This function should be used after sourcing libtaz to source modular
+# libraries. Libtaz only sources main configuration files and contains only
+# this function. The modular libraries should be put in the slitaz lib
+# directory (/usr/lib/slitaz/libtaz-modules).
+#
+# Usage : source_lib lib [lib2] [lib3] ...
+#
+# Description of libraries included with libtaz :
+#	commons		: functions used by most SliTaz scripts
+#	get_option*	: function to check & parse arguments of a command line
+#	report		: display and log scripts in a configurable way
+#
+# * needs a code review, please don't use them for production : code can
+# be hardly modified.
+#
+# All these libraries contains additional functions. Check them to
+# know which ones and how to use them.
+# More information will be available at beta release.
+
+sourced_lib=""
+source_lib()
+{
+	for i in $@; do
+		[ "$(echo $sourced_lib | grep $i)" ] && continue
+		[ ! -f "/usr/lib/slitaz/libtaz-modules/$i" ] && \
+			echo "WARNING: libtaz source_lib: can't find /usr/lib/slitaz/libtaz-modules/$i" >&2 && \
+			continue
+		. /usr/lib/slitaz/libtaz-modules/$i && sourced_lib="$sourced_lib $i"
+	done
+}

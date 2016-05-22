@@ -1,0 +1,28 @@
+#!/bin/sh
+
+xdbclient()
+{
+	read host type data
+	svr=$(echo $DISPLAY | sed 's/.*:\([0-9]*\).*/\1/')
+	scr=${DISPLAY/*./.}; [ "$scr" == "$DISPLAY" ] && scr=""
+	n=$((10+($RANDOM % 90))); dpy=localhost:$n
+	remote=""
+	while true; do
+		arg="$1"; shift
+		remote="$remote $arg"
+		case "$arg" in
+		-[piIlLRWKBJ])	remote="$remote $1"; shift ;;
+		-*)		;;
+		*)		break ;;
+		esac
+	done
+	[ -n "$1" ] || set -- "$TERM || xterm"
+	exec dbclient -f -R $((6000+$n)):localhost:$((6000+$svr)) $remote \
+	    "xauth add $dpy $type $data; export DISPLAY=$dpy$scr; $@ ; xauth remove $dpy" \
+	    < /dev/null > /dev/null
+}
+
+case "$DISPLAY" in
+'')	exec dbclient "$@" ;;
+*)	xauth list $DISPLAY | xdbclient "$@" ;;
+esac

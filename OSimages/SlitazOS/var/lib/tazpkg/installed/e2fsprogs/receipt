@@ -1,0 +1,61 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="228.0K"
+UNPACKED_SIZE="648.0K"
+PACKAGE="e2fsprogs"
+VERSION="1.41.14"
+CATEGORY="base-system"
+SHORT_DESC="Filesystem utilities for use with ext2 and ext3 (without fsck*)."
+MAINTAINER="pankso@slitaz.org"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://e2fsprogs.sourceforge.net/"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+DEPENDS="libcomerr util-linux-ng-blkid util-linux-ng-uuid"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	./configure \
+		--prefix=/usr \
+		--with-root-prefix="" \
+		--enable-elf-shlibs \
+		--sysconfdir=/etc \
+		$CONFIGURE_ARGS
+	make && make install &&
+	make install-libs
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib $fs/usr/share/locale
+	cp -a $_pkg/sbin $fs
+	cp -a $_pkg/lib $fs
+	cp -a $_pkg/etc $fs
+	cp -a $_pkg/usr/bin $fs/usr
+	cp -a $_pkg/usr/sbin $fs/usr
+	cp -a $_pkg/usr/lib/*.so $fs/usr/lib
+	cat $stuff/*.files-list | while read file; do
+		rm -f $fs$file
+	done
+	# Remove fsck provided by Busybox and blkid by util-linux-ng.
+	rm $fs/sbin/fsck* $fs/sbin/blkid
+	rm $fs/lib/libblkid* $fs/usr/lib/libblkid*
+	# Remove uuid files provided by util-linux-ng.
+	rm $fs/usr/sbin/uuidd $fs/usr/bin/uuidgen
+	rm $fs/lib/libuuid* $fs/usr/lib/libuuid*
+}
+
+# Overlap busybox
+pre_install()
+{
+	rm -f $1/sbin/findfs
+	rm -f $1/sbin/tune2fs
+}
+
+post_remove()
+{
+	ln -s /bin/busybox $1/sbin/findfs
+	ln -s /bin/busybox $1/sbin/tune2fs
+}

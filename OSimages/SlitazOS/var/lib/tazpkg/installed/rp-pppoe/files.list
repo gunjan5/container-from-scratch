@@ -1,0 +1,14 @@
+/etc/ppp/pppoe.conf
+/etc/ppp/plugins/README
+/etc/ppp/firewall-masq
+/etc/ppp/firewall-standalone
+/etc/ppp/pppoe-server-options
+/usr/sbin/pppoe-relay
+/usr/sbin/pppoe-stop
+/usr/sbin/pppoe-status
+/usr/sbin/pppoe
+/usr/sbin/pppoe-start
+/usr/sbin/pppoe-setup
+/usr/sbin/pppoe-connect
+/usr/sbin/pppoe-sniff
+/usr/sbin/pppoe-server

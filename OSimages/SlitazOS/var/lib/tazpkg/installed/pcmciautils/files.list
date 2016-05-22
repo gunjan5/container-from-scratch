@@ -1,0 +1,5 @@
+/etc/pcmcia/config.opts
+/etc/udev/rules.d/60-pcmcia.rules
+/sbin/pccardctl
+/sbin/pcmcia-check-broken-cis
+/sbin/pcmcia-socket-startup

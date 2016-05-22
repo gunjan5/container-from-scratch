@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Show Boot Log
+Name[fr]=Log de démarrage
+Exec=xterm -hold -title 'boot.log (shift-pgup/pgdn to scroll)' -e 'bootlog'
+Icon=other.png
+Type=Application
+Categories=System;

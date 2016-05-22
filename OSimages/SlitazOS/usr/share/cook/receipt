@@ -1,0 +1,25 @@
+# SliTaz package receipt.
+
+PACKAGE=""
+VERSION=""
+CATEGORY=""
+SHORT_DESC=""
+MAINTAINER=""
+WEB_SITE=""
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WGET_URL="$TARBALL"
+
+DEPENDS=""
+BUILD_DEPENDS=""
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	./configure $CONFIGURE_ARGS && make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	cp -a $install/* $fs
+}

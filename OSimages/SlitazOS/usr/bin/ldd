@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Tiny ldd fake.
+# Copyright (C) 2010-2012 SliTaz GNU/Linux.
+#
+
+echo ""
+file="$@"
+for file do
+	case $file in
+  		*/*) :
+       		;;
+  		*) file=./$file
+     		;;
+  	esac
+	echo "$file:" | sed 's%^./%%'
+	LD_TRACE_LOADED_OBJECTS=1 /lib/ld*.so "$file"
+	echo ""
+done

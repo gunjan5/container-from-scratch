@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>TazUSB Manual (en)</title>
+	<meta charset="utf-8" />
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+
+<!-- Header -->
+<div id="header">
+	<h1>TazUSB Manual</h1>
+</div>
+
+<!-- Start content -->
+<div id="content">
+
+<h2>NAME</h2>
+<p>
+TazUSB - SliTaz LiveUSB utility
+</p>
+
+<h2>SYNTAX</h2>
+<pre>
+tazusb [command] [compression|device|file]
+</pre>
+
+<h2>DESCRIPTION</h2>
+<p>
+	TazUSB is a utility designed for installing SliTaz to a USB drive. Unlike a 
+	hard drive install, the filesystem is kept in a compressed "rootfs.gz" file. 
+	The filesystem is loaded entirely into memory upon boot. This should
+	increase responsiveness, protect the filesystem against accidental
+	corruption and reduce read/writes to the USB drive. Once setup, this utility
+	can also rewrite the root filesystem with any changes you have made since
+	booting up, giving the effective benefits of a hard drive install.
+</p>
+<p>
+	TazUSB supports FAT32/EXT3/EXT2 formatted drives using SYSLINUX and EXTLINUX 
+	respectively. "/home" is mounted on boot using the UUID of your particular 
+	flash drive. Unlike a device name, the UUID has the benefit of never
+	changing from machine to machine.  
+</p>
+
+<h2>COMMANDS</h2>
+<a name="usage"></a>
+<h3>usage</h3>
+<p>
+	The command 'usage' will display a short summary of all available commands.
+</p>
+<pre>
+ # tazusb usage
+</pre>
+
+<a name="writefs"></a>
+<h3>writefs</h3>
+<p>
+	The command 'writefs' will take the current memory resident filesystem and 
+	create a "rootfs.gz" file. If your flash drive is mounted as /home (as it 
+	should be), the new filesystem will be copied to the drive for you,
+	otherwise it is left on the root of the drive. Your previous filesystem
+	will be renamed to "previous.gz" and can be accessed on bootup by typing
+	"previous" at the "boot:" prompt. All previous filesystems are renamed to 
+	rootfs.gz.unixtimestamp. These are not removed automatically, so you should 
+	periodically delete these to keep disk usage down.
+</p>
+<p>
+	Filesystem compression is supported in the form of lzma, gzip or none. 
+	Using no compression is very quick (under 5 seconds) and useful if you are 
+	experimenting with a lot of changes. By comparison, using lzma or gzip takes 
+	a few minutes but will dramatically reduce file size. This is recommended
+	when committing permanent changes to the filesystem.
+</p>
+<pre>
+# tazusb writefs compression
+</pre>
+<p>Example:</p>
+<pre>
+# tazusb writefs lzma
+</pre>
+
+<a name="format"></a>
+<h3>format</h3>
+<p>
+	The command 'format' is used for formatting a device for use as a LiveUSB 
+	device. Currently, it supports formatting as EXT2, EXT3 and FAT32.
+</p>
+<pre>
+# tazusb format /dev/name
+</pre>
+<p>Example:</p>
+<pre>
+# tazusb format /dev/sda1
+</pre>
+
+<a name="gen-liveusb"></a>
+<h3>gen-liveusb</h3>
+<p>
+	"gen-liveusb" will install a fresh MBR, set your partition as bootable and 
+	install syslinux/extlinux depending on the detected filesystem. It will then 
+	copy the kernel and filesystem from the CDROM drive, and place this on the 
+	target USB drive. This will leave you with a bootable USB copy of SliTaz. 
+</p>
+<pre>
+# tazusb gen-liveusb /dev/name
+</pre>
+<p>Example:</p>
+<pre>
+# tazusb gen-liveusb /dev/sda1
+</pre>
+
+<a name="gen-swap"></a>
+<h3>gen-swap</h3>
+<p>
+	The 'gen-swap' command re/creates a virtual swap file and places 
+	it in the /home directory to be activated on each boot. This is useful
+	for old systems with low memory.
+</p>
+<pre>
+# tazusb gen-swap
+</pre>
+
+<a name="gen-iso2usb"></a>
+<h3>gen-iso2usb</h3>
+<p>
+	This command performs the same task as gen-liveusb, only copying the Kernel
+	and filesystem from a downloaded ISO image instead of the CDROM drive.
+</p>
+<pre>
+# tazusb gen-iso2usb /path/to/iso
+</pre>
+<p>Example:</p>
+<pre>
+# tazusb gen-iso2usb /home/tux/slitaz.iso
+</pre>
+
+<a name="clean"></a>
+<h3>clean</h3>
+<p>
+	"clean" removes old rootfs.gz.unixtimestamp filesystems (see writefs)
+	to keep disk usage down.
+</p>
+<pre>
+# tazusb clean
+</pre>
+
+<h2>MAINTAINER</h2>
+<p>
+	Eric Joseph-Alexandre &lt;erjo at slitaz.org&gt;
+</p>
+
+<!-- End content -->
+</div>
+
+</body>
+</html>

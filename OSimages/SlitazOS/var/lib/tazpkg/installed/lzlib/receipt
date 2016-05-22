@@ -1,0 +1,22 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="20.0K"
+UNPACKED_SIZE="32.0K"
+PACKAGE="lzlib"
+VERSION="4.57"
+CATEGORY="base-system"
+SHORT_DESC="Compressor with a high compression ratio library."
+MAINTAINER="pascal.bellard@slitaz.org"
+WEB_SITE="http://sourceforge.net/projects/sevenzip/"
+DEPENDS="zlib gcc-lib-base"
+WANTED="lzma"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/lib
+	cp -a $src/CPP/7zip/Compress/LZMA_Alone/liblz.so.1.0.0 $fs/lib
+	ln -s liblz.so.1.0.0 $fs/lib/liblz.so
+	ln -s liblz.so.1.0.0 $fs/lib/liblz.so.1
+}
+

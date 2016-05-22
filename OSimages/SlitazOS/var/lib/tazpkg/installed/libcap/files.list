@@ -1,0 +1,7 @@
+/lib/libcap.so.2.19
+/sbin/setcap
+/sbin/getcap
+/sbin/getpcaps
+/sbin/capsh
+/lib/libcap.so
+/lib/libcap.so.2

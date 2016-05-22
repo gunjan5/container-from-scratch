@@ -1,0 +1,11 @@
+#!/bin/sh
+# Lauch SliTaz default File manager.
+#
+. /etc/slitaz/applications.conf
+
+USER_CONFIG="$HOME/.config/slitaz/applications.conf"
+[ -f  $USER_CONFIG ] && . $USER_CONFIG
+
+$FILE_MANAGER $@ &
+
+exit 0

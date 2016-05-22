@@ -1,0 +1,70 @@
+#!/bin/sh
+# /etc/init.d/dropbear : Start, stop and restart SSH server on SliTaz, at 
+# boot time or with the command line.
+#
+# To start SSH server at boot time, just put dropbear in the $RUN_DAEMONS
+# variable of /etc/rcS.conf and configure options with /etc/daemons.conf
+#
+. /etc/init.d/rc.functions
+. /etc/daemons.conf
+
+NAME=Dropbear
+DESC="SSH server"
+DAEMON=/usr/sbin/dropbear
+OPTIONS=$DROPBEAR_OPTIONS
+PIDFILE=/var/run/dropbear.pid
+
+case "$1" in
+  start)
+    # We need rsa and dss host key file to start dropbear.
+    if [ ! -s /etc/dropbear/dropbear_rsa_host_key ] ; then
+      echo -n "Generating $NAME rsa key... "
+      # Need to delete key before creating it.
+      rm -f /etc/dropbear/dropbear_rsa_host_key
+      dropbearkey -t rsa -f /etc/dropbear/dropbear_rsa_host_key > /dev/null 2>&1
+      status
+    fi
+    if [ ! -s /etc/dropbear/dropbear_dss_host_key ] ; then
+      echo -n "Generating $NAME dss key... "
+      # Need to delete key before creating it.
+      rm -f /etc/dropbear/dropbear_dss_host_key
+      dropbearkey -t dss -f /etc/dropbear/dropbear_dss_host_key > /dev/null 2>&1
+      status
+    fi
+    if active_pidfile $PIDFILE dropbear ; then
+      echo "$NAME already running."
+      exit 1
+    fi
+    echo -n "Starting $DESC: $NAME... "
+    $DAEMON $OPTIONS
+    status
+    ;;
+  stop)
+    if ! active_pidfile $PIDFILE dropbear ; then
+      echo "$NAME is not running."
+      exit 1
+    fi
+    echo -n "Stopping $DESC: $NAME... "
+    kill `cat $PIDFILE`
+    status
+    ;;
+  restart)
+    if ! active_pidfile $PIDFILE dropbear ; then
+      echo "$NAME is not running."
+      exit 1
+    fi
+    echo -n "Restarting $DESC: $NAME... "
+    kill `cat $PIDFILE`
+    sleep 2
+    $DAEMON $OPTIONS
+    status
+    ;;
+  *)
+    echo ""
+    echo -e "\033[1mUsage:\033[0m /etc/init.d/`basename $0` [start|stop|restart]"
+    echo ""
+    exit 1
+    ;;
+esac
+
+exit 0

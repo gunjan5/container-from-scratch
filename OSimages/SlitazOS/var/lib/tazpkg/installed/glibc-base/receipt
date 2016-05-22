@@ -1,0 +1,45 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="1.2M"
+UNPACKED_SIZE="3.7M"
+PACKAGE="glibc-base"
+VERSION="2.13"
+CATEGORY="base-system"
+SHORT_DESC="GNU libc minimal libraries and UTF-8 support for SliTaz."
+WEB_SITE="http://www.gnu.org/software/libc/"
+WANTED="glibc"
+MAINTAINER="pankso@slitaz.org"
+
+DEFAULT_LOCALE="de_DE en_US en_GB es_ES fr_FR it_IT pt_BR pt_PT ru_RU"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+#
+# Full glibc is very long to compile (see package glibc for more
+# informations). You can use the precompiled package available on
+# SliTaz mirror to build a distro without recompiling glibc.
+#
+genpkg_rules()
+{
+	# Mkdir's.
+	for dir in $(cat $stuff/mkdir.list)
+	do
+		mkdir -p ${fs}$dir
+	done
+    # Copy all files specified in stuff/files.list. We get the files
+    # from glibc package.
+    for file in $(cat $stuff/wanted-files.list)
+    do
+    	cp -a ${_pkg}$file ${fs}$file
+    done
+    # i18n
+    for i in $DEFAULT_LOCALE
+	do
+		cp $_pkg/usr/share/i18n/locales/$i $fs/usr/share/i18n/locales
+	done
+}
+
+# Remove an eventual locale-archive since we use directories.
+pre_install()
+{
+	rm -f $1/usr/lib/locale/locale-archive
+}

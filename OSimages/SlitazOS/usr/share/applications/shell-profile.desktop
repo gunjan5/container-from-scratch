@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=SHell profile
+Name[fr]=Profile du SHell
+Name[ru]=Профиль SHell
+Icon=xterm
+Exec=edit-dot-profile
+Categories=Settings;

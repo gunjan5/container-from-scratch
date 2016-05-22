@@ -1,0 +1,40 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="32.0K"
+UNPACKED_SIZE="84.0K"
+PACKAGE="attr"
+VERSION="2.4.46"
+CATEGORY="system-tools"
+SHORT_DESC="Commands for Manipulating Filesystem Extended Attributes."
+MAINTAINER="rcx@zoominternet.net"
+DEPENDS="glibc-base"
+BUILD_DEPENDS="slitaz-toolchain autoconf automake m4 libtool gettext"
+TARBALL="${PACKAGE}-${VERSION}.src.tar.gz"
+WEB_SITE="http://savannah.nongnu.org/projects/attr/"
+WGET_URL="http://download.savannah.gnu.org/releases-noredirect/$PACKAGE/$TARBALL"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+
+	# Need bash sh to compile
+	mv /bin/sh /bin/sh.bak
+	ln -s /bin/bash /bin/sh
+
+	# Configure is included in Makefile
+	{ make LOCAL_CONFIGURE_OPTIONS="$CONFIGURE_ARGS" &&
+	make install install-lib install-dev DIST_ROOT=$DESTDIR
+	} || { mv -f /bin/sh.bak /bin/sh; return 1; }
+
+	mv -f /bin/sh.bak /bin/sh
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/lib $fs/usr/lib
+	cp -a $_pkg/lib/*.so* $fs/lib
+	cp -a $_pkg/usr/lib/*.so* $fs/usr/lib
+	cp -a $_pkg/usr/bin $fs/usr
+}

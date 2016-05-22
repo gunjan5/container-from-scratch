@@ -1,0 +1,184 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="380.0K"
+UNPACKED_SIZE="760.0K"
+PACKAGE="busybox"
+VERSION="1.18.4"
+CATEGORY="base-system"
+SHORT_DESC="Busybox combines tiny versions of many common UNIX utilities."
+MAINTAINER="pascal.bellard@slitaz.org"
+DEPENDS="slitaz-base-files glibc-base ncurses-common"
+BUILD_DEPENDS="bzip2 pam pam-dev uclibc-cross-compiler-i486"
+AUFS_NOT_SUPPORTED="uclibc-cross-compiler-i486 is not compatible with aufs 8("
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WEB_SITE="http://www.busybox.net/"
+WGET_URL="http://www.busybox.net/downloads/$TARBALL"
+CONFIG_FILES="/etc/dnsd.conf /etc/inetd.conf /etc/udhcpd.conf /etc/resolv.conf /etc/httpd.conf"
+
+apply_bb_patchs()
+{
+    cd $src
+    while read file; do
+    	[ -f done.$file ] && continue
+    	echo "Apply $file..."
+    	patch -p1 < $stuff/$PACKAGE-${VERSION%.*}-$file || return 1
+	touch done.$file
+    done <<EOT
+tar.u
+stat.u
+ris.u
+zmodules.u
+printable.u
+cmdline.u
+conspy.u
+httpd.u
+su-nochdir.u
+tftp-chroot.u
+diff.u
+EOT
+    cp $stuff/$PACKAGE-${VERSION%.*}.config .config
+}
+
+# Rules to compile & install the temporary toolchain.
+cook_tmp_toolchain()
+{
+    { stuff=${stuff:-../stuff}
+    apply_bb_patchs && 
+    make oldconfig &&
+    make &&
+    make CONFIG_PREFIX=/tools install
+    } || return 1
+    echo "Chmod 4755 on busybox binary..."
+    chmod 4755 /tools/bin/busybox
+}
+
+# Rules to configure and make the package.
+compile_rules()
+{
+    { apply_bb_patchs && 
+    make oldconfig &&
+    make &&
+    make install
+    } || return 1
+
+    # prepare busybox-pam package
+    sed -i 's/# CONFIG_PAM is not set/CONFIG_PAM=y/' .config
+    make oldconfig && make || return 1
+    mv busybox busybox-pam
+
+    # prepare busybox-static package
+    cp $stuff/$PACKAGE-${VERSION%.*}.config-static .config
+    make oldconfig && make || return 1
+    mv busybox busybox-static
+
+    # prepare ssfs-busybox package
+    rootfs=$src/ssfs-busybox/usr/share/ssfs/rootfs
+    mkdir -p $rootfs/etc
+    cp $stuff/$PACKAGE-${VERSION%.*}.config-ssfs .config
+    make oldconfig && make busybox &&
+    make CONFIG_PREFIX=$rootfs install || return 1
+    cp $stuff/busybox.conf-ssfs $rootfs/etc/busybox.conf
+    chown -R 0.0 $rootfs/etc
+    chmod 0600 $rootfs/etc/busybox.conf
+    chmod 4755 $rootfs/bin/busybox
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+    cp -a $src/_install/* $fs
+    rm -f $fs/bin/bbconfig $fs/usr/bin/ar
+    mkdir -p $fs/etc/init.d $fs/var
+    
+    # Busybox config files.
+    for f in busybox.conf dnsd.conf udhcpd.conf inetd.conf httpd.conf zcip.script
+    do
+		cp $stuff/$f $fs/etc
+    done
+    chown -R 0.0 $fs/etc
+    chmod 600 $fs/etc/busybox.conf
+    touch $fs/etc/resolv.conf
+
+	# Daemon scripts and init.
+    cp $stuff/daemon $fs/etc/init.d
+    DAEMON="crond dnsd ftpd httpd inetd klogd ntpd syslogd telnetd tftpd udhcpd zcip"
+    for i in $DAEMON; do
+		grep -qi config_$i=y $stuff/$PACKAGE-${VERSION%.*}.config && 
+		ln -s daemon $fs/etc/init.d/$i
+    done
+    rm $fs/linuxrc
+    mkdir -p $fs/etc/modprobe.d
+    
+    # Udhcpc stuff.
+    mkdir -p $fs/usr/share/udhcpc
+    cp $stuff/udhcp.script $fs/usr/share/udhcpc/default.script
+    chmod +x $fs/usr/share/udhcpc/default.script
+
+    # Httpd stuff.
+    cp $stuff/httpd_helper.sh $fs/usr/bin
+    chmod +x $fs/usr/bin/httpd_helper.sh
+    cp -a $stuff/www $fs/var
+}
+
+# Force glibc-2.7 reinstall if 2.3.6 still in use.
+pre_install()
+{
+	local i
+	cp -a /etc/resolv.conf /etc/resolv.conf-busybox-install
+	if grep -q 'VERSION="2.3.6"' /var/lib/tazpkg/installed/glibc-base/receipt; then
+		tazpkg get-install glibc-base --forced
+	fi
+	answer=""
+	for i in $(cat $1$INSTALLED/$PACKAGE/files.list); do
+		[ -f $1$i ] || continue
+		case "$i" in
+		/bin/busybox) continue ;;
+		*bin/*) ;;
+		*) continue ;;
+		esac
+		if [ -z "$answer" ]; then
+			echo -n "Keep installed GNU utilities ? "
+			read -t 30 answer	# by default: keep
+			case "$answer" in
+			n*|N*) break;;
+			*) answer="Y";;
+			esac
+		fi
+		cp -a $1$i $1$i-busybox-install
+	done
+}
+
+post_install()
+{
+	local i
+	[ -f /etc/resolv.conf-busybox-install ] &&
+	mv -f /etc/resolv.conf-busybox-install /etc/resolv.conf
+	while read i ; do
+		[ -f $1$i-busybox-install ] || continue
+		mv $1$i-busybox-install $1$i
+	done < $1$INSTALLED/$PACKAGE/files.list
+	chmod 4755 $1/bin/busybox
+
+	# /etc/daemons.conf (tftp + dnsd + httpd may not be present)
+	if ! grep -q ^DNSD_OPTIONS $root/etc/daemons.conf; then
+		echo '# Domain name server options.' >> $root/etc/daemons.conf
+		echo 'DNSD_OPTIONS="-d"' >> $root/etc/daemons.conf
+		echo '' >> $root/etc/daemons.conf
+	fi
+	if ! grep -q ^TFTPD_OPTIONS $root/etc/daemons.conf; then
+		echo '# Tftp daemon options.' >> $root/etc/daemons.conf
+		echo 'TFTPD_OPTIONS="-r /boot"' >> $root/etc/daemons.conf
+		echo '' >> $root/etc/daemons.conf
+	fi
+	if ! grep -q ^HTTPD_OPTIONS $root/etc/daemons.conf; then
+		echo '# Busybox HTTP web server options.' >> $root/etc/daemons.conf
+		echo 'HTTPD_OPTIONS="-u www"' >> $root/etc/daemons.conf
+		echo '' >> $root/etc/daemons.conf
+	fi
+}
+
+pre_remove()
+{
+	# We can not remove this package !
+	exit 1
+}

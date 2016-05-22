@@ -1,0 +1,356 @@
+#!/bin/sh
+#
+# SliTaz Hardware configuration tool. Auto-detect and configure in a
+# simple way all PCI, PCMCIA and USB devices. Some Wireless Adapters 
+# need non-free firmware not installed by default. Users must use the
+# option --get-firmware to force installation. GUI uses GTKdialog, and is
+# called by args such as all box functions.
+#
+# (c) 2009 SliTaz GNU/Linux - GNU gpl v3
+#
+# Authors : Christophe Lincoln <pankso@slitaz.org>
+#			Rohit Joshi <jozee@slitaz.org>
+#
+
+usage()
+{
+	echo -e "\nSliTaz Hardware configuration\n
+\033[1mUsage: \033[0m `basename $0` [command] [--option]
+\033[1mCommands: \033[0m\n
+  usage			Print this short usage.
+  box			Start in graphical mode.
+  init			Used at boot time to configure devices.
+  setup			Setup hardware devices.
+  detect-pci		Detect all PCI devices.
+  detect-usb		Detect all USB devices.
+  detected-modules	List all detected Kernel modules.
+  
+\033[1mOptions: \033[0m\n
+  --get-firmware    Get and install non-free firmware (PCI and USB).\n"
+}
+
+# Check if user is root to install, or remove packages.
+check_root()
+{
+	if test $(id -u) != 0 ; then
+		echo -e "\nYou must be root to run `basename $0` with this option."
+		echo -e "Please use 'su' and root password to become super-user.\n"
+		exit 0
+	fi
+}
+box_check_root()
+{
+	if test $(id -u) != 0 ; then
+		exec subox tazhw box
+		exit 0
+	fi
+}
+
+check_firmware()
+{
+	if [ -x /usr/bin/get-$mod-firmware ]; then
+		if [ ! -d /var/lib/tazpkg/installed/$mod-firmware ]; then
+			# We need and active connection to install firmware and we
+			# only install firmware if specified from cmdline.
+			if ifconfig | grep -q "inet addr"; then
+				# Ensure module is not loaded and get files.				
+				if [ "$firmware" == "get" ]; then
+					rmmod $mod 2>/dev/null
+					get-$mod-firmware
+				else
+					echo "* Use --get-firmware option to install missing files."
+				fi
+			else
+				echo "* No active connection to get and install firmware."
+			fi
+		else
+			echo "> Firmware in use: $mod-firmware"
+		fi
+	fi
+}
+
+load_module()
+{
+	if ! lsmod | grep -q "^$mod"; then
+
+		# lsmod and some modules use underscore, others use dash.
+		# The real modprobe can handle both but not busybox version
+		modprobe $mod 2>/dev/null && \
+		echo "* Loaded module:   $mod" || \
+			echo "! Missing module:  $mod"
+
+		# Add it to load automatically at next boot.
+		if ! echo "$LOAD_MODULES" | grep -q "$mod"; then
+			sed -i s/"LOAD_MODULES=\"$LOAD_MODULES\""/"LOAD_MODULES=\"$LOAD_MODULES $mod\""/ \
+				/etc/rcS.conf
+		fi
+		. /etc/rcS.conf
+
+	else
+		echo "> Module in use:   $mod"
+	fi
+}
+
+# Detect PCI devices and load kernel module only at first boot,
+# in LiveCD mode or with the command 'detect-pci'.
+detect_pci_devices()
+{
+	if [ ! -s /var/lib/detected-modules ]; then
+		. /etc/rcS.conf
+		# We need module_name to match output of lsmod.
+		list=`lspci -k | grep "modules" | cut -d ":" -f 2 | sed s/-/_/g`
+		echo "$list" > /var/lib/detected-modules
+		for mod in $list
+		do
+			check_firmware
+			load_module
+		done
+		# yenta_socket = laptop
+		if `lsmod | grep -q "yenta_socket"`; then
+			grep -qs batt /etc/lxpanel/default/panels/panel || 
+			sed -i 's/= cpu/= batt\n}\n\nPlugin {\n    type = cpu/' \
+				/etc/lxpanel/default/panels/panel 2> /dev/null
+		fi
+	fi
+}
+
+# Detect all USB devices.
+detect_usb_devices()
+{
+	if [ -f /proc/bus/usb/devices -a ! -s /var/lib/detected-usb-modules ]; then
+		rm -f /var/lib/detected-usb-modules
+		cat /proc/bus/usb/devices | grep "Vendor" | while read line ; do
+			ID=`echo "$line" | awk '{ print $2,$3 }' | sed 's/ /   /' | \
+				sed 's/Vendor=/0x/' | sed 's/ProdID=/0x/'`
+			if grep -q "$ID" /lib/modules/`uname -r`/modules.usbmap; then
+				mod=`grep "$ID" /lib/modules/$(uname -r)/modules.usbmap | \
+					awk '{ print $1 }'`
+				prod=`grep -A 2 "$line" /proc/bus/usb/devices | grep Product | \
+					cut -d "=" -f 2`
+				echo "$prod"
+				check_firmware
+				load_module
+				echo " $mod" >> /var/lib/detected-usb-modules
+			fi
+		done
+	fi
+}
+
+display_line()
+{
+	echo "================================================================================"
+}
+
+# Box functions and dialog
+
+box_list()
+{
+	for mod in `cat /var/lib/detected-modules /var/lib/detected-usb-modules 2>/dev/null`
+	do
+		desc=`modinfo $mod | grep ^description | cut -d ":" -f 2`
+		[ -z "$desc" ] && desc="N/A"
+		echo "$mod | $desc"
+	done
+}
+
+box_detect_devices()
+{
+	if [ $INSTALL_FIRMARE != true ]; then
+		xterm -T "Detect devices" \
+			-geometry 80x24 \
+			-e "$0 detect-pci; $0 detect-usb; \
+			echo -e \"----\nPress ENTER to close...\"; \
+			read i; exit 0"
+	else
+		xterm -T "Detect and get firmware" \
+			-geometry 80x24 \
+			-e "$0 detect-pci --get-firmware; \
+			$0 detect-usb --get-firmware; \
+			echo -e \"----\nPress ENTER to close...\"; \
+			read i; exit 0"
+	fi
+}
+
+box_setup_devices()
+{
+	SETUP_OPTIONS=""
+	if [ $INSTALL_NON_FREE == true ]; then 
+		SETUP_OPTIONS="$SETUP_OPTIONS --non-free"				
+	fi
+	if [ $AUTO_INSTALL_SUGGESTED == true ]; then
+		SETUP_OPTIONS="$SETUP_OPTIONS --suggested"	
+	elif [ $CONFIRM_INSTALL_SUGGESTED == true ]; then
+		SETUP_OPTIONS="$SETUP_OPTIONS --confirm"		
+	fi	
+	xterm -geometry 80x24 -T "$DEVICE Setup" \
+		-e "$0 setup $DEVICE $SETUP_OPTIONS; \
+		echo -e \"----\nPress ENTER to close...\"; \
+		read i; exit 0"    	
+}
+
+box()
+{
+	export BIN=$0
+	export MAIN_DIALOG='
+<window title="Tazhw box" icon-name="computer">
+<vbox>
+ 	<text width-chars="54" use-markup="true">
+		<label>"
+			<b>Hardware auto-detection and configuration tool</b>
+		"</label>
+	</text>		
+	<frame Loaded Kernel Modules>
+		<vbox>
+			<tree>
+				<width>470</width><height>180</height>
+				<variable>MODULE</variable>
+				<label>Module|Description</label>
+				<input>$BIN box_list</input>
+				<action>refresh:MODULE</action>
+			</tree>
+			<hbox>
+				<checkbox>
+					<label>Auto install non-free Firmware       </label>
+					<variable>INSTALL_FIRMARE</variable>
+					<default>false</default>
+				</checkbox>
+				<button>
+					<label>Discover PCI/USB devices</label>
+					<input file icon="folder-saved-search"></input>
+					<action>$BIN box_detect_devices</action>
+					<action>refresh:MODULE</action>
+				</button>		
+			</hbox>
+		</vbox>
+	</frame>
+	<frame Hardware Setup>
+		<hbox>
+				<button>
+					<label>Printer</label>
+					<input file icon="printer"></input>
+					<action>export DEVICE="printer";$BIN box_setup_devices</action>
+				</button>	
+				<button>
+					<label>Scanner</label>
+					<input file icon="x-office-document"></input>
+					<action>export DEVICE="scanner";$BIN box_setup_devices</action>
+				</button>				
+				<button>
+					<label>3G-Modem</label>
+					<input file icon="network-transmit-receive"></input>
+					<action>export DEVICE="3g-modem";$BIN box_setup_devices</action>
+				</button>	
+				<button>
+					<label>Nvidia</label>
+					<input file icon="video-display"></input>
+					<action>export DEVICE="nvidia";$BIN box_setup_devices</action>
+				</button>
+				<button>
+					<label>ATI Radeon</label>
+					<input file icon="video-display"></input>
+					<action>export DEVICE="ati";$BIN box_setup_devices</action>
+				</button>				
+				
+			</hbox>
+			<hbox>
+			   <button>
+					<label>Webcam     </label>
+					<input file icon="camera-video"></input>
+					<action>export DEVICE="webcam";$BIN box_setup_devices</action>
+				</button>
+				
+					<button>
+					<label>Digital Camera    </label>
+					<input file icon="camera-photo"></input>
+					<action>export DEVICE="camera";$BIN box_setup_devices</action>
+				</button>
+				 <button>
+					<label>Bluetooth   </label>
+					<input file icon="preferences-desktop-multimedia"></input>
+					<action>export DEVICE="bluetooth";$BIN box_setup_devices</action>
+				</button>
+				
+				<button>
+					<label>Firewall    </label>
+					<input file icon="gtk-network"></input>
+					<action>export DEVICE="firewall";$BIN box_setup_devices</action>
+				</button>
+			
+			</hbox>	
+			<hbox>
+				<checkbox>
+					<label>Install non-free packages      </label>
+					<variable>INSTALL_NON_FREE</variable>
+					<default>true</default>					
+				</checkbox>
+				<checkbox>
+					<label>Auto-install all optional packages    </label>
+					<variable>AUTO_INSTALL_SUGGESTED</variable>
+					<default>false</default>					
+				</checkbox>
+											
+			</hbox>
+			<hbox>			
+				<checkbox>
+					<label>Choose optional packages to install</label>
+					<variable>CONFIRM_INSTALL_SUGGESTED</variable>
+					<default>false</default>					
+				</checkbox>	
+			</hbox>
+	
+	</frame>
+	<hbox>
+		<button>
+				<label>Exit</label>
+				<input file icon="exit"></input>
+				<action type="exit">Exit</action>
+			</button>
+    </hbox>
+
+</vbox>
+</window>'
+   
+   	gtkdialog --center --program=MAIN_DIALOG >/dev/null
+}
+
+# Get firmware used by check_firmware()
+if [ "$2" == "--get-firmware" ]; then
+	firmware='get'
+fi
+	
+# What to do.
+case "$1" in
+	init)
+		check_root
+		echo "Detecting PCI devices Kernel modules..."
+		detect_pci_devices
+		echo "Detecting USB devices Kernel modules..."
+		detect_usb_devices ;;
+	detect-pci)
+		check_root
+		echo -e "\nDetected PCI devices Kernel modules" && display_line
+		rm -f /var/lib/detected-modules
+		detect_pci_devices
+		display_line && echo "" ;;
+	detect-usb)
+		check_root
+		echo -e "\nDetected USB devices Kernel modules" && display_line
+		rm -f /var/lib/detected-usb-modules
+		detect_usb_devices
+		display_line && echo "" ;;
+	setup) 
+		SETUP_OPTIONS=`echo "$@" | sed 's/setup//' `
+		hwsetup $SETUP_OPTIONS ;;
+	box*)
+		box_check_root
+		$1 ;;
+	detected-modules)
+		echo -e "\nDetected PCI and USB modules" && display_line
+		cat /var/lib/detected-modules
+		cat /var/lib/detected-usb-modules 2>/dev/null
+		display_line && echo "" ;;
+	*)
+		usage ;;
+esac
+
+exit 0

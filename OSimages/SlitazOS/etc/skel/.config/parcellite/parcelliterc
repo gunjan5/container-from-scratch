@@ -1,0 +1,10 @@
+
+[rc]
+history_limit=25
+character_length=50
+ellipsize=2
+history_key=F11
+actions_key=F12
+save_history=true
+single_line_mode=true
+hyperlinks_mode=false

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+	<mime-type type="application/x-tazpkg">
+		<comment>SliTaz package</comment>
+		<comment xml:lang="en">SliTaz package</comment>
+		<comment xml:lang="ru">Пакет SliTaz</comment>
+		<sub-class-of type="application/x-cpio"/>
+		<glob pattern="*.tazpkg"/>
+	</mime-type>
+</mime-info>

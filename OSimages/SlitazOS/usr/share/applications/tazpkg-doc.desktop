@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Tazpkg manual
+Name[fr]=Manuel de Tazpkg
+Name[pt]=Manual do Tazpkg
+Name[pt_BR]=Manual do Tazpkg
+Name[ru]=Руководство TazPKG
+Comment=SliTaz packages manager manual
+Comment[fr]=Manuel du gestionnaire de paquets SliTaz
+Comment[ru]=Руководство по менеджеру пакетов TazPKG
+Exec=browser file:///usr/share/doc/tazpkg/tazpkg.html
+Icon=text-html
+Type=Application
+Categories=Documentation;

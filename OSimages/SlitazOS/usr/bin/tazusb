@@ -1,0 +1,602 @@
+#!/bin/sh
+#
+# Tazusb - SliTaz LiveUSB utility to generate, configure and manipulate
+# SliTaz LiveUSB bootable media and/or USB /home partition, such as
+# flash keys, SD card or USB harddisk.
+#
+# Copyright (C) 2012 SliTaz GNU/Linux - GNU gpl v2
+#
+# Authors: see AUTHORS file
+#
+VERSION=4.0.1
+
+# Include gettext helper script.
+. /usr/bin/gettext.sh
+
+# Export package name for gettext.
+TEXTDOMAIN='tazusb'
+export TEXTDOMAIN
+
+COMMAND=$1
+TARGET_ROOT=/media/flash
+DRIVE_NAME=`cat /proc/sys/dev/cdrom/info | grep "drive name" | cut -f 3`
+CDROM=/dev/$DRIVE_NAME
+LOG=/tmp/$(basename $0).log
+
+#
+# Tazusb functions
+#
+
+source /usr/lib/slitaz/libtaz
+source_lib commons
+
+# Print the usage.
+usage ()
+{
+	echo -e "`gettext \"SliTaz Live USB - Version:\"` $VERSION\n
+\033[1m`gettext \"Usage: \"`\033[0m `basename $0` [command] [compression|device]
+\033[1m`gettext \"Commands:\"`\033[0m\n
+  usage     	`gettext \"Print this short usage.\"`
+  writefs 	`gettext \"Write the current filesystem to rootfs.gz.
+  		Supported compression: lzma. gzip, none.\"`
+  format	`gettext \"Format and label device with ext3, ext2 or fat32 filesystem 
+                (for LiveUSB or /home). Default is ext3.\"`
+  gen-liveusb 	`gettext \"Generate a bootable LiveUSB using files from the LiveCD.\"`
+  gen-swap      `gettext \"Create or recreate and activate additional swap memory.\"`
+  gen-iso2usb   `gettext \"Generate a bootable LiveUSB using files from ISO file.\"`
+  clean         `gettext \"Remove old backup filesystems to free disk space.\"`\n"
+}
+
+# Display a list of available partitions.
+fdisk_list()
+{
+	echo "----"
+	fdisk -l | grep ^/dev/sd*
+	echo "----"
+}
+
+# We need a USB media to install.
+ask_for_device()
+{
+	gettext "\
+Please specify the target USB device to $COMMAND. You can type 'list' to 
+get a list of devices, type 'exit' or give an empty value to exit.
+
+Device to use : "; read anser
+	while [ "$anser" == "list" ]; do
+		fdisk_list
+		gettext "Device to use : "; read anser
+	done
+	if [ "$anser" = "" -o "$anser" = "exit" ]; then
+		echo ""
+		gettext "No specified device or exit."
+		echo ""
+		exit 0
+	else
+		DEVICE=$anser
+	fi
+}
+
+# Verify a device exists before format or install
+check_for_device()
+{
+	IFDEV=`fdisk -l | grep $DEVICE`
+	if [ -z "$IFDEV" ]; then
+		echo ""
+		gettext "Unable to find device: $DEVICE"
+		echo ""
+		exit 0
+	fi
+}
+
+# gets the UUID and filesystem type
+get_part_info()
+{
+	UUID=`blkid -s UUID -o value $DEVICE`
+	FSTYPE=`blkid -s TYPE -o value $DEVICE`
+}
+
+# Format target device and label partition.
+mkfs_ext3()
+{
+	gettext "Please specify a label for the partition (TazUSB): "
+	read label
+	
+	if [ -z $label ]; then
+		label=TazUSB
+	fi
+	
+	gettext "Label  : $label"; echo ""
+	gettext "Mkfs   : mkfs.ext3 -L \"$label\" $DEVICE" ; echo ""
+	echo "" && sleep 2
+	mkfs.ext3 -L "$label" $DEVICE
+	
+}
+
+# Get label for device
+get_label()
+{
+	gettext "Please specify a label for the partition (TazUSB): "
+	read label
+	
+	if [ -z $label ]; then
+		label=TazUSB
+	fi
+}
+
+# Get fs type. Supported fs are ext3, ext2, fat32
+get_fs_type()
+{
+	gettext "Please specify a filesystem type ext2, ext3 or fat32 (ext3): "
+	read  fs_type
+	
+	if [ -z $fs_type ]; then
+		fs_type=ext3
+	fi
+}
+
+# We can chose the filesystem type.
+ask_for_fs_type()
+{
+	gettext "\
+Please specify the filesystem type to $COMMAND. 
+Available formats are ext3(default), ext2 or fat32. 
+Press enter to keep the default value.
+
+File system type : "; read anser
+	if [ "$anser" = "" ]; then
+		FS_TYPE=ext3
+	else
+		FS_TYPE=$anser
+	fi
+}
+
+# Format target device in ext3, ext2 or fat32.
+# Usage: make_fs ext2|fat32|ext3 (default)
+make_fs()
+{
+	local answer
+	
+	FS=$(echo $fs_type | tr [A-Z] [a-z])
+	case "$FS" in
+		ext3|ext2)
+			echo ""; gettext "Processing..." ; echo ""
+			gettext "Label  : $label" ; echo ""
+			gettext "Mkfs   : mkfs.$FS -L \"$label\" $DEVICE"
+			echo "" && sleep 2
+			mkfs.$@ -L "$label" $DEVICE > $LOG 2>&1
+			;;
+		[Ff]at32)
+			if [ -x /sbin/mkdosfs ];then
+				echo "" ; gettext "Processing..."; echo ""
+				gettext "Label  : $label" ; echo ""
+				gettext "Mkfs   : mkdosfs -F 32 -n \"$label\" $DEVICE"; echo ""
+				echo "" && sleep 2
+				mkdosfs -F 32 -n "$label" $DEVICE  
+			else
+				gettext "Can't find mkdosfs tool.\nWould you like to install dosfstools from repository [y/N] ? "; read answer
+				case $answer in
+					y|Y)
+						yes | tazpkg get-install dosfstools  && make_fs fat32;;
+					*)
+						exit 1 ;;
+				esac
+			fi
+			;;
+		*)
+			gettext "Sorry. Filesystem $FS is not supported."; echo ""
+			exit 
+	esac
+}
+
+# Mount an existing USB device.
+unmount_target_usb()
+{
+	# If mount point is in use, unmount
+	if mount | grep -q $TARGET_ROOT; then
+		umount $TARGET_ROOT
+	fi
+	
+	# Device could be mounted elsewhere, so unmount
+	if mount | grep -q $DEVICE; then
+		gettext "Unmounting USB target device..."; echo ""
+		umount $DEVICE
+	fi
+}
+
+# Mount an existing USB device.
+mount_target_usb()
+{
+	gettext "Mounting USB target device..."	; echo ""
+	mkdir -p $TARGET_ROOT
+	mount $DEVICE $TARGET_ROOT 2>/dev/null
+}
+
+# Mount SliTaz LiveCD to get needed files.
+mount_cdrom()
+{
+	gettext "Mounting cdrom device..."; echo ""
+	
+	if mount | grep /media/cdrom; then
+		umount /media/cdrom
+	fi
+	
+	mkdir -p /media/cdrom
+	mount -r -t iso9660 $CDROM /media/cdrom 2>/dev/null
+	
+	if [ ! -f /media/cdrom/boot/rootfs.gz -a \
+	     ! -f /media/cdrom/boot/rootfs1.gz ]; then
+		echo ""; gettext "Unable to mount cdrom or to find a filesystem on it (rootfs.gz)."; echo ""
+		exit 0
+	fi
+}
+
+# Mount SliTaz ISO to get needed files.
+mount_iso()
+{
+	if mount | grep /media/cdrom ; then
+		umount /media/cdrom
+	fi
+	
+	test -d /media/cdrom || mkdir -p /media/cdrom
+	
+	# Add support to other distros.
+    if [ ! -f /etc/slitaz-version ]; then
+         OPTIONS="-o loop"
+    else
+         OPTIONS=""
+    fi
+	
+	gettext "Mounting "
+	echo  "`basename $ISO`..."; echo ""
+	mount $OPTIONS $ISO /media/cdrom 2>/dev/null 
+	
+	if [ ! -f /media/cdrom/boot/rootfs.gz -a \
+	     ! -f /media/cdrom/boot/rootfs1.gz ]; then
+		gettext "Unable to mount iso or to find a filesystem on it (rootfs.gz)."; echo ""
+		exit 0
+	fi
+}
+
+# All needed files are in the boot directory of the cdrom.
+copy_cdrom_files()
+{
+	gettext "Copying needed files from cdrom..."
+	mkdir -p $TARGET_ROOT/boot
+	cp /media/cdrom/boot/bzImage $TARGET_ROOT/boot
+	cp /media/cdrom/boot/rootfs*.gz $TARGET_ROOT/boot
+	status
+}
+
+install_mbr()
+{
+	# MBR
+	DISK=${DEVICE%[1-99]}
+	if [ -f /usr/share/boot/mbr.bin ]; then
+		gettext  "Installing a new MBR to: $DISK"
+		cat /usr/share/boot/mbr.bin > $DISK
+		status
+	else
+		# Skip MBR install (tazpkg get-install syslinux-extra ? and then cat)
+		gettext "No new MBR installed to: $DISK"; echo ""
+	fi
+}
+
+# ext/syslinux install
+install_boot()
+{
+	# Decide if we're installing syslinux or extlinux
+	if [ "$FSTYPE" = "vfat" ]; then
+		ST=syslinux
+		STC="syslinux --install -d /boot/syslinux/ $DEVICE"
+		STE=cfg
+	else
+		ST=extlinux
+		STC="extlinux --install $TARGET_ROOT/boot/$ST"
+		STE=conf
+	fi
+	
+	gettext  "Installing bootloader: $ST"; echo ""
+	mkdir -p $TARGET_ROOT/boot/$ST
+	$STC
+	
+	# Use existing isolinux.cfg for extlinux.conf or syslinux.cfg
+	cp /media/cdrom/boot/isolinux/isolinux.cfg $TARGET_ROOT/boot/$ST/$ST.$STE
+	
+	# Update DVD autoinstall
+	sed -i "s/LABEL=packages-[^,]*/UUID=$UUID/g" $(grep -l append $TARGET_ROOT/boot/$ST/*)
+	 
+	# Add home= to append in extlinux or syslinux.cfg
+	sed -i -e "s/\(append.*\)/\1 home=$UUID/" $(grep -l append $TARGET_ROOT/boot/$ST/*)
+	
+	# Splash screen and help files.
+	cp /media/cdrom/boot/isolinux/splash.* $TARGET_ROOT/boot/$ST
+	cp /media/cdrom/boot/isolinux/*.txt $TARGET_ROOT/boot/$ST
+	cp /media/cdrom/boot/isolinux/*.cfg $TARGET_ROOT/boot/$ST
+	cp /media/cdrom/boot/isolinux/*.kbd $TARGET_ROOT/boot/$ST
+	cp /media/cdrom/boot/isolinux/*.c32 $TARGET_ROOT/boot/$ST
+	sed -i -e s/'SliTaz GNU\/Linux'/'SliTaz GNU\/Linux LiveUSB'/ \
+		-e s/'isolinux'/'extlinux'/ $TARGET_ROOT/boot/$ST/$ST.$STE
+}
+
+# Let user exit or reboot.
+exit_or_reboot()
+{
+	echo "==============================================================================="
+	echo ""
+	gettext "Do you want to exit Tazusb or reboot system (Exit/reboot) ? "
+	read anser
+	if [ "$anser" == "reboot" ]; then
+		umount $TARGET_ROOT
+		umount /media/cdrom
+		reboot || reboot -f
+	else
+		umount $TARGET_ROOT
+		umount /media/cdrom
+		echo ""
+		exit 0
+	fi
+}
+
+set_bootable()
+{
+	# As the boot flag is toggable, need to check it before hand
+	DISK=${DEVICE%[1-99]}
+	ISSET=`fdisk -l $DISK | grep $DEVICE | grep "\*"`
+	
+	# If not set, set bootable
+	if [ "$ISSET" == "" ]; then
+		umount $TARGET_ROOT 2>/dev/null
+		gettext "Setting $DEVICE as bootable..."
+		fdisk $DISK >/dev/null << EOF
+a
+1
+w
+EOF
+		status
+	fi
+}
+
+# Generate a virtual swap file in /home/swap. SliTaz boot scripts 
+# will activate it, useful for low memory systems
+gen_swap_file()
+{
+	echo ""
+	echo -en "\033[1m`gettext \"Gen swap\"`\033[0m
+==============================================================================="
+gettext "Generate a swap file in /home/swap that will be activated on each boot to have
+more memory available (Empty value to exit).
+
+Swap file in Mb : "
+	read size
+	if [ -z "$size" ]; then
+		gettext "Empty value. Exiting..."; echo ""
+		exit 0
+	fi
+	cd /home
+	# Sanity check
+	if [ -f swap ]; then
+		swapoff swap 2>/dev/null
+	fi
+	# DD to gen a virtual disk.
+	dd if=/dev/zero of=swap bs=1M count=$size
+	# Make swap filesystem.
+	mkswap swap
+	swapon swap
+	echo ""
+}
+
+# Clean out old backups to save disk space
+clean_usb() 
+{
+	echo ""
+	echo -en "\033[1m`gettext \"Clean\"`\033[0m
+==============================================================================="
+gettext "Remove old rootfs.gz.unixtimestamp backup filesystems to free up disk space."; echo -e "\n\n"
+	# Locate and interactively remove old filesystems from /home directory
+	for file in `find /home/boot/rootfs.gz.[0-9]*`
+	do
+		gettext "Do you wish to remove: `basename $file` (Yes/no/exit) ? "
+		read answer
+		case $answer in
+			e|E|"exit"|Exit)
+				exit 0 ;;
+			y|Y|yes|Yes)
+				rm -f $file ;;
+			*)
+			gettext "No filesystems selected, exiting..." ; echo "" ;;
+		esac
+	done
+}
+
+#
+# Tazusb sequence
+#
+
+case $COMMAND in
+	writefs)
+		# Writefs to rootfs.gz
+		check_root
+		if [ -z $2 ]; then
+			COMPRESSION=none
+		else
+			COMPRESSION=$2
+		fi
+		# Start info
+		echo ""
+		echo -e "\n\033[1m`gettext "Write filesystem"`\033[0m
+==============================================================================="
+gettext "The command writefs will write all the current filesystem into a suitable cpio 
+archive (rootfs.gz) usable on a bootable LiveUSB media. 
+
+Archive compression: $COMPRESSION"
+		echo ""
+		
+		# Clear out tazpkg cache
+		rm /var/cache/tazpkg/* -r -f
+
+		# Optionally remove sound card selection
+		gettext "Do you wish to remove the sound card selection (No/yes/exit) ? "
+		read anser
+		case $anser in
+			e|E|"exit"|Exit)
+				exit 0 ;;
+			y|Y|yes|Yes)
+				gettext "Removing current sound card selection..."
+				rm -f /var/lib/sound-card-driver
+				rm -f /var/lib/alsa/asound.state ;;
+			*)
+				gettext "Keeping current sound card selection..." ;;
+		esac
+		status
+		# Optionally remove screen resolution
+		gettext "Do you wish to remove the screen resolution (No/yes/exit) ? "
+		read anser
+		case $anser in
+			e|E|"exit"|Exit)
+				exit 0 ;;
+			y|Y|yes|Yes)
+				gettext "Removing current screen resolution..."
+				rm -f /etc/X11/screen.conf ;;
+			*)
+				gettext "Keeping current screen resolution..." ;;
+		esac
+		status
+		
+		# Create list of files
+		find /bin /etc /init /sbin /var /dev /lib /root /usr >/tmp/list
+
+		for dir in /home /proc /sys /tmp /mnt /media /media/cdrom /media/flash /media/usbdisk
+		do
+			echo $dir >>/tmp/list
+		done
+
+		# Generate initramfs with specified compression
+		if [ "$COMPRESSION" = "lzma" ]; then
+			gettext "Creating rootfs.gz with lzma compression... "
+			cat /tmp/list | cpio -o -H newc | lzma e -si -so > /rootfs.gz
+
+		elif [ "$COMPRESSION" = "gzip" ]; then
+			gettext "Creating rootfs.gz with gzip compression... "
+			cat /tmp/list | cpio -o -H newc | gzip -9 > /rootfs.gz
+
+		else
+			gettext "Creating rootfs.gz without compression... "
+			cat /tmp/list | cpio -o -H newc > /rootfs.gz
+		fi
+
+		# Get initramfs size
+		size=`du -sh /rootfs.gz | cut -f 1`
+
+		# If the bootable medium is where it should be, copy across
+		if (test -e /home/boot/bzImage); then
+			gettext "Moving rootfs.gz to media. Remember to unmount for delayed writes!"; echo ""
+
+			# Move the old filesystem with the unix timestamp for reference
+			if (test -e /home/boot/previous.gz); then
+				mv /home/boot/previous.gz /home/boot/rootfs.gz.$(date +%s)
+			fi
+			
+			mv /home/boot/rootfs.gz /home/boot/previous.gz
+			mv /rootfs.gz /home/boot/.
+		else
+			gettext "rootfs.gz is located in /"; echo ""
+		fi
+
+		echo "==============================================================================="
+		gettext "Root filesystem size: $size"; echo ""
+		echo ""
+		echo "----"
+		gettext "ENTER to continue..."; read i
+		;;
+	format)
+		# Format a partition.
+		check_root
+		echo ""
+		echo -e "\033[1m`gettext \"Format a device\"`\033[0m"
+		echo "==============================================================================="
+		DEVICE=$2
+		label=$3
+		fs_type=$4
+		if [ -z $DEVICE ]; then
+			ask_for_device
+			check_for_device
+		else
+			echo "Device : $DEVICE"
+		fi
+		test -z $fs_type &&	get_fs_type
+		get_label
+		unmount_target_usb 
+		make_fs "$fs_type"
+		# mkfs_ext3
+		echo "==============================================================================="
+		gettext "Device $label ($DEVICE) is ready to use as LiveUSB and/or /home partition."
+		echo ""
+		;;
+	gen-liveusb)
+		# Generate a LiveUSB media using files from a LiveCD.
+		check_root
+		echo ""
+		echo -e "\033[1m`gettext \"Gen a LiveUSB media\"`\033[0m"
+		echo "==============================================================================="
+		DEVICE=$2
+		if [ -z $DEVICE ]; then
+			ask_for_device
+		fi
+		
+		check_for_device
+		mount_cdrom
+		get_part_info
+		unmount_target_usb
+		install_mbr
+		set_bootable
+		mount_target_usb
+		copy_cdrom_files
+		install_boot
+		exit_or_reboot
+		;;
+	gen-swap)
+		check_root
+		gen_swap_file
+		;;
+	gen-iso2usb|iso2usb)
+		check_root
+
+		# Check if file exists
+		ISO=$2
+		if [ -z $ISO ] || [ ! -f $ISO ]; then
+			gettext "Please specify a valid filename on the command line."; echo ""
+			exit 1
+		fi
+		echo ""
+		echo -e "\033[1m`gettext \"Copy ISO file to SliTaz LiveUSB media\"`\033[0m"
+		echo "==============================================================================="
+		echo ""
+		DEVICE=$3
+		if [ -z $DEVICE ]; then
+			ask_for_device
+		fi
+		check_for_device
+		mount_iso
+		get_part_info
+		unmount_target_usb
+		install_mbr
+		set_bootable
+		mount_target_usb
+		copy_cdrom_files
+		install_boot
+		umount /media/cdrom
+		losetup -d /dev/loop0
+		exit_or_reboot
+		;;	
+	clean)
+		check_root
+		clean_usb
+		;;	
+	usage|*)
+		# Display usage by default.
+		usage
+		;;
+esac
+
+exit 0

@@ -1,0 +1,65 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="28.0K"
+UNPACKED_SIZE="76.0K"
+PACKAGE="libcap"
+VERSION="2.19"
+CATEGORY="system-tools"
+SHORT_DESC="Support for getting/setting POSIX.1e capabilities."
+MAINTAINER="pankso@slitaz.org"
+DEPENDS="linux glibc-base attr"
+BUILD_DEPENDS="slitaz-toolchain gperf pam pam-dev attr-dev perl"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WEB_SITE="http://www.kernel.org/pub/linux/libs/security/linux-privs/"
+WGET_URL="${WEB_SITE}libcap2/$TARBALL"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+#	if [ ! -d $WOK/linux/taz ]; then
+#		tazwok cook linux
+#	fi
+	cd $src
+#	sed -i -e s/'\\n'/"' -e '1i"/g -e 's/| indent -kr//' libcap/Makefile
+#	mkdir -p libcap/include/attr
+#	ln -s $WOK/linux/$(ls $WOK/linux/taz)/include/linux/xattr.h \
+#		libcap/include/attr/
+
+	# Linux headers are now sanitized properly for userspace, so patch libcap
+	# Based on http://bugs.gentoo.org/265304 and http://www.mail-archive.com/pld-cvs-commit@lists.pld-linux.org/msg183775.html
+	[ $(grep -c "#define __user" < libcap/include/sys/capability.h) -eq 0 ] || patch -p1 << EOP
+--- libcap-2.16/libcap/include/sys/capability.h.orig	2009-03-05 11:19:00.000000000 -0300
++++ libcap-2.16/libcap/include/sys/capability.h	2009-03-05 11:19:38.000000000 -0300
+@@ -22,18 +22,6 @@ extern "C" {
+ #include <sys/types.h>
+ #include <stdint.h>
+ 
+-/*
+- * Make sure we can be included from userland by preventing
+- * capability.h from including other kernel headers
+- */
+-#define _LINUX_TYPES_H
+-#define _LINUX_FS_H
+-#define __LINUX_COMPILER_H
+-#define __user
+-
+-typedef unsigned int __u32;
+-typedef __u32 __le32;
+-
+ #include <linux/capability.h>
+ 
+ /*
+EOP
+
+	sed -i -e 's/\} __user \*cap_user_/\} \*cap_user_/g' libcap/include/linux/capability.h
+	make DYNAMIC=yes &&
+	make RAISE_SETCAP=no DESTDIR=$DESTDIR install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/lib
+	cp -a $_pkg/lib/*.so* $fs/lib
+	cp -a $_pkg/sbin $fs
+}

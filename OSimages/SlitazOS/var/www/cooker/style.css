@@ -1,0 +1,127 @@
+/* CSS style for SliTaz Cooker */
+
+body { font: 13px sans-serif, vernada, arial; margin: 0; }
+h1 { margin: 0; padding: 8px; color: #fff; font-size: 20px; }
+h1 a { color: #fff; text-decoration: none; }
+h2 { color: #444; } h3 { color: #666; font-size: 140%; }
+a { text-decoration: underline; color: #215090; }
+a:hover { text-decoration: none; }
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #ddd;
+	padding: 10px;
+	overflow: auto;
+	font-size: 96%;
+}
+
+/* Header */
+
+#header {
+	background: #351a0a;
+	height: 40px;
+	border-bottom: 8px solid #d66018;
+}
+
+#header h1 {
+	margin: 0;
+	/* padding: 8px 0 0 42px; */
+	width: 250px;
+}
+
+#header h1 a { 
+	color: white; 
+	text-decoration: none;
+	font-size: 20px;
+	font-style: italic;
+}
+
+#header h1 a:hover, #network a:hover { 
+	color: #d66018;
+}
+
+/* Header links */
+
+#network { 
+	float: right; 
+	padding: 10px 5px 0; 
+	font-size: 12px;
+}
+
+#network a {
+	padding: 0 6px;
+	color: #fff; 
+	font-weight: bold;
+	text-decoration: none;
+}
+
+/* Content */
+
+#content {
+	margin: 40px 80px;
+	text-align: justify;
+}
+
+.span-ok { color: green; }
+.span-red { color: red; }
+.span-sky { color: blue; }
+.span-no { color: orange; }
+.span-line { color: #888; }
+.log-date { color: #666; font-size: 95%; }
+.sh-comment { color: #b20000; }
+.sh-val { color: #f35a00; }
+
+/* Buttons */
+
+.button {
+	padding: 2px 4px;
+	cursor: pointer;
+	color: #000;
+}
+
+a.button  {
+	text-decoration: none;
+	color: #666;
+}
+
+.button:hover {
+	background-color: #ddd;
+	border: 1px solid #999;
+}
+
+.button {
+	margin: 0;
+	background: #f1f1f1;
+	border: 1px solid #ddd;
+}
+
+/* Progress bar */
+
+.pct { background: #9dff4a; padding: 2px 4px; }
+
+.pctbar {
+	margin: 0;
+	color: #666;
+	background: #f1f1f1;
+	border: 1px solid #ddd;
+	overflow: hidden;
+	clear: both;
+}
+
+/* Round corner */
+
+pre, .button, .pctbar {
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
+
+/* Footer */
+
+#footer {
+	text-align: center;
+	padding: 20px;
+	border-top: 1px solid #ddd;
+	font-size: 90%;
+}
+
+#footer a { padding: 0 2px; }

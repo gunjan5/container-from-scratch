@@ -1,0 +1,142 @@
+#!/bin/sh
+#
+# Tazlocale: SliTaz GNU/Linux locale setting using dialog boxes.
+# Configuration file is : /etc/locale.conf
+#
+# 20110614 <pankso@slitaz.org> - GNU gpl.
+#
+
+# Internationalization
+. /usr/bin/gettext.sh
+TEXTDOMAIN='slitaz-tools'
+export TEXTDOMAIN
+
+# Check if user is root.
+if test $(id -u) != 0; then
+	gettext "You must be root to run:"; echo " $(basename $0)"
+	gettext "Type su and root password to become super-user"; echo
+	exit 1
+fi
+
+# Create symlink to translated files provided by SliTaz language pack,
+# doc and config files.
+link_language_files()
+{
+	. /etc/locale.conf
+	LANGUAGE=${LANG%_*}
+	[ "$LANG" = "C" ] && LANGUAGE="en"
+	# Openbox menu in /usr/share/doc/slitaz
+	if [ -f /etc/xdg/openbox/menu.$LANGUAGE.xml ]; then
+		cd /etc/xdg/openbox && rm -f menu.xml
+		ln -s menu.$LANGUAGE.xml menu.xml
+	fi
+	# Documentation in /usr/share/doc/slitaz
+	if [ -f /usr/share/doc/slitaz/index.$LANGUAGE.html ]; then
+		cd /usr/share/doc/slitaz && rm -f index.html
+		ln -s index.$LANGUAGE.html index.html
+	fi
+	# SliTaz Software Manuals
+	for soft in tazpkg tazlito tazusb tazwok tazweb tazpanel
+	do
+		if [ -f /usr/share/doc/$soft/$soft.$LANGUAGE.html ]; then
+			cd /usr/share/doc/$soft && rm -f $soft.html
+			ln -s $soft.$LANGUAGE.html $soft.html
+		fi
+	done
+	# SliTaz TazWeb "My Web Home"
+	if [ -f /usr/share/tazweb/home.$LANGUAGE.html ]; then
+		cd /usr/share/tazweb && rm -f home.html
+		ln -s home.$LANGUAGE.html home.html
+	fi
+	# SliTaz WebHome
+	if [ -f /usr/share/webhome/index.$LANGUAGE.html ]; then
+		cd /usr/share/webhome && rm -f index.html
+		ln -s index.$LANGUAGE.html index.html
+	fi
+	# SliTaz Tools Manuals
+	for soft in burnbox tazinst
+	do
+		if [ -f /usr/share/doc/slitaz-tools/$soft.$LANGUAGE.html ]; then
+			cd /usr/share/doc/slitaz-tools && rm -f $soft.html
+			ln -s $soft.$LANGUAGE.html $soft.html
+		fi
+	done
+}
+
+# Locale name displayed.
+get_locale_name()
+{
+	for i in `ls -1 /usr/share/i18n/locales | grep ^[a-z][a-z]_[A-Z][A-Z]`
+	do
+		#desc=$(grep ^title /usr/share/i18n/locales/$i | cut -d '"' -f 2)
+		echo "$i Locale"
+	done
+}
+
+# We have no locale files in /usr/lib/locale by default. Run localedef in
+# background to have a faster boot.
+gen_utf8_locale()
+{
+	localedef -i $locale -c -f UTF-8 /usr/lib/locale/$locale &
+}
+
+# Dialog menu.
+dialog_menu()
+{
+	exec 3>&1
+	locale=`$DIALOG  --clear \
+	--title " $(gettext "SliTaz language configuration") " \
+	--menu "" 15 70 5 \
+"en" "English" \
+$(get_locale_name) \
+2>&1 1>&3`
+	retval=$?
+	exec 3>&-
+	case $retval in
+		0) continue ;;
+		1|255) exit 0 ;;
+	esac
+
+	# Default: C = English
+	[ "$locale" = "en" ] && locale="en_US"
+	[ -s /etc/locale.conf ] && RECONFIG="yes"
+
+	# System configuration
+	echo "LANG=$locale" > /etc/locale.conf
+	echo "LC_ALL=$locale" >> /etc/locale.conf
+	export LANG=$locale LC_ALL=$locale
+	gen_utf8_locale
+	link_language_files
+
+	# If it's a reconfiguration give an info message.
+	if [ -n "$RECONFIG" ]; then
+		msg=$(gettext "\
+Please logout of your current session and login again to use new locale.")
+		$DIALOG --clear \
+			--title " Information " \
+			--msgbox "$msg" 16 70
+	fi
+}
+
+case "$1" in
+	*_*)
+		# Execute functions (can be called from an other apps).
+		$1 ;;
+	list)
+		echo ""
+		locale -a
+		echo "" ;;
+	init)
+		# This command can be used to change system locale from cmdline.
+		locale=$2
+		echo "LANG=$locale" > /etc/locale.conf
+		echo "LC_ALL=$locale" >> /etc/locale.conf
+		gen_utf8_locale
+		link_language_files ;;
+	*)
+		: ${DIALOG=dialog}
+		dialog_menu
+		link_language_files ;;
+esac
+
+exit 0

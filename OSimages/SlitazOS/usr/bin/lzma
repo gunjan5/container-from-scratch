@@ -1,0 +1,65 @@
+#!/bin/sh
+
+case "$1" in
+d|e|b) exec /usr/bin/lzma-alone $@;;
+--size) size=$(od -t d8 -j5 -N8 < $2 | awk '{ print $2; exit }') 
+	if [ $size -eq -1 ]; then
+		size=$(unlzma -c $2 | wc -c)
+		n=$size
+		for i in $(seq 1 8); do
+			printf '\\\\x%02X' $(($n & 255))
+			n=$(($n >> 8))
+		done | xargs echo -en | dd of=$2 conv=notrunc bs=1 seek=5 2> /dev/null
+	fi
+	echo $size
+	exit ;;
+--version|-V|--help|-h|-\?) exec /usr/bin/lzma-alone;;
+esac
+
+[ -x /usr/bin/lzmap ] && exec /usr/bin/lzmap $@
+
+files=""
+outfilter=''
+suffix='lzma'
+opts='-a1 -d23 -fb128 -mfbt4 -lc3 -lp0 -pb2'
+command='e'
+keep=''
+
+case "$0" in
+*unlzma) command='d';;
+*lzcat)  command='d'; outfilter='s/.*/-so/'; keep='y';;
+esac
+
+while [ -n "$1" ]; do
+  case "$1" in
+  -c|--stdout|--to-stdout) outfilter='s/.*/-so/'; keep='y';;
+  -S|--suffix) suffix="$2"; shift;;
+  -d|--decompress|--uncompress) command='d';;
+  -k|--keep) keep='y';;
+  -1|--fast) opts='-a0 -d16 -fb64 -mfhc4 -lc3 -lp0 -pb2';;
+  -2) opts='-a1 -d20 -fb64 -mfbt4 -lc3 -lp0 -pb2';;
+  -3) opts='-a1 -d19 -fb64 -mfbt4 -lc3 -lp0 -pb2';;
+  -4) opts='-a1 -d20 -fb128 -mfbt4 -lc3 -lp0 -pb2';;
+  -5) opts='-a1 -d21 -fb128 -mfbt4 -lc3 -lp0 -pb2';;
+  -6) opts='-a1 -d22 -fb128 -mfbt4 -lc3 -lp0 -pb2';;
+  -7) opts='-a1 -d23 -fb128 -mfbt4 -lc3 -lp0 -pb2';;
+  -8) opts='-a1 -d24 -fb255 -mfbt4 -lc3 -lp0 -pb2';;
+  -9|--best) opts='-a1 -d25 -fb255 -mfhc4 -lc3 -lp0 -pb2';;
+  -*);;
+  *) files="$files $1";;
+  esac
+  shift
+done
+[ -z "$outfilter" ] && if [ -n "$files" ]; then
+  if [ "$command" == "e" ]; then
+    outfilter="s/\$/.$suffix/"
+  else
+    outfilter="s/.$suffix\$//"
+  fi
+else
+    files='-si'; outfilter='s/.*/-so/'; keep='y';
+fi
+for i in $files ; do
+  /usr/bin/lzma-alone $command $i $(echo $i | sed $outfilter) $opts || exit $?
+  [ -n "$keep" ] || rm -f $i
+done

@@ -1,0 +1,11 @@
+#!/bin/sh
+# Lauch SliTaz default Web browser.
+#
+. /etc/slitaz/applications.conf
+
+USER_CONFIG="$HOME/.config/slitaz/applications.conf"
+[ -f  $USER_CONFIG ] && . $USER_CONFIG
+
+$BROWSER $@ &
+
+exit 0

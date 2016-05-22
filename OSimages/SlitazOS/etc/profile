@@ -1,0 +1,47 @@
+# /etc/profile: System-wide .profile file for the Bourne shells
+
+PATH="/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/sbin:/usr/local/bin"
+LD_LIBRARY_PATH="/usr/lib:/lib:/usr/local/lib"
+
+# Prompt format for Ash (Bash use /etc/bashrc).
+if [ "`id -u`" -eq 0 ]; then
+	# Light green and blue colored prompt.
+	#PS1='\e[1;31m\u@\h\e[0m:\e[1;34m\w\e[0m\$ '
+	PS1='\u@\h:\w\$ '
+else
+	# Light green and blue colored prompt.
+	#PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ "
+	PS1='\u@\h:\w\$ '
+fi
+
+# Max 64M for programs (prevent memory leak crashes)
+ulimit -d 65536
+ulimit -m 65536
+
+# Screen display for X and encoding for GTK+ apps.
+[ -n "$DISPLAY" ] || DISPLAY=:0.0
+G_FILENAME_ENCODING=UTF-8
+
+# Make OpenOffice look better.
+OOO_FORCE_DESKTOP=gnome
+
+# Export all variables defined above and set mask.
+#
+export PATH LD_LIBRARY_PATH PS1 DISPLAY G_FILENAME_ENCODING
+export OOO_FORCE_DESKTOP ignoreeof
+umask 022
+
+# Locale and timezone settings.
+#
+if [ -s "/etc/locale.conf" ]; then
+	. /etc/locale.conf
+	export LANG LC_ALL
+fi
+if [ -s "/etc/TZ" ]; then
+	TZ=`cat /etc/TZ`
+	export TZ
+fi
+ip=$(ifconfig eth0 2> /dev/null | awk '/inet addr/ { print substr($2,6) }')
+case "$TERM" in
+xterm*|rxvt*) echo -ne "\033]0;$(hostname) $(cat /etc/slitaz-release) $ip\007";;
+esac

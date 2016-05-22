@@ -1,0 +1,550 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt" lang="pt">
+<head>
+    <title>Manual Tazlito - Ferramenta Live do SliTaz</title>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+    <meta name="description" content="" />
+    <meta name="expires" content="never" />
+    <meta name="modified" content="2011-02-24 13:30:00" />
+    <style type="text/css"><!--
+	body { font: 90% sans-serif, vernada, arial; margin: 0; 
+		border-top: 34px solid #f1f1f1; }
+	#header { background: #351a0a; color: black; height: 50px;
+		border-top: 1px solid black; border-bottom: 1px solid black; }
+	#content { margin: 0px 50px 26px 50px; }
+	h1 { margin: 14px 0px 0px 16px; color: #fff; margin: 10px; }
+	h3 { font-weight: bold; color: #666666; }
+	li { line-height: 1.4em; }
+	pre { padding: 5px; color: black; background: #e1e0b0;
+		border-radius: 4px; -moz-border-radius: 4px; -webkit-border-radius: 4px; }
+	code { font-size: 100%; color: #669900; background: transparent; }
+	hr { color: white; background: white; height: 1px; border: 0; }
+	--></style>
+</head>
+<body bgcolor="#ffffff">
+<div id="header">
+	<h1>Manual Tazlito</h1>
+</div>
+<hr />
+<!-- Start content -->
+<div id="content">
+
+<h2>NOME</h2>
+<p>
+Tazlito - SliTaz Live Tool.
+</p>
+
+<h2>SINTAXE</h2>
+<pre>
+tazlito [command] [list|iso|flavor] [dir]
+</pre>
+
+<h2>DESCRIÇÃO</h2>
+
+<p>
+Tazlito é um pequeno utilitário que extrai um LiveCD, reconstrói a imagem ISO
+e regenera o sistema de arquivos root do LiveCD, criando uma variante
+(flavor) da distribuição. O Tazlito também pode gerar uma distribuição a 
+partir de uma lista de pacotes previamente baixados. Para rodar, o Tazlito 
+usa o arquivo de configuração /etc/slitaz-tools/tazlito.conf ou o 
+tazlito.conf gerado pelo Tazlito no diretório atual. Este arquivo especifica
+o nome da ISO, volume, mantenedor, os caminhos dos pacotes a serem incluidos 
+e da ISO a ser gerada. Tazlito também pode ser usado para configurar um 
+diretório contendo arquivos adicionais que serão copiados para o LiveCD na 
+geração da distribuição.
+</p>
+
+<p>
+Tazlito é distribuído sobre a licença livre GNU GPL V3, istalada por padrão no
+SliTaz e instalada/testada com sucesso no Debian GNU/Linux. Você irá encontrar
+informações adicionais sobre a criação de um LiveCD no Manual SliTaz.
+</p>
+
+<h2>COMANDOS</h2>
+
+<a name="usage"></a>
+<h3>usage</h3>
+<p>
+O comando "usage" mostra um resumo dos comandos disponíveis com uma pequena
+descrição:
+</p>
+<pre>
+ # tazlito usage
+</pre>
+
+<a name="stats"></a>
+<h3>stats</h3>
+<p>
+"Stats" mostra as variáveis da configuração, os caminhos para os vários arquivos
+e diretórios e informações sobre a imagem ISO:
+</p>
+<pre>
+ # tazlito stats
+</pre>
+
+<a name="gen-config"></a>
+<h3>gen-config</h3>
+<p>
+O comando "gen-config" permite a geração do arquivo de configuração pronto para
+ser editado. Por padrão o arquivo é criado no diretório atual, mas também pode
+ser em outro diretório informado na linha de comando:
+</p>
+<pre>
+ # tazlito gen-config
+ # tazlito gen-config /path/to/distro
+</pre>
+
+<a name="configure"></a>
+<h3>configure</h3>
+<p>
+Este comando pode configurar o arquivo de configuração do sistema ou o encontrado
+no diretório atual:
+</p>
+<pre>
+ # tazlito configure
+</pre>
+
+<a name="gen-iso"></a>
+<h3>gen-iso</h3>
+<p>
+O comando "gen-iso" pode gerar uma nova imagem do LiveCD a partir de modificações
+e adições ao sistema de arquivos root do cdrom. Para funcionar, este comando
+precisa de um diretório que contenha a "árvore" da distribuição do sistema Live.
+Esta "árvore" pode ser facilmente gerada com o comando "extract-distro", modificada
+ou reconstruida via:
+</p>
+<pre>
+ # tazlito gen-iso
+</pre>
+
+<a name="gen-initiso"></a>
+<h3>gen-initiso</h3>
+<p>
+O comando "gen-initiso" faz o mesmo que o "gen-iso", mas antes ele reconstrói o 
+sistema comprimido initramfs. O initramfs contem o sistema de arquivos root e
+deve ser reconstruído se modificado:
+</p>
+<pre>
+ # tazlito gen-initiso
+</pre>
+
+<a name="list-flavors"></a>
+<h3>list-flavors</h3>
+<p>
+Este comando baixa (se necessário) e mostra a lista de diferentes variantes
+disponíveis. Pode-se forçar o download com a opção --recharge:
+</p>
+<pre>
+ # tazlito list-flavors
+ # tazlito list-flavors --recharge
+</pre>
+
+<a name="get-flavor"></a>
+<h3>get-flavor</h3>
+<p>
+O comando "get-flavor" baixa (se necessário) e prepara os arquivos para que o
+comando "gen-distro" gere uma variante:
+</p>
+<pre>
+ # tazlito get-flavor particular-flavor
+</pre>
+
+<a name="show-flavor"></a>
+<h3>show-flavor</h3>
+<p>
+Este comando mostra a descrição da variante e seu tamanho após a regeneração.
+As opções --brief e --hoheader reduzem a saida do comando:
+</p>
+<pre>
+ # tazlito show-flavor particular-flavor 
+ # tazlito show-flavor particular-flavor --brief
+ # tazlito show-flavor particular-flavor --brief --noheader
+</pre>
+
+<a name="gen-flavor"></a>
+<h3>gen-flavor</h3>
+<p>
+O comando "gen-flavor" cria um arquivo de descrição de uma nova variante a partir
+dos resultados da regeneração da distro (gen-distro). O arquivo .flavor pode
+ser enviado ao slitaz.org:
+</p>
+<pre>
+ # tazlito gen-flavor new-flavor
+</pre>
+
+<a name="gen-liveflavor"></a>
+<h3>gen-liveflavor</h3>
+<p>
+Este comando cria um arquivo de descrição de uma nova variante a partir
+dos resultados de geração da distro baseada no sistema atual. A opção
+--help mostra mais informações
+</p>
+<pre> # tazlito gen-liveflavor
+ # tazlito gen-liveflavor --help
+</pre>
+
+<a name="upgrade-flavor"></a>
+<h3>upgrade-flavor</h3>
+<p>
+Este comando renova um arquivo flavor, atualizando a lista de pacotes
+com a versão mais recente disponível no mirror:
+</p>
+<pre>
+ # tazlito upgrade-flavor this-flavor
+</pre>
+
+<a name="extract-flavor"></a>
+<h3>extract-flavor</h3>
+<p>
+O comando 'extract-flavor' converte um flavor em uma estrutura de pastas
+facilmente modificável em /home/slitaz/VERSION/flavors que pode ser ser 
+gerenciada com o mercurial:
+<a href="http://hg.slitaz.org/flavors">http://hg.slitaz.org/flavors</a>.
+</p>
+<pre>
+ # tazlito extract-flavor this-flavor
+</pre>
+
+<a name="pack-flavor"></a>
+<h3>pack-flavor</h3>
+<p>
+Este comando converte uma estrutura de pastas encontrada em 
+/home/slitaz/VERSION/flavors em um arquivo de variante (.flavor). É o 
+inverso do que o comando 'extract-flavor' faz:
+</p>
+<pre>
+ # tazlito pack-flavor this-flavor
+</pre>
+
+<a name="extract-distro"></a>
+<h3>extract-distro</h3>
+<p>
+Este comando é usado para extrair uma imagem ISO do LiveCD e reconstruir a 
+estrutura do cdrom e sistema root. Isto possibilita fazer as mudanças desejadas,
+adições e reconstruções da imagem ISO por meio do comando "gen-iso" ou 
+"gen-initiso". Exemplo de uso:
+</p>
+<pre>
+ # tazlito extract-distro slitaz-cooking.iso
+</pre>
+
+<a name="gen-distro"></a>
+<h3>gen-distro</h3>
+<p>
+O comando para <em>Geração de Distribuição</em> pode gerar a árvore da distribuição
+e a imagem ISO por meio de uma lista de pacotes. Para funcionar, este comando
+precisa da lista de pacotes, um diretório contendo todos os pacotes .tazpgk
+especificados na lista e um diretório para gerar a distribuição. A lista de 
+pacotes pode ser extraida de uma variante pelo comando "get-flavor". Ao se 
+utilizar o LiveCD, as opções --cdrom e --iso= permitem a regeneração dos 
+pacotes que adicionam arquivos ao diretório /boot sem que seja necessário o
+download dos mesmos e recuperam os arquivos adicionais do LiveCD. O caminho
+para os vários diretórios é informado no arquivo de configuração e os pacotes
+podem ser baixados dos mirrors do SliTaz ou gerados pelo Cookutils. Para gerar uma
+distribuição:
+</p>
+<pre>
+ # tazlito gen-distro
+ # tazlito gen-distro --cdrom
+ # tazlito gen-distro --iso=slitaz.iso
+ # tazlito gen-distro package-list
+</pre>
+
+<a name="clean-distro"></a>
+<h3>clean-distro</h3>
+<p>
+Remove todos os arquivos gerados ou extraidos da estrutura do LiveCD:
+</p>
+<pre>
+ # tazlito clean-distro
+</pre>
+
+<a name="check-distro"></a>
+<h3>check-distro</h3>
+<p>
+Este comando simplesmente verifica se os arquivos instalados pelos pacotes estão
+presentes no sistema:
+</p>
+<pre>
+ # tazlito check-distro
+</pre>
+
+<a name="writeiso"></a>
+<h3>writeiso</h3>
+<p>
+Este comando irá converter o sistema de arquivos atual em um arquivo
+cpio (rootfs.gz) e então gerar uma imagem ISO inicializável. Pode ser
+usado tanto em instalações no HD quanto em modo LiveCD, e irá arquivar
+também o conteúdo do diretório /home. Com ele, pode-se facilmente 
+remasterizar e construir sua própria imagem de LiveCD. Para tanto
+inicie o sistema, modifique arquivos, instale pacotes e então:
+</p>
+<pre>
+ # tazlito writeiso [gzip|lzma|none]
+ # tazlito writeiso gzip
+ # tazlito writeiso gzip image-name
+</pre>
+
+<a name="frugal-install"></a>
+<h3>frugal-install</h3>
+<p>
+Executa uma instalação frugal em /boot/frugal e adiciona uma entrada ao
+GRUB, caso necessário. Este tipo de instalação irá rodar o SliTaz
+diretamente na memória RAM (mesmo comportamento do LiveCD), o que
+permite testar a distro ou ter um sistema de recuperação pronto para uso.
+Para instalar todos os arquivos necessários a partir de uma estrutura
+de pastas ou de uma imagem ISO:
+</p>
+<pre>
+ # tazlito frugal-install
+ # tazlito -fi slitaz.iso
+</pre>
+
+<a name="check-list"></a>
+<h3>check-list</h3>
+<p>
+Verifica se o arquivo distro-packages.list está atualizado com as
+mais recentes versões dos pacotes:
+</p>
+<pre>
+ # tazlito check-list
+</pre>
+
+<a name="repack"></a>
+<h3>repack</h3>
+<p>
+Comprime novamente o rootfs com a melhor compressão possível:
+</p>
+<pre>
+ # tazlito repack slitaz.iso
+</pre>
+
+<a name="merge"></a>
+<h3>merge</h3>
+<p>
+Combina diversas variantes. Cada rootfs é uma consequência de seu
+anterior. O primeiro rootfs é extraido da imagem ISO indicada como
+terceiro argumento. As variantes serão escolhidas no momento do boot,
+de acordo com a memória RAM disponível:
+</p>
+<pre>
+ # tazlito merge 160M slitaz-core.iso 96M rootfs-justx.gz 32M rootfs-base.gz
+</pre>
+
+<a name="build-loram"></a>
+<h3>build-loram</h3>
+<p>
+Cria uma variante para sistemas com pouca memória RAM à partir de uma
+imagem ISO do SliTaz. Pode-se gerar uma variante que seja carregada na
+diretamente na memória ou lida a partir do cdrom:
+</p>
+<pre>
+ # tazlito build-loram slitaz.iso loram.iso
+ # tazlito build-loram slitaz.iso loram-cdrom.iso cdrom
+</pre>
+
+<a name="emu-iso"></a> 
+<h3>emu-iso</h3> 
+<p> 
+O comando emu-iso utiliza o emulador Qemu para iniciar e rodar o SliTaz.
+É util para testar a iso criada sem a necessidade de gravá-la em um 
+cdrom ou bootar em modo frugal.
+</p> 
+<pre> # tazlito emu-iso
+ # tazlito emu-iso path/to/image.iso
+</pre> 
+
+<a name="burn-iso"></a>
+<h3>burn-iso</h3>
+<p>
+O comando "burn-iso" obtém informações sobre o dispositivo de cd e as velocidades
+permitidas para gravação, e o wodim (parte do cdrkit) inicia para gravar a imagem
+ISO. A imagem ISo padrão é aquela especificada no arquivo de configuração, mas
+é possível especificar uma imagem diferente por meio da linha de comando:
+</p>
+<pre>
+ # tazlito burn-iso
+ # tazlito burn-iso slitaz-hacked.iso
+</pre>
+
+<h2>FLAVORS</h2>
+<p>
+Um arquivo <i>.flavor</i> contém somente alguns poucos Kb de informação
+necessária para (re)construir um LiveCD customizado do SliTaz.
+</p>
+
+<a name="rebuild-flavor"></a>
+<h3>(Re)construa uma variante</h3>
+<p>
+Você pode escolher uma variante para (re)construir a partir daquelas
+disponíveis:
+</p>
+<pre>
+# tazlito list-flavors
+
+List of flavors
+================================================================================
+Name              ISO   Rootfs  Description
+================================================================================
+base               6.9M  13.1M  Minimal set of packages to boot
+core-3in1         31.5M 105.6M  SliTaz core system with justX and base alternatives
+core              31.5M 104.6M  SliTaz core system
+eeepc             31.2M 105.4M  SliTaz eeepc system
+justX             16.1M  51.2M  SliTaz with a minimal X environment
+</pre>
+<p>
+Como exeplo, começaremos a reconstruir a variante <i>eeepc</i> que 
+ocupa 105.4M de RAM e possui um tamanho de imagem ISO de 31.2M:
+</p>
+<pre>
+# tazlito clean-distro
+# tazlito get-flavor eeepc
+# tazlito gen-distro
+</pre>
+
+<a name="create-flavor"></a>
+<h3>Crie uma variante</h3>
+<p>
+Para criar uma variante, você deve:
+</p>
+<ul>
+    <li>Criar uma imagem ISO usando o comando <b>tazlito-gen-distro</b>
+        e então criar um arquivo flavor usando <b>tazlito gen-flavor</b>; ou</li>
+    <li>Criar diretamente uma estrutura de arquivos que define o flavor
+        (veja <b>tazlito extract-flavor</b>) e então criar o flavor
+        usando <b>tazlito pack-flavor</b>.</li>
+</ul>
+
+<a name="publish-flavor"></a>
+<h3>Publique uma variante</h3>
+<p>
+Um arquivo .flavor possui alguns Kb de tamanho, então você pode enviá-lo
+para a lista de discussão do SliTaz.
+</p>
+<p>
+Os arquivos resultantes do comando <b>tazlito extract flavor</b> pode 
+também ser colocado no repositório mercurial (http://repos.slitaz.org/flavors).
+Este método é preferido porque a estrutura de pastas poderá ser
+acessada diretamente por uma 
+<a href="http://hg.slitaz.org/flavors/file/tip">interface web</a>.
+</p>
+<p>
+Esta estrutura inclui:
+</p>
+<ul>
+<li>
+Uma <b>receita</b> (arquivo <i>receipt</i>) que descreve a variante
+por intermédio das variáveis:
+  <ul>
+  <li>
+FLAVOR: O nome da variante.
+  </li>
+  <li>
+SHORT_DESC: Uma curta descrição
+  </li>
+  <li>
+VERSION: Versão.
+  </li>
+  <li>
+MAINTAINER: Email do desenvolvedor/criador.
+  </li>
+  <li>
+FRUGAL_RAM: Memória RAM mínima recomendável (variável opcional).
+  </li>
+  <li>
+ROOTFS_SIZE: Tamanho que o rootfs.gz ocupa descomprimido na RAM (opcional).
+  </li>
+  <li>
+INITRAMFS_SIZE: Tamanho que o rootfs.gz ocupa em um CDROM (opcional).
+  </li>
+  <li>
+ISO_SIZE: Tamanho do CDROM (opcional).
+  </li>
+  <li>
+ROOTFS_SELECTION: Opcional, veja <i>Meta flavor</i> abaixo.
+  </li>
+  </ul>
+</li>
+<li>
+O arquivo <b>packages.list</b> contem a lista de pacotes sem especificar
+uma versão (o tazlito sempre utiliza os últimos pacotes disponíveis). 
+Este arquivo não aparece caso a variável ROOTFS_SELECTION esteja 
+definida.
+</li>
+<li>
+O arquivo opcional <b>mirrors</b> contem a lista de mirror não oficiais 
+(undigest) a serem incluidos para se obter pacotes personalizados.
+</li>
+<li>
+O diretório opcional <b>rootfs</b> contem uma estrutura de pastas e arquivos
+a serem adicionados ao sistema de arquivos rootfs.gz (normalmente serão
+arquivos de configuração).
+</li>
+<li>
+O diretório opcional <b>rootcd</b> contem uma estrutura de pastas e arquivos
+a serem adicionados ao CDROM.
+</li>
+</ul>
+
+<a name="tune-flavor"></a>
+<h3>Adapte uma variante</h3>
+<p>
+Às vezes é mais fácil modificar uma variante existente do que criar uma
+nova. Para adaptar a variante eeepc, por exemplo:
+</p>
+<pre>
+# tazpkg get-install mercurial
+# cd /home/slitaz
+# hg clone http://hg.slitaz.org/flavors
+# cd flavors
+# cp -a eeepc myslitaz
+</pre>
+<p>
+Arquivos em <i>my-slitaz</i> podem ser adaptados, então:
+</p>
+<pre>
+# tazlito pack-flavor myslitaz
+</pre>
+<p>
+Isto irá criar uma nova variante adaptada de uma outra existente.
+</p>
+<p>
+Dica: Pode-se evitar a instalação do mercurial extraindo-se uma variante.
+Usando o exemplo anterior:
+</p>
+<pre>
+# tazlito get-flavor eeepc
+# tazlito extract-flavor eeepc.flavor
+# cd /home/slitaz/flavors
+# cp -a eeepc myslitaz
+</pre>
+
+<a name="meta-flavor"></a>
+<h3>Meta flavor</h3>
+<p>
+Uma meta variante (meta flavor) contem diversas variantes juntas. Ao se
+iniciar o sistema com uma meta variante, uma variante contida no LiveCD
+irá ser chamada dependendo do tamanho da memória RAM disponível. A 
+variável ROOTFS_SELECTION define o mínimo de RAM a ser utilizada e os
+parametros das variantes existentes. Exemplo usando a meta variante
+<a href="http://hg.slitaz.org/flavors/file/tip/core-3in1/receipt"></a>:
+</p>
+<pre>
+ROOTFS_SELECTION="160M core 96M justX 32M base"
+</pre>
+<p>
+Este tipo de variante não possui uma lista de pacotes (packages.list)
+e só é suportada no SliTaz a partir do kernel 2.6.30.
+</p>
+
+<h2>MANTENEDOR</h2>
+<p>
+Christophe Lincoln &lt;pankso at slitaz.org&gt;
+</p>
+
+<!-- End content -->
+</div>
+</body>
+</html>
+

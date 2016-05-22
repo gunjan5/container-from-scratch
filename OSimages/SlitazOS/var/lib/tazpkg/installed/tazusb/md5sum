@@ -1,0 +1,11 @@
+08d50c5aea6ec20aaa25a3654536b882  /usr/bin/tazusb
+d89871e1f53b473a93b6ba115c173ce5  /usr/bin/tazusb-box
+84d4aba37496eb842186eba7b307578a  /usr/share/doc/tazusb/style.css
+99caf1ac60e9ebda6f5af9fa9f2ce5c7  /usr/share/doc/tazusb/tazusb.en.html
+115fa171b025e3cf671f0d4bcf770b01  /usr/share/doc/tazusb/tazusb.fr.html
+522d852302fd92cfeef745e795781699  /usr/share/doc/tazusb/tazusb.pt_BR.html
+94e1f65aaf25bebdac0aa81363d971c5  /usr/share/locale/fr/LC_MESSAGES/tazusb-box.mo
+c73a45bae14f4f594ba91cf91d1b26c7  /usr/share/locale/fr/LC_MESSAGES/tazusb.mo
+bfab6914285829e5d3db7d8732985b00  /usr/share/locale/pt_BR/LC_MESSAGES/tazusb-box.mo
+f2233528e325cce2b6a6f697c1b01ceb  /usr/share/locale/pt_BR/LC_MESSAGES/tazusb.mo
+430dc52a2465c79788923148ba82b21d  /usr/share/applications/tazusb-box.desktop

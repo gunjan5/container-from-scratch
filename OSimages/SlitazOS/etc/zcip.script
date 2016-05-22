@@ -1,0 +1,17 @@
+#!/bin/sh
+
+[ "$1" = "init" ] && exit 0
+[ -n "$ip" ] || exit 1
+case "$1" in
+config)		ifconfig $interface $ip netmask 255.255.0.0 up
+		for i in /etc/ipup.d/*; do
+			[ -e $i ] && . $i $interface $ip
+		done
+		;;
+deconfig)	ifconfig $interface down
+		for i in /etc/ipdown.d/*; do
+			[ -e $i ] && . $i $interface
+		done
+		;;
+*)		exit 1;;
+esac

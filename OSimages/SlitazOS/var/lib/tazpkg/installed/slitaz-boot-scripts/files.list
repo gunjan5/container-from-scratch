@@ -1,0 +1,14 @@
+/usr/share/applications/bootlog.desktop
+/etc/init.d/README
+/etc/init.d/bootopts.sh
+/etc/init.d/local.sh
+/etc/init.d/network.sh
+/etc/init.d/rc.shutdown
+/etc/init.d/rcS
+/etc/init.d/system.sh
+/etc/init.d/wpa_action.sh
+/etc/inittab
+/etc/network.conf
+/etc/rcS.conf
+/bin/bootlog
+/init

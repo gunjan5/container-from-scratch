@@ -1,0 +1,33 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="48.0K"
+UNPACKED_SIZE="228.0K"
+PACKAGE="tazlito"
+VERSION="4.6.2"
+CATEGORY="base-system"
+SHORT_DESC="SliTaz Live Tool."
+MAINTAINER="pascal.bellard@slitaz.org"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.slitaz.org/"
+WGET_URL="http://mirror.slitaz.org/sources/tazlito/$TARBALL"
+CONFIG_FILES="/etc/tazlito/distro-packages.list"
+TAGS="slitaz"
+
+DEPENDS="lzma cdrkit"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	make DESTDIR=$DESTDIR install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs
+	cp -a $install/* $fs
+	chown -R root.root $fs
+	# Declare /etc/tazlito/distro-packages.list
+	touch $fs/etc/tazlito/distro-packages.list
+}

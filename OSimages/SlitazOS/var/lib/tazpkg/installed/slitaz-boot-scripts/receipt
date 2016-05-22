@@ -1,0 +1,90 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="28.0K"
+UNPACKED_SIZE="92.0K"
+PACKAGE="slitaz-boot-scripts"
+VERSION="4.7.2"
+CATEGORY="base-system"
+SHORT_DESC="Provide all the initialisation scripts used at boot time."
+MAINTAINER="pankso@slitaz.org"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.slitaz.org/"
+WGET_URL="http://hg.slitaz.org/$PACKAGE/archive/$VERSION.tar.gz"
+CONFIG_FILES="/etc/inittab /etc/init.d/local.sh /etc/rcS.conf /etc/network.conf"
+
+# Needed to fetch the keymaps and test the filesystem.
+DEPENDS="kbd-base e2fsprogs"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+#
+# This package is all build by genpkg, it provide the boot scripts found
+# in /etc/init.d with the main config file : /etc/rcS.conf. It provide also
+# the default inittab and the network config file used with network.sh
+#
+genpkg_rules()
+{
+	mkdir -p $fs/usr/share $fs/etc/X11
+	cp -a $src/etc $fs
+	cp -a $src/bin $fs
+	cp -a $src/init $fs
+	cp -a $src/applications $fs/usr/share
+
+	# Perms
+	chown -R root.root $fs
+	chmod 755 $fs/etc/init.d/*.sh
+	chmod 755 $fs/etc/init.d/rc*
+	chmod 755 $fs/init
+}
+
+# Pre install commands.
+#
+pre_install()
+{
+ 	local root
+ 	root=$1
+
+	# Backup file to restore with post install
+	echo "Creating backups of configs..."
+	cp $root/etc/rcS.conf $root/etc/rcS.conf.bak 2>/dev/null
+	cp $root/etc/network.conf $root/etc/network.conf.bak 2>/dev/null
+	cp $root/etc/inittab $root/etc/inittab.bak 2>/dev/null
+	cp $root/etc/init.d/local.sh $root/etc/init.d/local.sh.bak 2>/dev/null
+}
+
+post_install()
+{
+ 	local root
+ 	root=$1
+	echo "Restoring configs backups..."
+	mv -f $root/etc/rcS.conf.bak $root/etc/rcS.conf 2>/dev/null
+	mv -f $root/etc/network.conf.bak $root/etc/network.conf 2>/dev/null
+	mv -f $root/etc/inittab.bak $root/etc/inittab 2>/dev/null
+	mv -f $root/etc/init.d/local.sh.bak $root/etc/init.d/local.sh 2>/dev/null
+
+	# Fast boot X config from 3.0
+	if ! grep -q ^FAST_BOOT_X $root/etc/rcS.conf; then
+		cat >> $root/etc/rcS.conf << "EOT"
+# Fast boot into X by setting the system keymap-locale and starting
+# the Slim login manager earlier at boot time. If fast X is enabled
+# then dbus, hald and slim can be removed from RUN_DAEMONS.
+FAST_BOOT_X="no"
+
+EOT
+	fi
+	# Fbsplash gui boot
+	if ! grep -q ^FBSPLASH $root/etc/rcS.conf; then
+		cat >> $root/etc/rcS.conf << "EOT"
+# Graphical boot with fbsplash (To easily configure use: tazfbsplash)
+FBSPLASH="no"
+FBSPLASH_THEME="slitaz"
+
+EOT
+	fi
+
+	# No more hwconf.sh and i18n.sh --> system.sh
+	sed -i s'/hwconf.sh/system.sh/' $root/etc/rcS.conf
+	sed -i s'/i18n.sh//' $root/etc/rcS.conf
+	
+	# Remove old desktop file
+	rm -f /usr/share/applications/boot-log.desktop
+}

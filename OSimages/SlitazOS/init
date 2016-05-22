@@ -1,0 +1,195 @@
+#!/bin/sh
+
+success()
+{
+	cat > /dev/shm/init
+	[ -d /proc/sys ] && umount /proc
+	echo -e "\\033[70G[ \\033[1;32mOK\\033[0;39m ]"
+	exit
+}
+
+launch_init()
+{
+	mount --move /dev/pts /mnt/dev/pts
+	mount --move /dev/shm /mnt/dev/shm
+	success <<EOT
+exec /sbin/switch_root mnt /sbin/init
+EOT
+}
+
+failed()
+{
+	umount /proc
+	echo -e "\\033[70G[ \\033[1;31mFailed\\033[0;39m ]"
+}
+
+try_init()
+{
+	if [ ! -d /mnt/etc ] && grep -q cryptoroot= /proc/cmdline; then
+		modprobe dm-mod
+		modprobe dm-crypt
+		modprobe aes-i586
+		root="$(sed 's/.*cryptoroot=\([^ ]*\).*/\1/' < /proc/cmdline)"
+		dev=${root#/dev/}
+		dmlabel=crypto-$dev
+		if cryptsetup isLuks $root 2> /dev/null; then
+			cryptsetup luksOpen $root $dmlabel
+		else
+			read -s -t 60 -p "Pass phrase : " passphrase
+			key=$(echo $passphrase | hashalot -x -n 32 sha512)
+			blocks=$(cat $(find /sys/block | grep /$dev/size))
+			echo 0 $blocks crypt aes-plain $key 0 $root 0 | \
+				dmsetup create $dmlabel
+		fi
+		mount /dev/mapper/$dmlabel /mnt
+	fi
+	grep -q subroot= /proc/cmdline && return
+	grep -q loopfs= /proc/cmdline && return
+	if [ -d /mnt/etc ]; then
+		umount /sys
+		[ -n "$1" ] && for i in $@ ; do
+			cp -a $i /mnt$(dirname $i)
+		done
+		mount /mnt -o remount,ro
+		launch_init
+	fi
+	failed
+}
+
+mount_mapper()
+{
+	mount $root /mnt
+	try_init /dev/mapper $@
+}
+
+lvmsetup()
+{
+	grep -q lvmroot= /proc/cmdline || return 1
+	modprobe dm-mod
+	vgscan --ignorelockingfailure
+	vgchange -ay --ignorelockingfailure
+	root="/dev/mapper/$(sed 's/.*lvmroot=\([^ ]*\).*/\1/' < /proc/cmdline)"
+	return 0
+}
+
+load_raid()
+{
+while read line; do
+	case "$line" in
+	*raid10*)	modprobe raid10 ;;
+	*raid0*)	modprobe raid0 ;;
+	*raid1*)	modprobe raid1 ;;
+	*raid[456]*)	modprobe raid456 ;;
+	*mirror*)	modprobe dm-mirror ;;
+	esac
+done
+}
+
+if [ "$1" != "logged" ]; then
+	mount -t devpts devpts /dev/pts
+	mount -t tmpfs tmpfs /dev/shm
+	script -qc '/init logged' /dev/shm/boot.log
+	. /dev/shm/init
+else
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+if grep -q dmraid= /proc/cmdline; then
+	root="$(sed 's/.*dmraid=\([^ ]*\).*/\1/' < /proc/cmdline)"
+	echo -n "Switching / to dmraid $root..."
+	dmraid -s | grep ^type | awk '{ print $3 }' | load_raid
+	case "$root" in
+	/dev/*);;
+	*) root=/dev/mapper/$(dmraid -s|grep ^name|awk '{print $3}')p${root#p};;
+	esac
+	dmraid -ay
+	lvmsetup 
+	mount_mapper
+fi
+if grep -q softraid= /proc/cmdline; then
+	root="$(sed 's/.*softraid=\([^ ]*\).*/\1/' < /proc/cmdline)"
+	echo -n "Switching / to softraid $root..."
+	mdadm --examine --scan --config=partitions > /etc/mdadm.conf
+	grep -qs " $root " /etc/mdadm.conf ||
+		root=$(awk '/dev.md/ { print $2; exit }' < /etc/mdadm.conf)
+	grep level=raid /etc/mdadm.conf | load_raid
+	for i in 1 2 3 4 5 6 7 8 9; do
+		sleep $i
+		mdadm --assemble --scan
+		grep -qs ': active' /proc/mdstat && break
+	done
+	lvmsetup 
+	mount_mapper /etc/mdadm.conf
+fi
+if lvmsetup; then
+	echo -n "Switching / to lvm $root..."
+	mount_mapper
+fi
+if grep -q mount= /proc/cmdline; then
+	root="$(sed 's/.*mount=\([^ ]*\).*/\1/' < /proc/cmdline)"
+	dev=$(blkid | grep $root | sed 's/:.*//;q')
+	[ "$dev" = "$root" ] || root="$dev ($root)"
+	echo "Mounting $root ..."
+	if ! mount $dev /mnt; then
+		if echo $dev | grep -q "/dev/sd"; then
+			delay=`cat /sys/module/usb_storage/parameters/delay_use`
+			delay=$((1+$delay))
+			echo -n "sleep for $delay seconds..."
+			sleep $delay
+		fi
+		mount $dev /mnt
+	fi
+	grep -q posixovl /proc/cmdline &&
+	echo "Mounting posixovl.." &&
+	mount.posixovl /mnt
+fi
+if grep -q loopfs= /proc/cmdline; then
+	loopfs="$(sed 's/.*loopfs=\([^ ]*\).*/\1/' < /proc/cmdline)"
+	echo "Into loop file $loopfs..."
+	losetup /dev/loop0 /mnt/$loopfs
+	mount /dev/loop0 /mnt 2> /dev/null
+fi
+if grep -q bindfs= /proc/cmdline; then
+	bind="$(sed 's/.*bindfs=\([^ ]*\).*/\1/' < /proc/cmdline)"
+	echo "Binding ${bind/,/ to } ..."
+	mount --bind /mnt/${bind%,*} /mnt/${bind%,*}/${bind#*,}
+fi
+grep -q cryptoroot= /proc/cmdline && try_init
+umount /sys
+if grep -q subroot= /proc/cmdline; then
+	subroot="/$(sed 's/.*subroot=\([^ ]*\).*/\1/' < /proc/cmdline)" &&
+	echo -n "Chrooting to $subroot..."
+	mount --move /dev/pts /mnt$subroot/dev/pts
+	shm=$subroot/dev/shm
+	mount --move /dev/shm /mnt$shm
+	cp $(LD_TRACE_LOADED_OBJECTS=1 /lib/ld*.so /usr/sbin/chroot | sed \
+	     's|.*=> \(/lib/l[^ ]*\).*|\1|;/^\//!d') /usr/sbin/chroot /mnt$shm
+	success <<EOT
+export LD_LIBRARY_PATH=$shm:/lib
+exec /sbin/switch_root mnt $shm/$(cd /mnt$shm ; ls ld-*) $shm/chroot $subroot /sbin/init
+EOT
+fi
+echo -n "Switching / to tmpfs"
+size="$(grep rootfssize= < /proc/cmdline | \
+	sed 's/.*rootfssize=\([0-9]*[kmg%]\).*/-o size=\1/')"
+free=$(busybox free | busybox awk '/Mem:/ { print int(($4*100)/$3) }')
+umount /proc
+[ -n "$size" ] || size="-o size=90%"
+echo "exec /sbin/init" > /dev/shm/init
+if [ $free -lt 100 ] || ! mount -t tmpfs $size tmpfs /mnt; then
+	echo -e "\\033[70G[ \\033[1;33mSkipped\\033[0;39m]"
+	exit
+fi
+for i in $(ls -ar /); do
+	case "$i" in
+	.|..)	;;
+	mnt)	mkdir /mnt/mnt;;
+	usr|var) mv /$i /mnt ;;
+	*)	if ! cp -a /$i /mnt 2> /dev/null; then
+			failed
+			umount /mnt
+			exit
+		fi;;
+	esac
+done
+launch_init
+fi

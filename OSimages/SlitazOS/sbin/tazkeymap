@@ -1,0 +1,105 @@
+#!/bin/sh
+#
+# Tazkeymap - SliTaz GNU/Linux keymap config using loadkeys and dialog boxes.
+# Configuration file is : /etc/keymap.conf
+#
+# (C) SliTaz GNU/Linux - 2011 <pankso@slitaz.org> - GNU gpl.
+#
+: ${DIALOG=dialog}
+
+# Internationalization
+. /usr/bin/gettext.sh
+TEXTDOMAIN='slitaz-tools'
+export TEXTDOMAIN
+
+# Check if user is root.
+if test $(id -u) != 0; then
+	gettext "You must be root to run:"; echo " $(basename $0)"
+	gettext "Type su and root password to become super-user"; echo
+	exit 1
+fi
+
+# Get current keymap if it exists.
+if [ -s /etc/keymap.conf ]; then
+	CUR=`cat /etc/keymap.conf`
+else
+	CUR="none"
+fi
+
+# Load the selected kmap file from /usr/share/kbd/keymaps or Busybox kmaps.
+load_keymap() {
+	if [ -x /bin/loadkeys ]; then
+		loadkeys $kmap
+	else
+		loadkmap < /usr/share/kmap/$kmap.kmap
+	fi
+}
+
+case "$1" in
+	config)
+		# Used to configure keymap from cmdline or scripts
+		kmap=$2
+		echo "$kmap" > /etc/keymap.conf
+		load_keymap ;;
+	init)
+		# Used to configure keymap boot scripts, keymap us then loaded by
+		# the script /etc/init.d/i18n.sh
+		kmap=$2
+		echo "$kmap" > /etc/keymap.conf ;;
+	*)
+		# Default to text mode dialog.
+		exec 3>&1
+		value=`$DIALOG  --clear \
+		--title " $(gettext "SliTaz keymap configuration") " \
+		--menu "" 15 70 5 \
+		"us"            "USA" \
+		"fr_CH-latin1"  "Suisse Romande" \
+		"fr-latin1"     "France" \
+		"be-latin1"     "Belgique" \
+		"br-abnt2"      "Brazil" \
+		"cf"            "Canada/Quebec" \
+		"croat"         "Croat" \
+		"cz-lat2"       "Czech" \
+		"de_CH-latin1"  "Schweizer Deutsch" \
+		"de-latin1"     "Deutschland" \
+		"dk-latin1"     "Danemark" \
+		"dvorak"        "Dvorak" \
+		"dvorak-r"      "Dvorak (right-hand)" \
+		"dvorak-l"      "Dvorak (left-hand)" \
+		"es"            "Spain/Mexico" \
+		"fi-latin1"     "Finland" \
+		"hu"            "Hungria" \
+		"it"            "Italia" \
+		"is-latin1"     "Island" \
+		"jp106"         "Japan" \
+		"nl2"           "Netherlands" \
+		"no-latin1"     "Norway" \
+		"pl2"           "Poland" \
+		"pt-latin1"     "Portugal" \
+		"ru"            "Russia" \
+		"se-lat6"       "Sweden" \
+		"sg-latin1"     "Singapore " \
+		"trq"			"Turkey" \
+		"uk"            "United Kingdom" \
+		"us-acentos"    "USA Acentos" \
+		2>&1 1>&3`
+		retval=$?
+		exec 3>&-
+		case $retval in
+			0) continue ;;
+			1|255) exit 0 ;;
+		esac
+		# If it's a reconfiguration give an info message.
+		if [ -s /etc/keymap.conf ]; then
+			msg=$(gettext "\
+Please logout of your current session and login again to use new keyboard.")
+			$DIALOG --clear \
+				--title " Information " \
+				--msgbox "$msg" 16 70
+		fi
+		kmap=$value
+		echo "$kmap" > /etc/keymap.conf
+		load_keymap ;;
+esac
+
+exit 0

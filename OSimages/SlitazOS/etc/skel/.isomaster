@@ -1,0 +1,18 @@
+
+[ui]
+windowwidth                    = 632
+windowheight                   = 550
+toppaneheight                  = 200
+showhiddenfilesfs              = 0
+sortdirsfirst                  = 1
+scanforduplicatefiles          = 1
+followsymlinks                 = 0
+appendextension                = 1
+editor                         = leafpad
+viewer                         = firefox
+tempdir                        = /tmp
+isosortcolumnid                = 1
+isosortdirection               = 0
+fssortcolumnid                 = 1
+fssortdirection                = 0
+

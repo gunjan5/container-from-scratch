@@ -1,0 +1,32 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="72.0K"
+UNPACKED_SIZE="168.0K"
+PACKAGE="util-linux-ng-blkid"
+VERSION="2.19.1"
+CATEGORY="base-system"
+SHORT_DESC="The blkid utility and library from Util linux NG."
+MAINTAINER="pankso@slitaz.org"
+DEPENDS="glibc-base util-linux-ng-uuid"
+WANTED="util-linux-ng"
+WEB_SITE="http://kernel.org/~kzak/util-linux-ng/"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/lib $fs/sbin $fs/usr/lib
+	cp -a $_pkg/sbin/blkid $fs/sbin
+	cp -a $_pkg/lib/libblkid.so* $fs/lib
+	cp -a $_pkg/usr/lib/libblkid.so* $fs/usr/lib
+}
+
+# Overlap busybox
+pre_install()
+{
+	rm -f $1/sbin/blkid
+}
+
+post_remove()
+{
+	ln -s /bin/busybox /sbin/blkid
+}

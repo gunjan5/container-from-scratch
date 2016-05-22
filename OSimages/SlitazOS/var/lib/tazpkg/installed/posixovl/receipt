@@ -1,0 +1,33 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="24.0K"
+UNPACKED_SIZE="32.0K"
+PACKAGE="posixovl"
+VERSION="1.2"
+CATEGORY="system-tools"
+SHORT_DESC="A modern equivalent of the UMSDOS."
+MAINTAINER="pascal.bellard@slitaz.org"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WEB_SITE="http://$PACKAGE.sourceforge.net/"
+WGET_URL="$SF_MIRROR/$PACKAGE/$TARBALL"
+
+DEPENDS="fuse attr"
+BUILD_DEPENDS="autoconf automake fuse-dev attr-dev"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	mv $PACKAGE $src 2> /dev/null
+	cd $src
+	sh autogen.sh
+	./configure --prefix=/usr --mandir=/usr/share/man \
+	$CONFIGURE_ARGS &&
+	make
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.   
+genpkg_rules()                                      
+{
+	mkdir -p $fs/usr/sbin
+	cp $src/mount.posixovl $fs/usr/sbin 
+}

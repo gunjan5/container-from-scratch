@@ -1,0 +1,15 @@
+
+[Default Applications]
+application/ogg=alsaplayer.desktop
+image/png=gpicview.desktop
+application/pdf=epdfview.desktop
+image/jpeg=gpicview.desktop
+application/x-shellscript=geany.desktop
+application/x-desktop=leafpad.desktop
+text/plain=leafpad.desktop
+application/xml=geany.desktop
+audio/mpeg=alsaplayer.desktop
+text/html=firefox.desktop
+application/x-php=geany.desktop
+application/x-cd-image=isomaster.desktop
+image/x-ico=gpicview.desktop

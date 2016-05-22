@@ -1,0 +1,5 @@
+/usr/bin/wodim
+/usr/bin/genisoimage
+/usr/bin/cdrecord
+/usr/bin/mkisofs
+/usr/bin/mkhybrid

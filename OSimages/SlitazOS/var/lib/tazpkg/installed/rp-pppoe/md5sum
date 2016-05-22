@@ -1,0 +1,14 @@
+b59a847f6c39b6e6b00b4ee4704df903  /etc/ppp/pppoe.conf
+5f264f110728ae791d9593a43a1bb2d8  /etc/ppp/plugins/README
+963d2de66a9175caa42929c99c68663d  /etc/ppp/firewall-masq
+ad363075e1cb6c8871312082edbbd269  /etc/ppp/firewall-standalone
+a0774cdf37ef72d8921c9aa06e624894  /etc/ppp/pppoe-server-options
+b5cb1c383ce2c96562d5b95852949b4b  /usr/sbin/pppoe-relay
+08ad72bf1a79f3d5c726216bdd3c7be0  /usr/sbin/pppoe-stop
+b60a26c2098b31466c597b69086481b8  /usr/sbin/pppoe-status
+d813379b507bb126c0574a8f90705267  /usr/sbin/pppoe
+b642d3c61b61d765285284d173d05329  /usr/sbin/pppoe-start
+bf2cc5ad3b666ab53d528133f61f2f9c  /usr/sbin/pppoe-setup
+a996a98dc875b6506b7152e5f1371199  /usr/sbin/pppoe-connect
+886dbece261caca026b5333cc2671b25  /usr/sbin/pppoe-sniff
+6ef7a39c51d46449de62950e4a2abd1a  /usr/sbin/pppoe-server

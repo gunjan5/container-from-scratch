@@ -1,0 +1,48 @@
+/* CSS style for SliTaz Doc */
+
+html { min-height:  102%; }
+body { font: 88% sans-serif, vernada, arial; margin: 0; }
+h1 { margin: 0; padding: 8px; color: #fff; font-size: 20px; }
+h2 { color: #d66018; } h3 { color: #666; font-size: 140%; }
+a:hover { text-decoration: none; }
+img { border: 0pt none; vertical-align: middle; }
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #ddd;
+	padding: 10px;
+	border-radius: 4px;
+}
+
+#header {
+	background: #351a0a;
+	height: 40px;
+	border-bottom: 8px solid #d66018;
+}
+
+#content {
+	margin: 40px 80px;
+	text-align: justify;
+}
+
+#footer {
+	text-align: center;
+	padding: 20px;
+	border-top: 1px solid #ddd;
+}
+
+/* Languages */
+
+#lang {
+	float: right;
+	padding: 6px;
+	font-size: 11px;
+}
+
+#lang a {
+	text-decoration: none;
+	padding: 0 2px;
+}
+
+#lang a:hover {
+	text-decoration: underline;
+}

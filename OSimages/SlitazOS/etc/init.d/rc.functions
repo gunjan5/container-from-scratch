@@ -1,0 +1,28 @@
+#!/bin/sh
+# /etc/init.d/rc.functions: SliTaz boot scripts functions.
+#
+
+# Status functions.
+status() {
+	echo -en "\\033[70G[ "
+	if [ $? = 0 ]; then
+		echo -en "\\033[1;32mOK"
+	else
+		echo -en "\\033[1;31mFailed"
+	fi
+	echo -e "\\033[0;39m ]"
+}
+
+# Check daemon with pidfile: usage check_pidfile $PIDFILE $DAEMON
+active_pidfile()
+{
+	if [ ! -e $1 ]; then
+		return 1
+	elif grep -qs "Name:.$(basename $2)$" \
+			/proc/$(sed 's/[^0-9]//g' < $1 | head -n 1)/status ; then
+		return 0
+	else
+		rm -f $1
+		return 2
+	fi
+}

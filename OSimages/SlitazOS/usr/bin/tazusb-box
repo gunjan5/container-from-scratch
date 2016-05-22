@@ -1,0 +1,103 @@
+#!/bin/sh
+#
+# Tiny GTK interface to SliTaz Live USB tool aka TazUSB.
+#
+# Copyright (C) 2012 SliTaz GNU/Linux - GNU gpl v2
+#
+# Authors : Christophe Lincoln <pankso@slitaz.org>
+#
+
+# TazUSBbox is only for root.
+if test $(id -u) != 0 ; then
+	exec tazbox su tazusbbox
+	exit 0
+fi
+
+# I18n
+. /usr/bin/gettext.sh
+TEXTDOMAIN='tazusb-box'
+export TEXTDOMAIN
+
+info="$(gettext "<b>Generate SliTaz LiveUSB media and boot in RAM!</b> \
+Insert a LiveCD into the cdrom drive or use a local ISO image, select \
+the correct device and press OK.")
+"
+
+#
+# Functions
+#
+
+gen_live()
+{
+	[ -z "$DEVICE" ] && exit 0 
+	if [ -n "$ISO_IMAGE" ]; then
+		xterm -T "Tazusb gen-iso2usb" \
+			-geometry 80x16 \
+			-e "tazusb gen-iso2usb $ISO_IMAGE $DEVICE; exit 0"
+	else
+		xterm -T "Tazusb gen-liveusb" \
+			-geometry 80x16 \
+			-e "tazusb gen-liveusb $DEVICE; exit 0"
+	fi
+}
+
+list_devices() {
+	if [ -d /proc/scsi/usb-storage ]; then
+		dev="$(blkid | cut -d ":" -f 1)"
+		echo $dev | sed s'/ /!/'g
+	else
+		gettext "No USB media found"
+	fi
+}
+
+# Main GUI box function with pure Yad spec
+tazusb_main() {
+	yad --form --text="$info" --title="TazUSB Box" \
+		--height=200 --width=500 --borders=4 \
+		--image=usb-creator --image-on-top \
+		--window-icon=usb-creator \
+		--field="$(gettext "ISO Image:")":FL \
+		--field="$(gettext "USB Media:")":CB \
+		" " "$(list_devices)"
+}
+
+# Handler
+tazusb() {
+	# Store box results
+	main=$(tazusb_main)
+	ret=$?
+	# Deal with --button values
+	case $ret in
+		1) exit 0 ;;
+		*) continue ;;
+	esac
+	# Deal with $main values. Exit if any device.
+	dev=$(echo $main | cut -d "|" -f 2)
+	if ! echo $dev | grep -q /dev; then
+		exit 0
+	fi 
+	if echo "$main" | grep -q ".iso|"; then
+		iso=$(echo $main | cut -d "|" -f 1)
+		terminal -T "Tazusb gen-iso2usb" \
+			-geometry 80x16 \
+			-e "tazusb gen-iso2usb $iso $dev; sleep 4; exit 0"
+	else
+		terminal -T "Tazusb gen-liveusb" \
+			-geometry 80x16 \
+			-e "tazusb gen-liveusb $dev; sleep 4; exit 0"
+	fi
+}
+
+#
+# Script commands
+#
+
+case "$1" in
+	usage)
+		echo "Usage: $(basename $0) [command]" ;;
+	*) 
+		tazusb ;;
+esac
+
+exit 0
+

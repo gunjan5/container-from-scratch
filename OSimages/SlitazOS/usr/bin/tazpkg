@@ -1,0 +1,2960 @@
+#!/bin/sh
+# Tazpkg - Tiny autonomous zone packages manager.
+#
+# This is a lightwight packages manager for *.tazpkg files written in
+# SHell script. It works well with Busybox ash shell and bash. Tazpkg lets you
+# list, install, remove, download or get information about a package. You can
+# use 'tazpkg usage' to get a list of commands with short descriptions. Tazpkg
+# also resolves dependencies and can upgrade packages from a mirror. I18n is
+# done using gettext and eval_gettext, ex:
+# 	gettext "displayed text"; echo
+# 	eval_gettext "display \$VARIABLE"; echo
+#
+# (C) 2007-2012 SliTaz - GNU General Public License v3.
+#
+# Authors : Seee AUTHORS files
+#
+VERSION=4.9.2
+
+####################
+# Script variables #
+####################
+
+source /usr/lib/slitaz/libtaz
+source_lib commons
+. /etc/slitaz/tazpkg.conf
+
+# Include gettext helper script.
+. /usr/bin/gettext.sh
+
+# Export package name for gettext.
+TEXTDOMAIN='tazpkg'
+export TEXTDOMAIN
+
+# Initialize some variables to use words rather than numbers for functions
+# and actions.
+COMMAND=$1
+PACKAGE=${2%/}
+PACKAGE_DIR="$(cd $(dirname $PACKAGE 2>/dev/null) 2>/dev/null; pwd)"
+[ -n "$PACKAGE" ] && 
+PACKAGE_FILE="$PACKAGE_DIR/${PACKAGE##*/}"
+if [ -f "$PACKAGE" ]; then
+	# Set pkg basename for install, extract
+	PACKAGE=$(basename ${PACKAGE%.tazpkg} 2>/dev/null)
+else
+	# Pkg name for remove, search and all other cmds
+	PACKAGE=${PACKAGE%.tazpkg}
+fi
+TARGET_DIR=$3
+TOP_DIR=`pwd`
+TMP_DIR=$tmp/$RANDOM
+INSTALL_LIST=""
+SAVE_CACHE_DIR="$CACHE_DIR"
+
+# Path to tazpkg used dir and configuration files
+INSTALLED=$LOCALSTATE/installed
+MIRROR=$LOCALSTATE/mirror
+BLOCKED=$LOCALSTATE/blocked-packages.list
+UP_LIST=$LOCALSTATE/packages.up
+DEFAULT_MIRROR="http://mirror.slitaz.org/packages/`cat /etc/slitaz-release`/"
+
+# Need by check_depends
+TMPLOCALSTATE=
+
+# Check if the directories and files used by Tazpkg
+# exist. If not and user is root we create them.
+check_base_dir()
+{
+	if test $(id -u) = 0 ; then
+		check_dir $1$CACHE_DIR
+		check_dir $1$INSTALLED
+		if [ ! -f "$1$LOCALSTATE/mirror" ]; then
+			echo "$DEFAULT_MIRROR" > $1$LOCALSTATE/mirror
+			[ -n "$1" ] && cp $LOCALSTATE/packages.* $1$LOCALSTATE/
+		fi
+	fi
+}
+check_base_dir
+
+####################
+# Script functions #
+####################
+
+# Print the usage.
+usage ()
+{
+	echo -e "`gettext \"SliTaz package manager - Version\"`: $VERSION
+\033[1m`gettext \"Usage\"`:\033[0m `gettext \"tazpkg [command] [package|dir|pattern|list|cat|--opt] [dir|--opt]\"`
+		tazpkg shell\n
+\033[1m`gettext \"Commands\"`: \033[0m
+  usage            `gettext \"Print this short usage.\"`
+  bugs             `gettext \"Show known bugs in packages.\"`
+  list|-l          `gettext \"List installed packages on the system by category or all.\"`
+  xhtml-list       `gettext \"Create a xHTML list of installed packages.\"`
+  list-mirror      `gettext \"List all available packages on the mirror (--diff for new).\"`
+  info             `gettext \"Print information about a package.\"`
+  desc             `gettext \"Print description of a package (if it exists).\"`
+  list-files       `gettext \"List the files installed with a package.\"`
+  list-config      `gettext \"List the configuration files.\"`
+  search|-s        `gettext \"Search for a package by pattern or name (options: -i|-l|-m).\"`
+  search-pkgname   `gettext \"Search on mirror for package having a particular file.\"`
+  search-file	   `gettext \"Search for file(s) in all installed packages files.\"`
+  install|-i       `gettext \"Install a local (*.tazpkg) package (--forced to force).\"`
+  install-list     `gettext \"Install all packages from a list of packages.\"`
+  remove|-r        `gettext \"Remove the specified package and all installed files.\"`
+  extract          `gettext \"Extract a (*.tazpkg) package into a directory.\"`
+  pack             `gettext \"Pack an unpacked or prepared package tree.\"`
+  recharge         `gettext \"Recharge your packages.list from the mirror.\"`
+  up|--help-up     `gettext \"Check packages md5sum to list and install latest upgrades.\"`
+  repack           `gettext \"Create a package archive from an installed package.\"`
+  repack-config    `gettext \"Create a package archive with configuration files.\"`
+  recompress       `gettext \"Rebuild a package with a better compression ratio.\"`
+  block|unblock    `gettext \"Block an installed package version or unblock it for upgrade.\"`
+  get              `gettext \"Download a package into the current directory.\"`
+  get-install|-gi  `gettext \"Download and install a package from the mirror.\"`
+  get-install-list `gettext \"Download and install a list of packages from the mirror.\"`
+  check            `gettext \"Verify consistency of installed packages.\"`
+  add-flavor       `gettext \"Install the flavor list of packages.\"`
+  install-flavor   `gettext \"Install the flavor list of packages and remove other ones.\"`
+  set-release      `gettext \"Change release and update packages.\"`
+  clean-cache|-cc  `gettext \"Clean all packages downloaded in cache directory.\"`
+  depends          `gettext \"Display dependencies tree.\"`
+  rdepends         `gettext \"Display reverse dependencies tree.\"`
+  convert          `gettext \"Convert a deb/rpm/tgz/arch package to a slitaz (.tazpkg).\"`
+  link             `gettext \"Link a package from another slitaz installation.\"`
+  setup-mirror     `gettext \"Change the mirror url configuration.\"`
+  list-undigest    `gettext \"List undigest mirrors.\"`
+  remove-undigest  `gettext \"Remove an undigest mirror.\"`
+  add-undigest     `gettext \"Add an undigest mirror.\"`
+  setup-undigest   `gettext \"Update an undigest mirror.\"`
+  reconfigure      `gettext \"Replay post install script from package.\"`"
+}
+
+usage_up() {
+	echo -e "
+\033[1m`gettext \"Tazpkg usage for command up\"`:\033[0m `gettext \"tazpkg up [--option]`\n
+* `gettext \"Without options run in interactive mode and ask before install\"`
+
+\033[1m`gettext \"Where options are\"`: \033[0m
+  --check    |-c   `gettext \"Check only for available upgrades\"`
+  --recharge |-r   `gettext \"Force recharge of packages list and check\"`
+  --install  |-i   `gettext \"Check for upgrades and install them all\"`
+
+\033[1m`gettext \"Example\"`: \033[0m
+  tazpkg up --recharge --install
+  tazpkg up -c -r
+"
+}
+
+separator() {
+	echo "================================================================================"
+}
+
+# Check for a package name on cmdline.
+check_for_package_on_cmdline()
+{
+	if [ -z "$PACKAGE" ]; then
+		echo "" 
+		gettext "Please specify a package name on the command line."; echo
+		echo ""
+		exit 0
+	fi
+}
+
+# Check if the package (*.tazpkg) exists before installing or extracting.
+check_for_package_file()
+{
+	if [ ! -f "$PACKAGE_FILE" ]; then
+		echo ""
+		eval_gettext "Unable to find: \$PACKAGE_FILE"; echo
+		echo "" && exit 0
+	fi
+}
+
+# Check for the receipt of an installed package.
+check_for_receipt()
+{
+	if [ ! -f "$1$INSTALLED/$PACKAGE/receipt" ]; then
+		FS=$1
+		echo ""
+		eval_gettext "Unable to find the receipt: \$FS\$INSTALLED/\$PACKAGE/receipt"; echo
+		echo "" && exit 0
+	fi
+}
+
+# Get repositories priority using $LOCALSTATE/priority.
+# In this files, undigest are called by their name and main mirror
+# by main. Sort order : priority
+look_for_priority()
+{
+[ -s $LOCALSTATE/priority ] && priority=$(cat $LOCALSTATE/priority)
+for rep in main $(ls $LOCALSTATE/undigest 2>/dev/null); do
+	if [ ! -s $LOCALSTATE/priority ] || \
+		! grep -q ^$rep$ $LOCALSTATE/priority; then
+		priority=$(echo -e "$priority\n$rep")
+	fi
+done
+priority=$(echo "$priority" | sed '/^$/d' | \
+	while read line; do
+	if [ "$line" = main ]; then
+		echo $LOCALSTATE
+	else
+		echo $LOCALSTATE/undigest/$line
+	fi
+done)
+}
+
+# Get package name in a directory
+package_fullname_in_dir()
+{
+	[ -f $1/receipt ] || return
+	EXTRAVERSION=""
+	. $1/receipt
+	echo $PACKAGE-$VERSION$EXTRAVERSION
+}
+
+# Get package name that is already installed.
+get_installed_package_pathname()
+{
+	for i in $2$INSTALLED/${1%%-*}*; do
+		[ -d $i ] || continue
+		if [ "$1" = "$(package_fullname_in_dir $i)" ]; then
+			echo $i
+			return
+		fi
+	done
+}
+
+# Check if a package is already installed.
+check_for_installed_package()
+{
+	if [ -n "$(get_installed_package_pathname $PACKAGE $1)" ]; then
+		echo ""
+		eval_gettext "\$PACKAGE package is already installed. You can
+use the --forced option to force installation or remove it and reinstall."; echo
+		echo "" && exit 0
+	fi
+}
+
+# Check for packages.list to download and install packages.
+check_for_packages_list()
+{
+	if [ ! -f "$LOCALSTATE/packages.list" ]; then
+		if test $(id -u) = 0 ; then
+			tazpkg recharge
+		else
+			echo ""
+			eval_gettext "Unable to find the list: \$LOCALSTATE/packages.list"; echo
+			gettext \
+"You must probably run 'tazpkg recharge' as root to get the latest list of
+packages available on the mirror."; echo
+			echo "" && exit 0
+		fi
+	fi
+}
+
+get_cache_dir()
+{
+	echo $rep > $tmp/rep
+	if [ "$rep" = "$LOCALSTATE" ]; then
+		CACHE_DIR="$SAVE_CACHE_DIR/$SLITAZ_VERSION/packages"
+	elif [ "${rep%-incoming}" = "$rep" ]; then
+		CACHE_DIR="$SAVE_CACHE_DIR/${rep##*/}/packages"
+	else
+		rep="${rep%-incoming}"
+		CACHE_DIR="$SAVE_CACHE_DIR/${rep##*/}/packages-incoming"
+	fi
+	[ -d "$CACHE_DIR" ] || mkdir -p $CACHE_DIR
+	echo $CACHE_DIR > $tmp/cachedir
+}
+
+# get an already installed package from packages.equiv
+equivalent_pkg()
+{
+	for i in $(grep -hs "^$1=" $LOCALSTATE/packages.equiv \
+		   $LOCALSTATE/undigest/*/packages.equiv | sed "s/^$1=//"); do
+		if echo $i | fgrep -q : ; then
+			# format 'alternative:newname'
+			# if alternative is installed then substitute newname
+			if [ -f $2$INSTALLED/${i%:*}/receipt ]; then
+				# substitute package dependancy
+				echo ${i#*:}
+				return
+			fi
+		else
+			# if alternative is installed then nothing to install
+			if [ -f $2$INSTALLED/$i/receipt ]; then
+				# substitute installed package
+				echo $i
+				return
+			fi
+		fi
+	done
+	# if not found in packages.equiv then no substitution
+	echo $1
+}
+
+# get a virtual package from packages.equiv
+virtual_pkg()
+{
+	for i in $(for rep in $priority; do 
+		grep -hs "^$1=" $rep/packages.equiv
+		done | sed "s/^$1=//"); do
+		if echo $i | fgrep -q : ; then
+			# format 'alternative:newname'
+			# if alternative is installed then substitute newname
+			if [ -f $2$INSTALLED/${i%:*}/receipt ]; then
+				# substitute package dependancy
+				echo ${i#*:}
+				return
+			fi
+		else
+			# unconditional substitution
+			echo $i
+			return
+		fi
+	done
+}
+
+# Get package filename available on the mirror
+get_package_filename()
+{
+	local pkg
+	for rep in $priority; do
+		pkg=$(grep -A 1 -sh "^$1$" $rep/packages.txt | tail -1 | \
+			sed 's/^ *//')
+		[ "$pkg" ] && pkg=$(grep -sh "^$1-$pkg" \
+			$rep/packages.list | head -1)
+		
+		# Allow user to call a package with his version number.
+		[ "$pkg" ] || pkg=$(grep -sh "^$1$" $rep/packages.list | head -1)
+		
+		[ "$pkg" ] || pkg=$(grep -sh "^$1-[0-9]" \
+			$rep/packages.list | head -1)
+		[ "$pkg" ] || pkg=$(grep -sh "^$1-.[\.0-9]" \
+		$rep/packages.list | head -1)
+		[ "$pkg" ] && get_cache_dir && break
+	done
+	if [ -z "$pkg" ]; then
+		# Check for vitual package
+		local equiv
+		equiv=$(virtual_pkg $1)
+		if [ "$equiv" != "$1" ]; then
+			PACKAGE=$equiv
+			get_package_filename $PACKAGE
+			return
+		fi
+	fi
+	echo $pkg
+}
+
+# Check for a package in packages.list. Used by get and get-install to grep
+# package basename.
+check_for_package_in_list()
+{
+	local filename
+	local check_only
+	check_only="$1"
+	filename=$(get_package_filename $PACKAGE)
+	if [ "$filename" ]; then
+		PACKAGE=$filename
+		CACHE_DIR=$(cat $tmp/cachedir)
+		rep=$(cat $tmp/rep)
+		rm -f $tmp/rep $tmp/cachedir
+	else
+		echo ""
+		eval_gettext "Unable to find: \$PACKAGE in the mirrored packages list."; echo
+		echo ""
+		[ -n "$check_only" ] && return 1
+		exit 0
+	fi
+}
+
+# Log this activity
+log()
+{
+	local extra
+	[ "$1" = "Installed" ] && \
+	extra=" - $(fgrep $PACKAGE-$VERSION $LOCALSTATE/installed.md5 | awk '{ print $1 }')"
+	[ -e $LOG ] || touch $LOG
+	DATE=`date +'%F %T'`
+	[ -w $LOG ] &&
+	echo "$DATE - $1 - $PACKAGE ($VERSION$EXTRAVERSION)$extra" >> $LOG
+}
+
+# Download a file from this mirror
+download_from()
+{
+	local i
+	local mirrors
+	mirrors="$1"
+	shift
+	for i in $mirrors; do
+		case "$i" in
+			# Mirror URL can have a trailing slash or not.
+			http://*|ftp://*) wget -c ${i%/}/$@ && break ;;
+			*) ln -sf $i/$1 . && break ;;
+		esac
+	done
+}
+
+# Download a file trying all mirrors
+download()
+{
+	local i
+	case "$1" in
+	*.tazpkg)
+		for i in $priority ; do
+			grep -q "^${1%.tazpkg}$" $i/packages.list 2>/dev/null || continue
+			download_from "$(cat $i/mirror)" "$@" && return
+		done
+	esac
+	for i in $(cat `for rep in $priority; do echo $rep/mirror; done` \
+		2> /dev/null); do
+		download_from "$i" "$@" && break
+	done
+}
+
+# Extract a package with cpio and gzip/lzma.
+extract_package()
+{
+	eval_gettext "Extracting \$PACKAGE... "
+	cpio -idm --quiet < ${PACKAGE_FILE##*/} && rm -f ${PACKAGE_FILE##*/}
+	status
+	if [ -f fs.cpio.lzma ]; then
+		gettext "Extracting the pseudo fs... "
+		echo -n "(lzma) "
+		unlzma -c fs.cpio.lzma | cpio -idm --quiet && rm fs.cpio.lzma
+		status
+	elif [ -f fs.cpio.gz ]; then
+		gettext "Extracting the pseudo fs... "
+		zcat fs.cpio.gz | cpio -idm --quiet && rm fs.cpio.gz
+		status
+	fi
+}
+
+remove_with_path()
+{
+	# Avoid dirname errors by checking for argument.
+	[ "$1" ] || return
+	
+	local dir
+	rm -f $1 2>/dev/null
+	dir="$1"
+	while [ "$dir" != "/" ]; do
+		dir="$(dirname $dir)"
+		rmdir $dir 2> /dev/null || break
+	done
+}
+
+grepesc()
+{
+	sed 's/\[/\\[/g'
+}
+
+# This function installs a package in the rootfs.
+install_package()
+{
+	ROOT=$1
+	if [ -n "$ROOT" ]; then
+		 # Get absolute path
+		 ROOT=$(cd $ROOT; pwd)
+	fi
+	{
+		# Create package path early to avoid dependencies loop
+		mkdir -p $TMP_DIR
+		{ cd $TMP_DIR ; cpio --quiet -i receipt > /dev/null 2>&1; } < $PACKAGE_FILE
+		. $TMP_DIR/receipt
+		if grep -q ^pre_depends $TMP_DIR/receipt; then
+			pre_depends $ROOT
+		fi
+		# Keep modifers and file list on upgrade
+		cp $ROOT$INSTALLED/$PACKAGE/modifiers \
+		   $ROOT$INSTALLED/$PACKAGE/files.list $TMP_DIR 2> /dev/null
+		rm -rf $ROOT$INSTALLED/$PACKAGE 2> /dev/null
+		# Make the installed package data dir to store
+		# the receipt and the files list.
+		mkdir -p $ROOT$INSTALLED/$PACKAGE
+		cp $TMP_DIR/modifiers $ROOT$INSTALLED/$PACKAGE 2> /dev/null
+		cp $TMP_DIR/files.list $ROOT$INSTALLED/$PACKAGE 2> /dev/null
+		rm -rf $TMP_DIR 2> /dev/null
+		sed -i "/ $(basename $PACKAGE_FILE)$/d" \
+			$ROOT$LOCALSTATE/installed.md5 2> /dev/null
+		cd $(dirname $PACKAGE_FILE)
+		md5sum $(basename $PACKAGE_FILE) >> $ROOT$LOCALSTATE/installed.md5
+	}
+	# Resolve package deps.
+	check_for_deps $ROOT
+	if [ ! "$MISSING_PACKAGE" = "" ]; then
+		install_deps $ROOT
+	fi
+	mkdir -p $TMP_DIR
+	[ -n "$INSTALL_LIST" ] && echo "$PACKAGE_FILE" >> $INSTALL_LIST-processed
+	echo ""
+	echo -e "\033[1m`gettext \"Installation of :\"`\033[0m $PACKAGE"
+	separator
+	eval_gettext "Copying \$PACKAGE... "
+	cp $PACKAGE_FILE $TMP_DIR
+	status
+	cd $TMP_DIR
+	extract_package
+	SELF_INSTALL=0
+	EXTRAVERSION=""
+	CONFIG_FILES=""
+	# Include temporary receipt to get the right variables.
+	. $PWD/receipt
+	cd $ROOT$INSTALLED
+	if [ $SELF_INSTALL -ne 0 -a -n "$ROOT" ]; then
+		gettext "Checking post install dependencies... "
+		[ -f $INSTALLED/$PACKAGE/receipt ]
+		if ! status; then
+			eval_gettext "Please run 'tazpkg install \$PACKAGE_FILE' in / and retry."; echo
+			rm -rf $TMP_DIR
+			exit 1
+		fi
+	fi
+	# Get files to remove if upgrading
+	if [ -f $PACKAGE/files.list ]; then
+		while read file; do
+			grep -q "^$(echo $file | grepesc)$" $TMP_DIR/files.list && continue
+			for i in $(cat $PACKAGE/modifiers 2> /dev/null ;
+			    fgrep -sl $PACKAGE */modifiers | cut -d/ -f1 ); do
+				grep -qs "^$(echo $file | grepesc)$" $i/files.list && continue 2
+			done
+			echo $file
+		done < $PACKAGE/files.list > $TMP_DIR/files2remove.list
+	fi
+	# Remember modified packages
+	{ check=false
+	  for i in $(fgrep -v [ $TMP_DIR/files.list); do
+		[ -e "$ROOT$i" ] || continue
+		[ -d "$ROOT$i" ] && continue
+		echo "- $i"
+		check=true
+	  done ; 
+	  $check && for i in *; do 
+	  	[ "$i" == "$PACKAGE" ] && continue
+	  	[ -s $i/files.list ] || continue
+	  	awk "{ printf \"$i %s\\n\",\$1 }" < $i/files.list
+	  done; } | awk '
+{
+	if ($1 == "-" || file[$2] != "") {
+		file[$2] = file[$2] " " $1
+		if ($1 != "-") {
+			if (pkg[$1] == "") all = all " " $1
+			pkg[$1] = pkg[$1] " " $2
+		}
+	}
+}
+END {
+	for (i = split(all, p, " "); i > 0; i--)
+		for (j = split(pkg[p[i]], f, " "); j > 0; j--)
+			printf "%s %s\n",p[i],f[j];
+}
+		' | while read dir file; do
+		if grep -qs ^$dir$ $PACKAGE/modifiers; then
+			# Do not overload an overloaded file !
+			rm $TMP_DIR$file 2> /dev/null
+			continue
+		fi
+		grep -qs ^$PACKAGE$ $dir/modifiers && continue
+		if [ -s "$dir/volatile.cpio.gz" ]; then
+			# We can modify backed up files without notice
+			zcat $dir/volatile.cpio.gz | cpio -t --quiet | \
+				grep -q "^${file#/}$" && continue
+		fi
+		echo "$PACKAGE" >> $dir/modifiers
+	done
+
+	cd $TMP_DIR
+	cp receipt files.list $ROOT$INSTALLED/$PACKAGE
+	# Copy the description if found.
+	if [ -f "description.txt" ]; then
+		cp description.txt $ROOT$INSTALLED/$PACKAGE
+	fi
+	# Copy the md5sum if found.
+	if [ -f "md5sum" ]; then
+		cp md5sum $ROOT$INSTALLED/$PACKAGE
+	fi
+	# Pre install commands.
+	if grep -q ^pre_install $ROOT$INSTALLED/$PACKAGE/receipt; then
+		pre_install $ROOT
+	fi
+	if [ -n "$CONFIG_FILES" ]; then
+		# save 'official' configuration files
+		eval_gettext "Saving configuration files for \$PACKAGE... "
+		for i in $CONFIG_FILES; do
+			{ cd fs ; find ${i#/} -type f 2> /dev/null; cd ..; }
+		done | { cd fs ; cpio -o -H newc --quiet | gzip -9; cd ..; } > \
+			$ROOT$INSTALLED/$PACKAGE/volatile.cpio.gz
+		# keep user configuration files
+		for i in $CONFIG_FILES; do
+			{ cd fs ; find ${i#/} -type f 2> /dev/null; cd ..; }
+		done | while read i; do
+			[ -e $ROOT/$i ] || continue
+			cp -a $ROOT/$i fs/$i
+		done
+		status
+	fi
+	eval_gettext "Installing \$PACKAGE... "
+	cp -a fs/* $ROOT/
+	status
+	if [ -s files2remove.list ]; then
+		eval_gettext "Removing old \$PACKAGE... "
+		while read file; do
+			remove_with_path $ROOT$file
+		done < files2remove.list
+		true
+		status
+	fi
+	# Remove the temporary random directory.
+	gettext "Removing all tmp files... "
+	cd .. && rm -rf $TMP_DIR
+	status
+	# Post install commands.
+	if grep -q ^post_install $ROOT$INSTALLED/$PACKAGE/receipt; then
+		post_install $ROOT
+	fi
+ 	# Update-desktop-database if needed.
+	if [ "$(fgrep .desktop $ROOT$INSTALLED/$PACKAGE/files.list | fgrep /usr/share/applications/)" ]; then
+		updatedesktopdb=yes
+	fi
+	# Update-mime-database if needed.
+	if [ "$(fgrep /usr/share/mime $ROOT$INSTALLED/$PACKAGE/files.list)" ]; then
+		updatemimedb=yes
+	fi
+	# Update-icon-database
+	if [ "$(fgrep /usr/share/icon/hicolor $ROOT$INSTALLED/$PACKAGE/files.list)" ]; then
+		updateicondb=yes
+	fi
+	# Compile glib schemas if needed.
+	if [ "$(fgrep /usr/share/glib-2.0/schemas $ROOT$INSTALLED/$PACKAGE/files.list)" ]; then
+		compile_schemas=yes
+	fi
+	cd $TOP_DIR
+	separator
+	eval_gettext "\$PACKAGE (\$VERSION\$EXTRAVERSION) is installed."; echo
+	echo ""
+	# Log this activity
+	[ -n "$ROOT" ] || log Installed
+}
+
+# Check for loop in deps tree.
+check_for_deps_loop()
+{
+	local list
+	local pkg
+	local deps
+	pkg=$1
+	shift
+	[ -n "$1" ] || return
+	list=""
+	# Filter out already processed deps
+	for i in $@; do
+		case " $ALL_DEPS" in
+		*\ $i\ *);;
+		*) list="$list $i";;
+		esac
+	done
+	ALL_DEPS="$ALL_DEPS$list "
+	for i in $list; do
+		[ -f $i/receipt ] || continue
+		deps="$(DEPENDS=""; . $i/receipt; echo $DEPENDS)"
+		case " $deps " in
+		*\ $pkg\ *) echo -e "$MSG  $i"; MSG="";;
+		*) check_for_deps_loop $pkg $deps;;
+		esac
+	done
+}
+
+# Check for missing deps listed in a receipt packages.
+check_for_deps()
+{
+	local saved;
+	saved=$PACKAGE
+	mkdir -p $TMP_DIR
+	{ cd $TMP_DIR ; cpio --quiet -i receipt > /dev/null 2>&1; } < $PACKAGE_FILE
+	. $TMP_DIR/receipt
+	PACKAGE=$saved
+	rm -rf $TMP_DIR
+	for pkgorg in $DEPENDS
+	do
+		i=$(equivalent_pkg $pkgorg $1)
+		if [ ! -d "$1$INSTALLED/$i" ]; then
+			MISSING_PACKAGE=$i
+			deps=$(($deps+1))
+		elif [ ! -f "$1$INSTALLED/$i/receipt" ]; then
+			eval_gettext "WARNING Dependency loop between \$PACKAGE and \$i."; echo
+		fi
+	done
+	if [ ! "$MISSING_PACKAGE" = "" ]; then
+		echo -e "\033[1m`gettext \"Tracking dependencies for :\"`\033[0m $PACKAGE"
+		separator
+		for pkgorg in $DEPENDS
+		do
+			i=$(equivalent_pkg $pkgorg $1)
+			if [ ! -d "$1$INSTALLED/$i" ]; then
+				MISSING_PACKAGE=$i
+				eval_gettext "Missing: \$MISSING_PACKAGE"; echo
+			fi
+		done
+		separator
+		eval_gettext "\$deps missing package(s) to install."; echo
+	fi
+}
+
+# Install all missing deps. Auto install or ask user then install all missing 
+# deps from local dir, cdrom, media or from the mirror. In case we want to
+# install packages from local, we need a packages.list to find the version.
+install_deps()
+{
+	local root
+	root=""
+	[ -n "$1" ] && root="--root=$1"
+	if [ "$AUTO_INSTALL_DEPS" == "yes" ]; then
+		answer=`translate_querry y`
+	else
+		echo ""
+		gettext "Install all missing dependencies"
+		echo -n " (`translate_querry y`/`translate_querry N`) ? "
+		read answer
+		echo ""
+	fi
+	if [ "$answer" == "$(translate_querry y)" ]; then
+		for pkgorg in $DEPENDS
+		do
+			pkg=$(equivalent_pkg $pkgorg $1)
+			if [ ! -d "$1$INSTALLED/$pkg" ]; then
+				local list
+				list="$INSTALL_LIST"
+				[ -n "$list" ] || list="$TOP_DIR/packages.list"
+				# We can install packages from a local dir by greping
+				# the TAZPKG_BASENAME in the local packages.list.
+				found=0
+				if [ -f "$list" ]; then
+					eval_gettext "Checking if \$pkg exists in local list... "; echo
+					mkdir $TMP_DIR
+					for i in $pkg-*.tazpkg; do
+						[ -f $i ] || continue
+						{ cd $TMP_DIR ; cpio --quiet -i receipt > /dev/null 2>&1; } < $i
+						[ "$(. $TMP_DIR/receipt; echo $PACKAGE)" = "$pkg" ] || continue
+						if grep -q ^$(package_fullname_in_dir $TMP_DIR).tazpkg$ $list
+						then
+							found=1
+							tazpkg install $i $root --list=$list
+							break
+						fi
+					done
+					rm -rf $TMP_DIR
+				fi
+				# Install deps from the mirror.
+				if [ $found -eq 0 ]; then
+					if [ ! -f "$LOCALSTATE/packages.list" ]; then
+						tazpkg recharge
+					fi
+					tazpkg get-install $pkg $root
+				fi
+			fi
+		done
+	else
+		echo ""
+		eval_gettext \
+"Leaving dependencies for \$PACKAGE unresolved. The package is installed but
+will probably not work."; echo
+		echo ""
+	fi
+}
+
+# xHTML packages list header.
+xhtml_header()
+{
+	cat > $XHTML_LIST << _EOT_
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Install packages on: `hostname`</title>
+	<meta charset="utf-8" />
+	<style type="text/css">
+	body { font: 88% sans-serif, vernada, arial; margin: 0; }
+	#header { background: #351a0a; height: 40px; border-bottom: 8px solid #d66018; }
+	#content { margin: 40px 80px; text-align: justify; }
+	#footer { text-align: center; padding: 20px; border-top: 1px solid #ddd; }
+	h1 { margin: 0; padding: 8px; color: #fff; font-size: 20px; }
+	h2 { color: #444; } h3 { color: #666; font-size: 140%; }
+	pre { background-color: #f8f8f8; border: 1px solid #ddd; padding: 10px;
+		-moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px;}
+	</style>
+</head>
+<body>
+
+<body>
+<div id="header">
+	<h1>Installed packages list</h1>
+</div>
+
+<!-- Start content -->
+<div id="content">
+
+<p>
+_packages_ packages installed - List generated on : $DATE
+<p>
+
+_EOT_
+}
+
+# xHTML content with packages info.
+xhtml_pkg_info()
+{
+	cat >> $XHTML_LIST << _EOT_
+<h3>$PACKAGE</h3>
+<pre>
+Version    : $VERSION$EXTRAVERSION
+Short desc : $SHORT_DESC
+Web site   : <a href="$WEB_SITE">$WEB_SITE</a>
+</pre>
+
+_EOT_
+}
+
+# xHTML packages list footer.
+xhtml_footer()
+{
+	cat >> $XHTML_LIST << _EOT_
+<hr />
+<p id="footer">
+$packages packages installed - List generated on : $DATE
+</p>
+
+<!-- End content -->
+</div>
+</body>
+</html>
+_EOT_
+}
+
+# Search pattern in installed packages.
+search_in_installed_packages()
+{
+	gettext "Installed packages"; echo
+	separator
+	list=`ls -1 $INSTALLED | grep -i "$PATTERN"`
+	for pkg in $list
+	do
+		EXTRAVERSION=""
+		[ -f $INSTALLED/$pkg/receipt ] || continue
+		. $INSTALLED/$pkg/receipt
+		echo -n "$PACKAGE "
+		echo -en "\033[24G $VERSION$EXTRAVERSION"
+		echo -e "\033[42G `translate_category $CATEGORY`."
+		packages=$(($packages+1))
+	done
+	# Set correct ending messages.
+	if [ "$packages" = "" ]; then
+		eval_gettext "0 installed packages found for : \$PATTERN"; echo
+		echo ""
+	else
+		separator
+		eval_gettext "\$packages installed package(s) found for : \$PATTERN"; echo
+		echo ""
+	fi
+}
+
+# Search in packages.list for available pkgs.
+search_in_packages_list()
+{
+	gettext "Available packages name-version"; echo
+	separator
+	packages=0
+	for i in $LOCALSTATE/packages.list $LOCALSTATE/undigest/*/packages.list; do
+		grep -is "$PATTERN" $i
+		packages=$(($packages + `grep -is "$PATTERN" $i | wc -l`))
+	done
+	if [ ! -f "$LOCALSTATE/packages.list" ]; then
+		echo ""
+		gettext \
+"No 'packages.list' found to check for mirrored packages. For more results,
+please run 'tazpkg recharge' once as root before searching."; echo
+		echo ""
+	fi
+	if [ "$packages" = "0" ]; then
+		eval_gettext "0 available packages found for : \$PATTERN"; echo
+		echo ""
+	else
+		separator
+		eval_gettext "\$packages available package(s) found for : \$PATTERN"; echo
+		echo ""
+	fi
+}
+
+# search --mirror: Search in packages.txt for available pkgs and give more
+# info than --list or default.
+search_in_packages_txt()
+{
+	gettext "Matching packages name with version and desc"; echo
+	separator
+	packages=0
+	for i in $LOCALSTATE/packages.txt $LOCALSTATE/undigest/*/packages.txt; do
+		grep -is -A 2 "^$PATTERN" $i
+		packages=$(($packages + `grep -is "^$PATTERN" $i | wc -l`))
+	done
+	if [ ! -f "$LOCALSTATE/packages.txt" ]; then
+		echo ""
+		gettext \
+"No 'packages.txt' found to check for mirrored packages. For more results,
+please run 'tazpkg recharge' once as root before searching."; echo
+		echo ""
+	fi
+	if [ "$packages" = "0" ]; then
+		eval_gettext "0 available packages found for : \$PATTERN"; echo
+		echo ""
+	else
+		separator
+		eval_gettext "\$packages available package(s) found for : \$PATTERN"; echo
+		echo ""
+	fi
+}
+
+# Install package-list from a flavor
+install_flavor()
+{
+	check_root
+	
+	# Get repositories priority list.
+	look_for_priority
+	
+	FLAVOR=$1
+	ARG=$2
+	mkdir -p $TMP_DIR
+	[ -f $FLAVOR.flavor ] && cp $FLAVOR.flavor $TMP_DIR
+	cd $TMP_DIR
+	if [ -f $FLAVOR.flavor ] || download $FLAVOR.flavor; then
+		zcat $FLAVOR.flavor | cpio --quiet -i >/dev/null
+		while read file; do
+			for pkg in $(ls -d $INSTALLED/${file%%-*}*); do
+				[ -f $pkg/receipt ] || continue
+				EXTRAVERSION=""
+				. $pkg/receipt
+				[ "$PACKAGE-$VERSION$EXTRAVERSION" = "$file" ] && break
+			done
+			[ "$PACKAGE-$VERSION$EXTRAVERSION" = "$file" ] && continue
+			cd $CACHE_DIR
+			download $file.tazpkg
+			cd $TMP_DIR
+		        tazpkg install $CACHE_DIR/$file.tazpkg --forced
+		done < $FLAVOR.pkglist
+		[ -f $FLAVOR.nonfree ] && while read pkg; do
+			[ -d $INSTALLED/$pkg ] || continue
+			[ -d $INSTALLED/get-$pkg ] && tazpkg get-install get-$pkg
+			get-$pkg
+		done < $FLAVOR.nonfree
+		[ "$ARG" == "--purge" ] && for pkg in $(ls $INSTALLED); do
+			[ -f $INSTALLED/$pkg/receipt ] || continue
+			EXTRAVERSION=""
+			. $INSTALLED/$pkg/receipt
+			grep -q ^$PACKAGE-$VERSION$EXTRAVERSION$ $FLAVOR.pkglist && continue
+			grep -qs ^$PACKAGE$ $FLAVOR.nonfree && continue
+			tazpkg remove $PACKAGE
+		done
+	else
+		eval_gettext "Can't find flavor \$FLAVOR. Abort."; echo
+	fi
+	cd $TOP_DIR
+	rm -rf $TMP_DIR
+}
+
+# Update mirror urls
+setup_mirror()
+{
+	# Backup old list.
+	if [ -f "$1/mirror" ]; then
+		cp -f $1/mirror $1/mirror.bak
+	fi
+	echo ""
+	echo -e "\033[1m`gettext \"Current mirror(s)\"`\033[0m"
+	separator
+	echo "  `cat $1/mirror 2> /dev/null`"
+	gettext \
+"Please enter URL of the new mirror (http, ftp or local path). You must specify
+the complete address to the directory of the packages and packages.list file."; echo
+	echo ""
+	gettext "New mirror(s) URL : "
+	NEW_MIRROR_URL=$2
+	if [ -n "$NEW_MIRROR_URL" ]; then
+		echo $NEW_MIRROR_URL
+	else
+		read NEW_MIRROR_URL
+	fi
+	if [ "$NEW_MIRROR_URL" = "" ]; then
+		gettext "Nothing has been changed."; echo
+	else
+		eval_gettext "Setting mirror(s) to : $NEW_MIRROR_URL"; echo
+		rm -f $1/mirror
+		for i in $NEW_MIRROR_URL; do
+			echo "$i" >> $1/mirror
+		done
+	fi
+	echo ""
+}
+
+# recursive dependencies scan
+dep_scan()
+{
+for i in $1; do
+	case " $ALL_DEPS " in
+	*\ $i\ *) continue;;
+	esac
+	ALL_DEPS="$ALL_DEPS $i"
+	[ -n "$2" ] && echo "$2$i ($(fgrep -A 3 $i $LOCALSTATE/packages.txt \
+				     | tail -1 | sed 's/.*(\([^ ]*\).*/\1/'))"
+	[ -f $i/receipt ] || continue
+	DEPENDS=""
+	. $i/receipt
+	[ -n "$DEPENDS" ] && dep_scan "$DEPENDS" "$2  "
+done
+}
+
+# recursive reverse dependencies scan
+rdep_scan()
+{
+SEARCH=$1
+
+for i in * ; do
+	DEPENDS=""
+	. $i/receipt
+	echo "$i $(echo $DEPENDS)"
+done | awk -v search=$SEARCH '
+function show_deps(deps, all_deps, pkg, space)
+{
+	if (all_deps[pkg] == 1) return
+	all_deps[pkg] = 1
+	if (space != "") printf "%s %s\n",space,pkg
+	for (i = 1, n = split(deps[pkg], mydeps, " "); i <= n; i++) {
+		show_deps(deps, all_deps, mydeps[i],"==" space)
+	}
+}
+
+{
+	all_deps[$1] = 0
+	for (i = 2; i <= NF; i++)
+		deps[$i] = deps[$i] " " $1
+}
+
+END {
+	show_deps(deps, all_deps, search, "")
+}
+' | while read spc pkg; do
+	echo -n $spc | sed 's/=/ /g'
+	echo -n $pkg
+	echo -n ' ('
+	fgrep -A 3 $pkg $LOCALSTATE/packages.txt  | tail -1 | \
+				    sed 's/.*(\([^ ]*\).*/\1)/'
+done
+}
+
+# Check for ELF file
+is_elf()
+{
+	[ "$(dd if=$1 bs=1 skip=1 count=3 2> /dev/null)" = "ELF" ]
+}
+
+# Print shared library dependencies
+ldd()
+{
+	LD_TRACE_LOADED_OBJECTS=1 /lib/ld*.so $1 2> /dev/null
+}
+
+# search dependencies for files in $TMP_DIR/$file/fs
+find_depends()
+{
+	DEFAULT_DEPENDS="glibc-base gcc-lib-base"
+
+	[ -n "$TMPLOCALSTATE" ] || TMPLOCALSTATE=$LOCALSTATE
+	[ -f $TMPLOCALSTATE/files.list.lzma ] || tazpkg recharge > /dev/null
+	for i in $TMPLOCALSTATE/files.list.lzma \
+ 		$TMPLOCALSTATE/undigest/*/files.list.lzma ; do
+ 		[ -f $i ] && lzma d $i -so >> $TMP_DIR/files.list
+	done
+	find $TMP_DIR/$file/fs -type f | while read chkfile ; do
+		is_elf $chkfile || continue
+		case "$chkfile" in
+		*.o|*.ko|*.ko.gz) continue;;
+		esac
+		ldd $chkfile | while read lib rem; do
+			case "$lib" in
+			statically|linux-gate.so*|ld-*.so|*/ld-*.so)
+				continue;;
+			esac
+			find $TMP_DIR/$file/fs | grep -q /$lib$ && continue
+			for dep in $(fgrep $lib files.list | cut -d: -f1); do
+				case " $DEFAULT_DEPENDS " in
+				*\ $dep\ *) continue 2;;
+				esac
+				grep -qs "^$dep$" $TMP_DIR/depends && continue 2
+			done
+			if [ -n "$dep" ]; then
+				echo "$dep" >> $TMP_DIR/depends
+			else
+				grep -qs ^$lib$ $TMP_DIR/unresolved ||
+				echo "$lib" >> $TMP_DIR/unresolved
+			fi
+		done
+	done
+	spc=""
+	cat $TMP_DIR/depends 2> /dev/null | sort | uniq | while read file; do
+		echo -n "$spc$file"
+		spc=" "
+	done
+}
+
+show_unresolved_lib()
+{
+	if [ -s $TMP_DIR/unresolved ]; then
+		echo -e "BUGS=\"`gettext \"No dependency for\"`" >> $1
+		cat $TMP_DIR/unresolved | sort | uniq | while read file; do
+			eval_gettext "WARNING: unknown dependency for \$lib"; echo
+			echo -n " $file" >> $1
+		done
+		echo "\"" >> $1
+	fi
+}
+
+# convert a .ipk package to .tazpkg
+convert_ipk()
+{
+	mkdir -p $TMP_DIR
+	tar xOzf $PACKAGE_FILE ./control.tar.gz | tar xzf - -C $TMP_DIR
+	package="$(grep ^Package $TMP_DIR/control | sed 's/.*: //')"
+	version="$(grep ^Version $TMP_DIR/control | sed 's/.*: //')"
+	maintainer="$(grep ^Maintainer $TMP_DIR/control | sed 's/.*: //')"
+	target="$(grep ^Architecture $TMP_DIR/control | sed 's/.*: //')"
+	descrip="$(grep ^Description $TMP_DIR/control | sed 's/.*: //')"
+	url="http://openwrt.org/"
+	case "$target" in
+	i386|all)
+		file=$package-$version
+		mkdir -p $TMP_DIR/$file/fs
+		tar xOzf $PACKAGE_FILE ./data.tar.gz | \
+			tar xzf - -C $TMP_DIR/$file/fs
+		cd $TMP_DIR
+		cat > $file/receipt <<EOT
+# SliTaz package receipt.
+# generated by tazpkg from package $(basename $PACKAGE_FILE)
+PACKAGE="$package"
+VERSION="$version"
+CATEGORY="misc"
+SHORT_DESC="$descrip"
+WEB_SITE="$url"
+MAINTAINER="$maintainer"
+DEPENDS="$(find_depends)"
+EOT
+		[ -s conffiles ] && cat >> $file/receipt <<EOT
+CONFIG_FILES="$(cat conffiles)"
+EOT
+		show_unresolved_lib $file/receipt
+		while read script func; do
+			[ -s $script ] && cat >> $file/receipt <<EOT
+
+$func()
+{
+$(cat $script)
+}
+EOT
+		done <<EOT
+preinst		pre_install
+postinst	post_install
+prerm		pre_remove
+postrm		post_remove
+EOT
+		awk '
+{
+   if (/^ / && show) print substr($0,2);
+   else show=0;
+   if (/^Description/) show=1;
+}' < $TMP_DIR/control > $file/description.txt
+		sed -i 's/^\.$//' $file/description.txt
+		[ -s $file/description.txt ] || rm -f $file/description.txt
+		tazpkg pack $file
+		cd $TOP_DIR
+		mv $TMP_DIR/$file.tazpkg .
+		;;
+	*)
+		gettext "Invalid target: $target (expected i386)"; echo
+		;;
+	esac
+	rm -rf $TMP_DIR
+}
+
+# convert a .pkg.tar.gz/.apk package to .tazpkg
+convert_arch()
+{
+	mkdir -p $TMP_DIR/fs
+	tar xzf $PACKAGE_FILE -C $TMP_DIR/fs
+	if [ -f $TMP_DIR/fs/.PKGINFO ]; then
+		cd $TMP_DIR
+		package="$(grep ^pkgname fs/.PKGINFO | sed 's/.*= //')"
+		version="$(grep ^pkgver  fs/.PKGINFO | sed 's/.*= //')"
+		descrip="$(grep ^pkgdesc fs/.PKGINFO | sed 's/.*= //')"
+		url="$(grep ^url fs/.PKGINFO | sed 's/.*= //')"
+		maintainer="$(grep ^packager fs/.PKGINFO | sed 's/.*= //')"
+		file=$package-$version
+		mkdir $file
+		mv fs $file
+		cat > $file/receipt <<EOT
+# SliTaz package receipt.
+# generated by tazpkg from Archlinux package $(basename $PACKAGE_FILE)
+PACKAGE="$package"
+VERSION="$version"
+CATEGORY="misc"
+SHORT_DESC="$descrip"
+WEB_SITE="$url"
+MAINTAINER="$maintainer"
+DEPENDS="$(find_depends)"
+EOT
+		show_unresolved_lib $file/receipt
+		rm -f $file/fs/.[A-Z]*
+		tazpkg pack $file
+		mv $file.tazpkg $TOP_DIR
+	else
+		eval_gettext "\$PACKAGE_FILE does not look like an Archlinux/Alpine package !"; echo
+	fi
+	cd $TOP_DIR
+	rm -rf $TMP_DIR
+}
+
+# convert a .tgz package to .tazpkg
+convert_tgz()
+{
+	package=$(basename $PACKAGE_FILE)
+	IFS='-'
+	set -- $package
+	unset IFS
+	package=$1
+	version=$2
+	file="$package-$version"
+	mkdir -p $TMP_DIR/$file/fs
+	tar xzf $PACKAGE_FILE -C $TMP_DIR/$file/fs
+	cd $TMP_DIR
+	if [ -d $file/fs/install ]; then
+		descrip=$(grep ^$package $file/fs/install/slack-desc | \
+			  head -1 | sed 's/.*(\(.*\)).*/\1/')
+		cat > $file/receipt <<EOT
+# SliTaz package receipt.
+# generated by tazpkg from slackware package $(basename $PACKAGE_FILE)
+PACKAGE="$package"
+VERSION="$version"
+CATEGORY="misc"
+SHORT_DESC="$descrip"
+WEB_SITE="http://www.slackware.com/packages/"
+MAINTAINER="nobody@slitaz.org"
+DEPENDS="$(find_depends)"
+EOT
+		show_unresolved_lib $file/receipt
+		[ -f $file/fs/install/doinst.sh ] && cat >> $file/receipt <<EOM
+
+post_install()
+{
+chroot \$1/ sh - << EOT
+cd /
+$(cat $file/fs/install/doinst.sh | sed -e 's/\\/\\\\/g' | sed -e 's/\$/\\$/g')
+EOT
+}
+EOM
+		grep ^$package $file/fs/install/slack-desc | \
+			sed "s/^$package://" > $file/description.txt
+		[ -s $file/description.txt ] || rm -f $file/description.txt
+		rm -rf $file/fs/install
+		tazpkg pack $file
+		mv $file.tazpkg $TOP_DIR
+	else
+		eval_gettext "\$PACKAGE_FILE does not look like a Slackware package !"; echo
+	fi
+	cd $TOP_DIR
+	rm -rf $TMP_DIR
+}
+
+# convert a .deb package to .tazpkg
+convert_deb()
+{
+	mkdir -p $TMP_DIR
+	dpkg-deb -e $PACKAGE_FILE $TMP_DIR
+	package=$(grep '^ *Package:' $TMP_DIR/control)
+	package=$(echo ${package##*:})
+	version=$(grep '^ *Version:' $TMP_DIR/control)
+	version=$(echo ${version##*:})
+	descrip=$(grep '^ *Description:' $TMP_DIR/control)
+	descrip=$(echo ${descrip##*:})
+	target="$(grep ^Architecture $TMP_DIR/control | sed 's/.*: //')"
+	case "$target" in
+	i386|all)
+		file="$package-$version"
+		mkdir -p $TMP_DIR/$file/fs/
+		dpkg-deb -x $PACKAGE_FILE $TMP_DIR/$file/fs
+		cd $TMP_DIR
+		cat > $file/receipt <<EOT
+# SliTaz package receipt.
+# generated by tazpkg from debian package $(basename $PACKAGE_FILE)
+PACKAGE="$package"
+VERSION="$version"
+CATEGORY="misc"
+SHORT_DESC="$descrip"
+WEB_SITE="http://packages.debian.org/search?keywords=$package"
+MAINTAINER="nobody@slitaz.org"
+DEPENDS="$(find_depends)"
+EOT
+		[ -s conffiles ] && cat >> $file/receipt <<EOT
+CONFIG_FILES="$(cat conffiles)"
+EOT
+		show_unresolved_lib $file/receipt
+		awk '
+{
+   if (/^ / && show) print substr($0,2);
+   else show=0;
+   if (/^Description/) show=1;
+}' < $TMP_DIR/control > $file/description.txt
+		sed -i 's/^\.$//' $file/description.txt
+		[ -s $file/description.txt ] || rm -f $file/description.txt
+		tazpkg pack $file
+		mv $file.tazpkg $TOP_DIR
+		;;
+	*)
+		gettext "Invalid target: $target (expected i386)"; echo
+		;;
+	esac
+	cd $TOP_DIR
+	rm -rf $TMP_DIR
+}
+
+# convert a .rpm package to .tazpkg
+convert_rpm()
+{
+	mkdir -p $TMP_DIR
+	cp $PACKAGE_FILE $TMP_DIR
+	PACKAGE_FILE=$TMP_DIR/$(basename $PACKAGE_FILE)
+	rpm -qip $PACKAGE_FILE | awk -v pkg=$(basename $PACKAGE_FILE) '
+BEGIN {
+	goturl=0;
+	printf "# Taz package receipt.\n";
+	printf "# Generated by tazpkg from rpm package %s\n",pkg;
+}
+{
+	if (/^Name/) { name=$3; printf "PACKAGE=\"%s\"\n",$3; }
+	if (/^Version/) printf "VERSION=\"%s-",$3;
+	if (/^Release/) printf "%s\"\n",$3;
+	if (/^Summary/) printf "SHORT_DESC=\"%s\"\n",substr($0,15);
+	if (/^URL/) { goturl=1; printf "WEB_SITE=\"%s\"\n",$3; }
+}
+END {
+	if (goturl == 0)
+		printf "WEB_SITE=\"http://rpmfind.net/linux/rpm2html/search.php?query=%s\"\n",name;
+	printf "CATEGORY=\"misc\"\n";
+	printf "MAINTAINER=\"nobody@slitaz.org\"\n";
+}
+' > $TMP_DIR/receipt
+	. $TMP_DIR/receipt
+	file=$PACKAGE-$VERSION
+	mkdir -p $TMP_DIR/$file/fs/
+	mv $TMP_DIR/receipt $TMP_DIR/$file
+	rpm -qip $PACKAGE_FILE | awk '
+DEGIN { show=0 }
+{
+  if (show) print;
+  if (/^Description/) show=1;
+}
+' > $TMP_DIR/$file/description.txt
+	cd $TMP_DIR/$file/fs/
+	rpm2cpio $PACKAGE_FILE | cpio -idm --quiet
+	cd ../..
+	echo "DEPENDS=\"$(find_depends)\"" >> $TMP_DIR/$file/receipt
+	show_unresolved_lib $TMP_DIR/$file/receipt
+	tazpkg pack $file
+	mv $file.tazpkg $TOP_DIR
+	cd $TOP_DIR
+	rm -rf $TMP_DIR
+}
+
+update_desktop_database()
+{
+	if [ -f $1/usr/bin/update-desktop-database ] && [ -n "$updatedesktopdb" ]; then
+		chroot "$1/" /usr/bin/update-desktop-database /usr/share/applications 2>/dev/null
+	fi
+}
+
+update_mime_database()
+{
+	if [ -f $1/usr/bin/update-mime-database ] && [ -n "$updatemimedb" ]; then
+		chroot "$1/" /usr/bin/update-mime-database /usr/share/mime
+	fi
+}
+
+update_icon_database()
+{
+	if [ -f $1/usr/bin/gtk-update-icon-cache ] && [ -n "$updateicondb" ]; then
+		chroot "$1/" /usr/bin/gtk-update-icon-cache /usr/share/icons/hicolor
+	fi
+}
+
+compile_glib_schemas()
+{
+	if [ -f $1/usr/bin/glib-compile-schemas ] && [ -n "$compile_schemas" ]; then
+		chroot "$1/" /usr/bin/glib-compile-schemas /usr/share/glib-2.0/schemas
+	fi
+}
+
+translate_category()
+{
+	case $1 in
+		base-system) gettext "base-system" ;;
+		x-window) gettext "x-window" ;;
+		utilities) gettext "utilities" ;;
+		network) gettext "network" ;;
+		graphics) gettext "graphics" ;;
+		multimedia) gettext "multimedia" ;;
+		office) gettext "office" ;;
+		development) gettext "development" ;;
+		system-tools) gettext "system-tools" ;;
+		security) gettext "security" ;;
+		games) gettext "games" ;;
+		misc) gettext "misc" ;;
+		meta) gettext "meta" ;;
+		non-free) gettext "non-free" ;;
+		
+		# Support custom categories by keeping them untranslated.
+		*) echo "$1" ;;
+		
+	esac
+}
+
+reverse_translate_category()
+{
+	case $1 in
+		`gettext "base-system"`) echo "base-system" ;;
+		`gettext "x-window"`) echo "x-window" ;;
+		`gettext "utilities"`) echo "utilities" ;;
+		`gettext "network"`) echo "network" ;;
+		`gettext "graphics"`) echo "graphics" ;;
+		`gettext "multimedia"`) echo "multimedia" ;;
+		`gettext "office"`) echo "office" ;;
+		`gettext "development"`) echo "development" ;;
+		`gettext "system-tools"`) echo "system-tools" ;;
+		`gettext "security"`) echo "security" ;;
+		`gettext "games"`) echo "games" ;;
+		`gettext "misc"`) echo "misc" ;;
+		`gettext "meta"`) echo "meta" ;;
+		`gettext "non-free"`) echo "non-free" ;;
+		
+		# If category is not one of those translated in native language,
+		# keep it untranslated. This allows both native and english
+		# language support. This also supports custom categories.
+		*) echo "$1" ;;
+		
+	esac
+}
+
+translate_querry()
+{
+	case $1 in
+		y) gettext "y" ;;
+		Y) gettext "Y" ;;
+		n) gettext "n" ;;
+		N) gettext "N" ;;
+		# Support other cases but keep them untranslated.
+		*) echo "$1" ;;
+	esac
+}
+
+###################
+# Tazpkg commands #
+###################
+
+case "$COMMAND" in
+	list|-l)
+		# List all installed packages or a specific category.
+		if [ "$2" = "blocked" ]; then
+			echo ""
+			echo -e "\033[1m`gettext \"Blocked packages\"`\033[0m"
+			separator
+			if [ -s "$BLOCKED" ];then
+				cat $BLOCKED
+			else
+				gettext "No blocked packages found."; echo
+			fi
+			echo "" && exit 0
+		fi
+		# Display the list of categories.
+		if [ "$2" = "cat" -o "$2" = "categories" ]; then
+			echo ""
+			echo -e "\033[1m`gettext \"Packages categories\"`\033[0m"
+			separator
+			for i in $CATEGORIES
+			do
+				translate_category $i; echo
+				categories=$(($categories+1))
+			done
+			separator
+			eval_gettext "\$categories categories"; echo
+			echo ""
+			exit 0
+		fi
+		# Check for an asked category.
+		if [ -n "$2" ]; then
+			ASKED_CATEGORY_I18N=$2
+			ASKED_CATEGORY=$(reverse_translate_category $2)
+			echo ""
+			echo -e "\033[1m`gettext \"Installed packages of category:\"`\033[0m $ASKED_CATEGORY_I18N"
+			separator
+			for pkg in $INSTALLED/*
+			do
+				[ -f $pkg/receipt ] || continue
+				EXTRAVERSION=""
+				. $pkg/receipt
+				if [ "$CATEGORY" == "$ASKED_CATEGORY" ]; then
+					echo -n "$PACKAGE"
+					echo -e "\033[24G $VERSION$EXTRAVERSION"
+					packages=$(($packages+1))
+				fi
+			done
+			separator
+			eval_gettext "\$packages packages installed of category \$ASKED_CATEGORY_I18N."; echo
+			echo ""
+		else
+			# By default list all packages and versions.
+			echo ""
+			echo -e "\033[1m`gettext \"List of all installed packages\"`\033[0m"
+			separator
+			for pkg in $INSTALLED/*
+			do
+				[ -f $pkg/receipt ] || continue
+				EXTRAVERSION=""
+				. $pkg/receipt
+				echo -n "$PACKAGE"
+				echo -en "\033[24G $VERSION$EXTRAVERSION"
+				echo -e "\033[42G `translate_category $CATEGORY`"
+				packages=$(($packages+1))
+			done
+			separator
+			eval_gettext "\$packages packages installed."; echo
+			echo ""
+		fi ;;
+	xhtml-list)
+		# Get info in receipts and build list.
+		DATE=`date +%Y-%m-%d\ \%H:%M:%S`
+		if [ -n "$2" ]; then
+			XHTML_LIST=$2
+		else
+			XHTML_LIST=installed-packages.html
+		fi
+		echo ""
+		echo -e "\033[1m`gettext \"Creating xHTML list of installed packages\"`\033[0m"
+		separator
+		gettext "Generating xHTML header..."
+		xhtml_header
+		status
+		# Packages
+		gettext "Creating packages information..."
+		for pkg in $INSTALLED/*
+		do
+			[ -f $pkg/receipt ] || continue
+			EXTRAVERSION=""
+			. $pkg/receipt
+			xhtml_pkg_info
+			packages=$(($packages+1))
+		done
+		status
+		gettext "Generating xHTML footer..."
+		xhtml_footer
+		status
+		# sed pkgs nb in header.
+		sed -i s/'_packages_'/"$packages"/ $XHTML_LIST
+		separator
+		eval_gettext "\$XHTML_LIST created - $packages packages."; echo
+		echo "" ;;
+	list-mirror)
+		# List all available packages on the mirror. Option --diff displays
+		# last mirrored packages diff (see recharge).
+		check_for_packages_list
+		case $2 in
+			--diff)
+				if [ -f "$LOCALSTATE/packages.diff" ]; then
+					echo ""
+					echo -e "\033[1m`gettext \"Mirrored packages diff\"`\033[0m"
+					separator
+					cat $LOCALSTATE/packages.diff
+					separator
+					pkgs=`cat $LOCALSTATE/packages.diff | wc -l`
+					eval_gettext "\$pkgs new packages listed on the mirror."; echo
+					echo ""
+				else
+					echo ""
+					gettext "Unable to list anything, no packages.diff found."; echo
+					gettext "Recharge your current list to create a first diff."; echo
+					echo ""
+				fi && exit 0 ;;
+			--text|--txt)
+				echo ""
+				echo -e "\033[1m`gettext \"List of available packages on the mirror\"`\033[0m"
+				separator
+				cat $LOCALSTATE/packages.txt ;;
+			--raw|*)
+				echo ""
+				echo -e "\033[1m`gettext \"List of available packages on the mirror\"`\033[0m"
+				separator
+				cat $LOCALSTATE/packages.list ;;
+		esac
+		separator
+		pkgs=`cat $LOCALSTATE/packages.list | wc -l`
+		eval_gettext "\$pkgs packages in the last recharged list."; echo
+		echo "" ;;
+	list-files)
+		# List files installed with the package.
+		check_for_package_on_cmdline
+		check_for_receipt
+		echo ""
+		echo -e "\033[1m`gettext \"Installed files with:\"`\033[0m $PACKAGE"
+		separator
+		cat $INSTALLED/$PACKAGE/files.list | sort
+		separator
+		files=`cat $INSTALLED/$PACKAGE/files.list | wc -l`
+		eval_gettext "\$files files installed with \$PACKAGE."; echo
+		echo "" ;;
+	info)
+		# Information about package.
+		check_for_package_on_cmdline
+		check_for_receipt
+		EXTRAVERSION=""
+		. $INSTALLED/$PACKAGE/receipt
+		echo ""
+		echo -e "\033[1m`gettext \"Tazpkg information\"`\033[0m
+================================================================================
+`gettext \"Package    :\"` $PACKAGE
+`gettext \"Version    :\"` $VERSION$EXTRAVERSION
+`gettext \"Category   :\"` `translate_category $CATEGORY`
+`gettext \"Short desc :\"` $SHORT_DESC
+`gettext \"Maintainer :\"` $MAINTAINER"
+		if [ "$DEPENDS" ]; then
+			echo -e "`gettext \"Depends    :\"` $DEPENDS"
+		fi
+		if [ "$SUGGESTED" ]; then
+			echo -e "`gettext \"Suggested  :\"` $SUGGESTED"
+		fi
+		if [ "$BUILD_DEPENDS" ]; then
+			echo -e "`gettext \"Build deps :\"` $BUILD_DEPENDS"
+		fi
+		if [ "$WANTED" ]; then
+			echo -e "`gettext \"Wanted src :\"` $WANTED"
+		fi
+		if [ "$WEB_SITE" ]; then
+			echo -e "`gettext \"Web site   :\"` $WEB_SITE"
+		fi
+		separator
+		echo "" ;;
+	desc)
+		# Display package description.txt if available.
+		if [ -f "$INSTALLED/$PACKAGE/description.txt" ]; then
+			echo ""
+			echo -e "\033[1m`gettext \"Description of:\"`\033[0m $PACKAGE"
+			separator
+			cat $INSTALLED/$PACKAGE/description.txt
+			separator
+			echo ""
+		else
+			echo ""
+			gettext "Sorry, no description available for this package."; echo
+			echo ""
+		fi ;;
+	search|-s)
+		# Search for a package by pattern or name.
+		PATTERN="$2"
+		if [ -z "$PATTERN" ]; then
+			echo ""
+			gettext "Please specify a pattern or package name to search for."; echo
+			gettext "Example : 'tazpkg search paint'"; echo
+			echo ""
+			exit 0
+		fi
+		echo ""
+		echo -e "\033[1m`gettext \"Search result for:\"`\033[0m $PATTERN"
+		echo ""
+		# Default is to search in installed pkgs and the raw list.
+		case $3 in
+			-i|--installed)
+				search_in_installed_packages ;;
+			-l|--list)
+				search_in_packages_list ;;
+			-m|--mirror)
+				search_in_packages_txt ;;
+			*)
+				search_in_installed_packages
+				search_in_packages_list ;;
+		esac ;;
+	search-file)
+		# Search for a file by pattern or name in all files.list.
+		if [ -z "$2" ]; then
+			echo ""
+			gettext "Please specify a pattern or file name to search for."; echo
+			gettext "Example : 'tazpkg search-file libnss'"; echo
+			echo ""
+			exit 0
+		fi
+		echo ""
+		echo -e "\033[1m`gettext \"Search result for file\"`\033[0m $2"
+		separator
+		
+		if [ "$3" == "--mirror" ]; then
+
+			match=0
+			for i in $LOCALSTATE/files.list.lzma \
+				 $LOCALSTATE/undigest/*/files.list.lzma; do
+				 [ -f $i ] || continue
+				unlzma -c $i | grep -- ".*:.*$2" | awk '
+                            BEGIN { last="" }
+                            {
+			    	pkg=substr($0,0,index($0,":")-1);
+			    	file=substr($0,index($0,":")+2);
+                                if (last != pkg) {
+				    last = pkg;
+				    printf("\n%c[1mPackage %s :%c[0m\n",27,pkg,27);
+				}
+                                printf("%s\n",file);
+                            }'
+				match=$(($match + `unlzma -c $i | grep -- ".*:.*$2" | wc -l`))
+			done
+
+		else
+
+		# Check all pkg files.list in search match which specify the package
+		# name and the full path to the file(s).
+		for pkg in $INSTALLED/*
+		do
+			if grep -qs "$2" $pkg/files.list; then
+				. $pkg/receipt
+				echo ""
+				echo -e "\033[1m`gettext \"Package\"` $PACKAGE:\033[0m"
+				grep "$2" $pkg/files.list
+				files=`grep $2 $pkg/files.list | wc -l`
+				match=$(($match+$files))
+			fi
+		done
+
+		fi
+		pkg=$2
+		if [ "$match" = "" ]; then
+			eval_gettext "0 file found for: \$pkg"; echo
+			echo ""
+		else
+			echo ""
+			separator
+			eval_gettext "\$match file(s) found for: \$pkg"; echo
+			echo ""
+		fi ;;
+	search-pkgname) 
+		# Search for a package name
+		if [ -z "$2" ]; then
+			echo ""
+			gettext "Please specify a pattern or file name to search for."; echo
+			gettext "Example : 'tazpkg search-pkgname libnss'"; echo
+			echo ""
+			exit 0
+		fi
+		echo ""
+		echo -e "\033[1m`gettext \"Search result for file\"`\033[0m $2"
+		separator
+		
+		# Search for a file on mirror and output only the package name
+		match=0
+		for i in $LOCALSTATE/files.list.lzma \
+				 $LOCALSTATE/undigest/*/files.list.lzma; do
+				 [ -f $i ] || continue
+				unlzma -c $i | grep -- ".*:.*$2" | cut -d: -f1 | uniq | awk '{ print $1 }'
+				match=$(($match + `unlzma -c $i | grep -- ".*:.*$2" | cut -d: -f1 | uniq | wc -l`))
+		done
+		file=$2
+		if [ "$match" = "" ]; then
+			eval_gettext "0 file found for : \$file"; echo
+			echo ""
+		else
+			echo ""
+			separator
+			eval_gettext "$match pkg(s) found with file: \$file"; echo
+			echo ""
+		fi
+		;;
+	install|-i)
+		# Install .tazpkg packages.
+		check_root
+		check_for_package_on_cmdline
+		check_for_package_file
+		
+		get_options_list="root forced list rootconfig"
+		get_options
+		
+		[ "$root" ] && ROOT="$root" && check_base_dir "$root"
+		[ "$list" ] && INSTALL_LIST="$list"
+		if [ "$rootconfig" ]; then
+			if [ "$root" ]; then
+				CACHE_DIR=$root/$CACHE_DIR
+				SAVE_CACHE_DIR=$CACHE_DIR
+				LOCALSTATE=$root/$LOCALSTATE
+			else
+				echo "rootconfig needs --root= option used." >&2
+				exit 1
+			fi
+		fi
+
+		# Get repositories priority list.
+		look_for_priority
+
+		# Check if forced install.
+		if ! [ "$forced" ]; then
+			check_for_installed_package $ROOT
+		fi
+		install_package $ROOT
+		update_desktop_database $ROOT
+		update_mime_database $ROOT 
+		update_icon_database $ROOT 
+		compile_glib_schemas $ROOT ;;
+	install-list|get-install-list)
+		# Install a set of packages from a list.
+		check_root
+		if [ -z "$2" ]; then
+			echo ""
+			gettext \
+"Please change directory (cd) to the packages repository and specify the
+list of packages to install. Example : tazpkg install-list packages.list"
+			echo "" && exit 0
+		fi
+		# Check if the packages list exist.
+		list_file=$2
+		if [ ! -f "$list_file" ]; then
+			gettext "Unable to find : $list_file"; echo
+			exit 0
+		else
+			LIST=`cat $2`
+		fi
+
+		# Remember processed list
+		export INSTALL_LIST="$2"
+
+		# Set $COMMAND and install all packages.
+		if [ "$1" = "get-install-list" ]; then
+			COMMAND=get-install
+		else
+			COMMAND=install
+		fi
+		touch $2-processed
+
+		# Upgrade tazpkg first. It may handle new features/formats...
+		# then upgrade essential packages early
+		for pkg in busybox-pam busybox gcc-lib-base glibc-base \
+			   slitaz-base-files tazpkg ; do
+			pkg=$(egrep $pkg-[0-9] $INSTALL_LIST)
+			[ -n "$pkg" ] || continue
+			eval_gettext "Adding implicit depends \$pkg ..."; echo
+			LIST="$pkg
+$LIST"
+		done
+
+		for pkg in $LIST
+		do
+			grep -qs ^$pkg$ $2-processed && continue
+			tazpkg $COMMAND $pkg --list=$2 "$3" "$4" "$5"
+		done
+		rm -f $2-processed ;;
+	add-flavor)
+		# Install a set of packages from a flavor.
+		install_flavor $2 ;;
+	install-flavor)
+		# Install a set of packages from a flavor and purge other ones.
+		install_flavor $2 --purge ;;
+	set-release)
+		# Change curent release and upgrade packages.
+		RELEASE=$2
+		if [ -z "$RELEASE" ]; then
+			echo ""
+			gettext "Please specify the release you want on the command line."; echo
+			gettext "Example: tazpkg set-release cooking"; echo
+			echo ""
+			exit 0
+		fi
+		rm $LOCALSTATE/mirror
+		echo "$RELEASE" > /etc/slitaz-release
+		tazpkg recharge && tazpkg upgrade
+
+		# Install missing depends
+		cd $INSTALLED
+		for i in * ; do
+			DEPENDS=""
+			. $i/receipt
+			for j in $DEPENDS ; do
+				[ -d $j ] || tazpkg get-install $j
+			done
+		done ;;
+	remove|-r)
+		# Remove packages.
+		check_root
+		check_for_package_on_cmdline
+		get_options_list="root auto"
+		get_options
+		[ "$root" ] && ROOT="$root" 
+		if [ ! -f "$ROOT$INSTALLED/$PACKAGE/receipt" ]; then
+			echo ""
+			eval_gettext "\$PACKAGE is not installed."; echo
+			exit 0
+		else
+			ALTERED=""
+			THE_PACKAGE=$PACKAGE	# altered by receipt
+			for i in $(cd $ROOT$INSTALLED ; ls); do
+				[ -f $ROOT$INSTALLED/$i/receipt ] || continue
+				DEPENDS=""
+				. $ROOT$INSTALLED/$i/receipt
+				case " $(echo $DEPENDS) " in
+				*\ $THE_PACKAGE\ *) ALTERED="$ALTERED $i";;
+				esac
+			done
+			EXTRAVERSION=""
+			. $ROOT$INSTALLED/$THE_PACKAGE/receipt
+		fi
+		echo ""
+		if [ -n "$ALTERED" ]; then
+			eval_gettext "The following packages depend on \$PACKAGE:"; echo
+			for i in $ALTERED; do
+				echo "  $i"
+			done
+		fi
+		REFRESH=$(cd $ROOT$INSTALLED ; grep -sl ^$PACKAGE$ */modifiers)
+		if [ -n "$REFRESH" ]; then
+			eval_gettext "The following packages have been modified by \$PACKAGE:"; echo
+			for i in $REFRESH; do
+				echo "  ${i%/modifiers}"
+			done
+		fi
+		if [ "$auto" ]; then
+			answer=`translate_querry y`
+		else
+			eval_gettext "Remove \$PACKAGE (\$VERSION\$EXTRAVERSION) ?"; echo
+			gettext "Please confirm uninstallation"
+			echo -n " (`translate_querry y`/`translate_querry N`) : "; read answer
+		fi
+		if [ "$answer" = "$(translate_querry y)" ]; then
+			echo ""
+			echo -e "\033[1m`gettext \"Removing:\"`\033[0m $PACKAGE"
+			separator
+			# Pre remove commands.
+			if grep -q ^pre_remove $ROOT$INSTALLED/$PACKAGE/receipt; then
+				pre_remove $ROOT
+			fi
+			gettext "Removing all files installed..."
+			if [ -f $ROOT$INSTALLED/$PACKAGE/modifiers ]; then
+			    for file in `cat $ROOT$INSTALLED/$PACKAGE/files.list`
+			    do
+				for mod in `cat $ROOT$INSTALLED/$PACKAGE/modifiers`
+				do
+					[ -f $ROOT$INSTALLED/$mod/files.list ] && [ $(grep "^$(echo $file | grepesc)$" $ROOT$INSTALLED/$mod/files.list | wc -l) -gt 1 ] && continue 2
+				done
+				remove_with_path $ROOT$file
+			    done
+			else
+				for file in `cat $ROOT$INSTALLED/$PACKAGE/files.list`
+				do
+					remove_with_path $ROOT$file
+				done
+			fi
+			status
+			if grep -q ^post_remove $ROOT$INSTALLED/$PACKAGE/receipt; then
+				post_remove $ROOT
+			fi
+			# Remove package receipt.
+			gettext "Removing package receipt..."
+			rm -rf $ROOT$INSTALLED/$PACKAGE
+			status
+			sed -i "/ $PACKAGE-$VERSION$EXTRAVERSION$/d" \
+				$LOCALSTATE/installed.md5 2> /dev/null
+			# Log this activity
+			log Removed
+			if [ "$ALTERED" ]; then
+				if [ "$auto" ]; then
+					answer=`translate_querry y`
+				else
+				eval_gettext "Remove packages depending on \$PACKAGE"
+				echo -n " (`translate_querry y`/`translate_querry N`) ? "
+				read answer
+				fi
+				if [ "$answer" = "$(translate_querry y)" ]; then
+					for i in $ALTERED; do
+						if [ -d "$ROOT$INSTALLED/$i" ]; then
+							tazpkg remove $i $ROOTOPTS
+						fi
+					done
+				fi
+			fi
+			if [ "$REFRESH" ]; then
+				if [ "$auto" ]; then
+					answer=`translate_querry y`
+				else
+				eval_gettext "Reinstall packages modified by \$PACKAGE"
+				echo -n " (`translate_querry y`/`translate_querry N`) ? "
+				read answer
+				fi
+				if [ "$answer" = "$(translate_querry y)" ]; then
+					for i in $REFRESH; do
+						if [ $(wc -l < $ROOT$INSTALLED/$i) -gt 1 ]; then
+							eval_gettext "Check \$INSTALLED/\$i for reinstallation"; echo
+							continue
+						fi
+						rm -r $ROOT$INSTALLED/$i
+						tazpkg get-install ${i%/modifiers} $ROOTOPTS --forced
+					done
+				fi
+			fi
+		else
+			echo ""
+			eval_gettext "Uninstallation of \$PACKAGE cancelled."; echo
+		fi
+		echo "" ;;
+	extract)
+		# Extract .tazpkg cpio archive into a directory.
+		check_for_package_on_cmdline
+		check_for_package_file
+		echo ""
+		echo -e "\033[1m`gettext \"Extracting:\"`\033[0m $PACKAGE"
+		separator
+		# If no directory destination is found on the cmdline
+		# we create one in the current dir using the package name.
+		if [ -n "$TARGET_DIR" ]; then
+			DESTDIR=$TARGET_DIR/$PACKAGE
+		else
+			DESTDIR=$PACKAGE
+		fi
+		mkdir -p $DESTDIR
+		gettext "Copying original package..."
+		cp $PACKAGE_FILE $DESTDIR
+		status
+		cd $DESTDIR
+		extract_package
+		separator
+		eval_gettext "\$PACKAGE is extracted to: \$DESTDIR"; echo
+		echo "" ;;
+	recompress)
+		# Recompress .tazpkg cpio archive with lzma.
+		check_for_package_on_cmdline
+		check_for_package_file
+		echo ""
+		echo -e "\033[1m`gettext \"Recompressing:\"`\033[0m $PACKAGE"
+		separator
+		mkdir -p $TMP_DIR
+		gettext "Copying original package..."
+		cp $PACKAGE_FILE $TMP_DIR
+		status
+		cd $TMP_DIR
+		extract_package
+		gettext "Recompressing the fs... "
+		find fs | cpio -o -H newc --quiet | lzma e fs.cpio.lzma -si
+		rm -rf fs
+		status
+		gettext "Creating new package... "
+		find . -print | cpio -o -H newc --quiet > \
+			$TOP_DIR/$(basename $PACKAGE_FILE).$$ && mv -f \
+			$TOP_DIR/$(basename $PACKAGE_FILE).$$ \
+			$TOP_DIR/$(basename $PACKAGE_FILE)
+		status
+		cd $TOP_DIR
+		rm -rf $TMP_DIR ;;
+	list-config)
+		# List configuration files installed.
+		if [ "$2" = "--box" ]; then
+			mkdir -p $TMP_DIR && cd $TMP_DIR
+			FILES="$INSTALLED/*/volatile.cpio.gz"
+			[ -n "$3" ] && FILES="$INSTALLED/$3/volatile.cpio.gz"
+			for i in $FILES; do
+				zcat $i | cpio -idm --quiet > /dev/null
+				find * -type f 2>/dev/null | while read file; do
+					if [ ! -e /$file ]; then
+					echo -en "|--|--|--|`gettext \"File lost\"`"
+					else
+					echo -n "$(stat -c "%A|%U|%G|%s|" /$file)"
+					cmp $file /$file > /dev/null 2>&1 || \
+						echo -n "$(stat -c "%.16y" /$file)"
+					fi
+					echo "|/$file"
+				done
+				rm -rf *
+			done
+			cd $TOP_DIR
+			rm -rf $TMP_DIR
+		else
+			echo ""
+			echo -e "\033[1m`gettext \"Configuration files\"`\033[0m"
+			separator
+			for i in $INSTALLED/*/volatile.cpio.gz; do
+				[ -n "$2" -a "$i" != "$INSTALLED/$2/volatile.cpio.gz" ] && continue
+				[ -f "$i" ] || continue
+				zcat $i | cpio -t --quiet
+			done | sed 's|^|/|' | sort
+			separator
+			echo ""
+		fi ;;
+	repack-config)
+		# Create SliTaz package archive from configuration files.
+		mkdir -p $TMP_DIR && cd $TMP_DIR
+		CONFIG_VERSION=1.0
+		mkdir config-$CONFIG_VERSION
+		cd config-$CONFIG_VERSION
+		for i in $INSTALLED/*/volatile.cpio.gz; do
+			zcat $i | cpio -t --quiet
+		done > files.list
+		mkdir fs
+		cd fs
+		( cd / ; cpio -o -H newc --quiet ) < ../files.list | cpio -idm --quiet > /dev/null
+		mkdir -p etc/tazlito
+		for i in $INSTALLED/*/receipt; do
+			EXTRAVERSION=""
+			. $i
+			echo "$PACKAGE-$VERSION$EXTRAVERSION"
+		done > etc/tazlito/config-packages.list
+		cd ..
+		echo "etc/tazlito/config-packages.list" >> files.list
+		cat > receipt <<EOT
+# SliTaz package receipt.
+
+PACKAGE="config"
+VERSION="$CONFIG_VERSION"
+CATEGORY="base-system"
+SHORT_DESC="$(gettext "User configuration backup on ")$(date)"
+DEPENDS="$(ls $INSTALLED)"
+EOT
+		cd ..
+		tazpkg pack config-$CONFIG_VERSION
+		cp config-$CONFIG_VERSION.tazpkg $TOP_DIR
+		cd $TOP_DIR
+		rm -rf $TMP_DIR
+		;;
+	repack)
+		# Create SliTaz package archive from an installed package.
+		check_for_package_on_cmdline
+		check_for_receipt
+		EXTRAVERSION=""
+		. $INSTALLED/$PACKAGE/receipt
+		echo ""
+		echo -e "\033[1mRepacking :\033[0m $PACKAGE-$VERSION$EXTRAVERSION.tazpkg"
+		separator
+		if grep -qs ^NO_REPACK= $INSTALLED/$PACKAGE/receipt; then
+			eval_gettext "Can't repack \$PACKAGE"; echo
+			exit 1
+		fi
+		if [ -s $INSTALLED/$PACKAGE/modifiers ]; then
+			eval_gettext "Can't repack, \$PACKAGE files have been modified by:"; echo
+			for i in $(cat $INSTALLED/$PACKAGE/modifiers); do
+				echo "  $i"
+			done
+			exit 1
+		fi
+		MISSING=""
+		while read i; do
+			[ -e "$i" ] && continue
+			[ -L "$i" ] || MISSING="$MISSING\n  $i"
+		done < $INSTALLED/$PACKAGE/files.list
+		if [ -n "$MISSING" ]; then
+			gettext "Can't repack, the following files are lost:"
+			echo -e "$MISSING"
+			exit 1
+		fi
+		mkdir -p $TMP_DIR && cd $TMP_DIR
+		FILES="fs.cpio.lzma\n"
+		for i in $(ls $INSTALLED/$PACKAGE) ; do
+			[ "$i" = "volatile.cpio.gz" ] && continue
+			[ "$i" = "modifiers" ] && continue
+			cp $INSTALLED/$PACKAGE/$i . && FILES="$FILES$i\n"
+		done
+		ln -s / rootfs
+		mkdir tmp
+		sed 's/^/rootfs/' < files.list | cpio -o -H newc --quiet |\
+		      { cd tmp ; cpio -idm --quiet >/dev/null; cd ..; }
+		mv tmp/rootfs fs
+		if [ -f $INSTALLED/$PACKAGE/volatile.cpio.gz ]; then
+			zcat $INSTALLED/$PACKAGE/volatile.cpio.gz | \
+				{ cd fs; cpio -idm --quiet; cd ..; }
+		fi
+		if fgrep -q repack_cleanup $INSTALLED/$PACKAGE/receipt; then
+			. $INSTALLED/$PACKAGE/receipt
+			repack_cleanup fs
+		fi
+		if [ -f $INSTALLED/$PACKAGE/md5sum ]; then
+			sed 's,  ,  fs,' < $INSTALLED/$PACKAGE/md5sum | \
+			md5sum -s -c || {
+				gettext "Can't repack, md5sum error."; echo
+				cd $TOP_DIR
+				rm -rf $TMP_DIR
+				exit 1
+			}
+		fi
+		find fs | cpio -o -H newc --quiet | lzma e fs.cpio.lzma -si
+		echo -e "$FILES" | cpio -o -H newc --quiet > \
+			$TOP_DIR/$PACKAGE-$VERSION$EXTRAVERSION.tazpkg
+		cd $TOP_DIR
+		\rm -R $TMP_DIR
+		eval_gettext "Package \$PACKAGE repacked successfully."; echo
+		echo -e "`gettext \"Size\"` : `du -sh $PACKAGE-$VERSION$EXTRAVERSION.tazpkg`"
+		echo "" ;;
+	pack)
+		# Create SliTaz package archive using cpio and gzip.
+		check_for_package_on_cmdline
+		cd $PACKAGE
+		if [ ! -f "receipt" ]; then
+			gettext "Receipt is missing. Please read the documentation."; echo
+			exit 0
+		else
+			echo ""
+			echo -e "\033[1mPacking :\033[0m $PACKAGE"
+			separator
+			# Create files.list with redirecting find outpout.
+			gettext "Creating the list of files..." && cd fs
+			find . -type f -print > ../files.list
+			find . -type l -print >> ../files.list
+			cd .. && sed -i s/'^.'/''/ files.list
+			status
+			gettext "Creating md5sum of files..."
+			while read file; do
+				[ -L "fs$file" ] && continue
+				[ -f "fs$file" ] || continue
+				case "$file" in
+				/lib/modules/*/modules.*|*.pyc) continue;;
+				esac
+				md5sum "fs$file" | sed 's/  fs/  /'
+			done < files.list > md5sum
+			status
+			UNPACKED_SIZE=$(du -chs fs receipt files.list md5sum \
+				description.txt 2> /dev/null | awk \
+				'{ sz=$1 } END { print sz }')
+			# Build cpio archives.
+			gettext "Compressing the fs... "
+			find fs | cpio -o -H newc --quiet | lzma e fs.cpio.lzma -si
+			rm -rf fs
+			status
+			PACKED_SIZE=$(du -chs fs.cpio.lzma receipt files.list \
+				md5sum description.txt 2> /dev/null | awk \
+				'{ sz=$1 } END { print sz }')
+			gettext "Updating receipt sizes..."
+			sed -i s/^PACKED_SIZE.*$// receipt
+			sed -i s/^UNPACKED_SIZE.*$// receipt
+			sed -i "s/^PACKAGE=/PACKED_SIZE=\"$PACKED_SIZE\"\nUNPACKED_SIZE=\"$UNPACKED_SIZE\"\nPACKAGE=/" receipt
+			status
+			gettext "Creating full cpio archive... "
+			find . -print | cpio -o -H newc --quiet > ../$PACKAGE.tazpkg
+			status
+			gettext "Restoring original package tree... "
+			unlzma -c fs.cpio.lzma | cpio -idm --quiet
+			status
+			rm fs.cpio.lzma && cd ..
+			separator
+			eval_gettext "Package \$PACKAGE compressed successfully."; echo
+			echo "`gettext \"Size\"` : `du -sh $PACKAGE.tazpkg`"
+			echo ""
+		fi ;;
+	recharge)
+		# Recharge packages.list from a mirror.
+		#
+		# WARRNING: The mirrors file have all SliTaz mirrors but mirror
+		# must have only the choosen main mirror.
+		#
+		check_root
+		get_options_list="root forced list rootconfig"
+		get_options
+		ARG=$2
+		if [ "$root" ]; then
+			LOCALSTATE=$root$LOCALSTATE
+			[ "${2#--}" != "$2" ] && ARG=$3
+		fi
+		if [ "$ARG" = main ]; then
+			repository_to_recharge=$LOCALSTATE
+		elif [ "$ARG" ]; then
+			if [ -d "$LOCALSTATE/undigest/$ARG" ]; then
+				repository_to_recharge=$LOCALSTATE/undigest/$ARG
+			else
+				echo "\$LOCALSTATE/undigest/$ARG `gettext \"doesn't exist.\"`" >&2
+				exit 1
+			fi
+		else
+			repository_to_recharge="$LOCALSTATE $LOCALSTATE/undigest/*"
+		fi	
+		for path in $repository_to_recharge; do
+			[ -f $path/mirror ] || continue
+			cd $path
+			
+			# Quietly check if recharging is needed.
+			[ -f ID ] && mv ID ID.bak
+			download_from "$(cat mirror)" ID >/dev/null 2>/dev/null
+			if [ -f ID ] && fgrep -q `cat ID.bak 2>/dev/null || echo "null"` ID; then
+				if [ "$path" = "$LOCALSTATE" ]; then
+					repository_name=Main
+				else
+					repository_name="`gettext \"Undigest\"` $(basename $path)"
+				fi
+				echo "$repository_name `gettext \"is up to date.\"`"
+				rm ID.bak
+				continue
+			fi
+
+			# Don't let ID be a symlink when using local repository.
+			if [ -f ID ]; then
+				mv -f ID ID.bak
+				cat ID.bak > ID
+				rm ID.bak
+			fi
+			
+			echo ""
+			if [ "$path" != "$LOCALSTATE" ]; then
+				echo -e "`gettext \"Recharging undigest\"` $(basename $path):"
+			fi
+
+			if [ -f "packages.list" ]; then
+				gettext "Creating backup of the last packages list..."
+				for i in packages.desc packages.md5 packages.txt \
+					packages.list packages.equiv files.list.lzma \
+					mirrors
+				do
+					mv -f $i $i.bak 2>/dev/null
+				done
+				status
+			fi
+
+			for i in desc md5 txt list equiv; do
+				download_from "$(cat mirror)" packages.$i
+			done
+			download_from "$(cat mirror)" files.list.lzma             
+			download_from "$(sed 's|packages/.*||' < mirror)" mirrors
+			
+			if [ -f "packages.list.bak" ]; then
+				diff -u packages.list.bak packages.list | grep ^+[a-z] > packages.diff
+				sed -i s/+// packages.diff
+				echo ""
+				echo -e "\033[1m`gettext \"Mirrored packages diff\"`\033[0m"
+				separator
+				cat packages.diff
+				new_pkgs=`cat packages.diff | wc -l`
+				if [ "$new_pkgs" != 0 ]; then
+					separator
+					eval_gettext "\$new_pkgs new packages on the mirror."; echo
+					echo ""
+				else
+					gettext "No new packages on the mirror."; echo
+					echo ""
+				fi
+			else
+				echo -e "
+================================================================================"
+				gettext \
+"Last packages.list is ready to use. Note that next time you recharge the
+list, a list of differences will be displayed to show new and upgradeable
+packages."
+			echo ""
+			fi
+		done ;;
+	up|upgrade|--help-up)
+		#
+		# This is the new way to upgrade packages making 'upgrade' and
+		# upgradeable out-of-date. This new way is much, much more faster!
+		# Look into installed packages and get data from receipt, it is fast
+		# and easy to handle vars after using only md5sum to compare packages
+		# 
+		# Options available for the command: up
+		if [ "$COMMAND" == "--help-up" ]; then
+			usage_up
+			exit 1
+		fi
+		for opt in $@
+		do
+			case "$opt" in
+				--recharge|-r)
+					tazpkg recharge ;;
+				--install|-i)
+					install="y" ;;
+				--check|-c)
+					install="n" ;;
+			esac
+		done
+		installed_md5=$LOCALSTATE/installed.md5
+		look_for_priority
+		for repo in $priority; do
+			pkg_list=$repo/packages.list
+			mtime=`find $pkg_list -mtime +7`
+			if [ "$mtime" ]; then
+				if [ "$repo" = "$LOCALSTATE" ]; then
+					repo_name=main
+				else
+					repo_name="${repo##*/}"
+				fi
+				eval_gettext "\$pkg_list is older than one week... recharging"; echo
+				tazpkg recharge $repo_name
+			fi
+		done
+		echo -en "\n\033[1m"
+		gettext "Package"
+		echo -en "\033[26G " && gettext "Update type"
+		echo -e "\033[0m"
+		separator
+		cd $INSTALLED
+		echo "" > $UP_LIST
+		blocked_count=0
+		for pkg in *
+		do
+			unset VERSION EXTRAVERSION
+			. $pkg/receipt
+			md5=$(fgrep "  $PACKAGE-${VERSION}$EXTRAVERSION.tazpkg" \
+				$installed_md5 | awk '{print $1}')
+			for repo in $priority; do
+				pkg_desc=$repo/packages.desc
+				pkg_list=$repo/packages.list
+				pkg_md5=$repo/packages.md5
+
+				if ! fgrep -q "$md5  $PACKAGE-" $pkg_md5; then
+					# Jump to next repository in priority if pkg doesn't exists
+					# in this one.
+					grep -q ^$PACKAGE- $pkg_list || continue
+
+					# Skip pkgs listed in $LOCALSTATE/blocked-packages.list
+					if $(grep -qs "^$PACKAGE" $BLOCKED); then
+						blocked_count=$(($blocked_count+1))
+						break
+					fi
+					
+					new=$(grep "^$PACKAGE |" $pkg_desc | awk '{print $3}')
+					if [ "$VERSION" == "$new" ]; then
+						echo -n "$PACKAGE"
+						echo -e "\\033[26G `gettext \"New build   :\"` $md5"
+					else
+						echo -n "$PACKAGE"
+						echo -e "\\033[26G `gettext \"New version :\"` $new"
+					fi
+					echo "$PACKAGE" >> $UP_LIST
+					break
+				fi
+			done
+		done
+		sed -i /^$/d $UP_LIST
+		upnb=$(cat $UP_LIST | wc -l)
+		pkgs=$(ls | wc -l)
+		if [ "$upnb" = 0 ]; then
+			install="n"
+			gettext -e "System is up-to-date...\n\n"
+		else
+			separator
+			echo -en "\033[1m"
+			if [ "$blocked_count" -gt 0 ]; then
+				blocks=`eval_gettext " (\$blocked_count blocked)"`
+			fi
+			eval_gettext "You have \$upnb available upgrades\$blocks on \$pkgs installed packages"
+			echo -e "\033[0m\n"
+		fi
+		# Pkgs to upgrade ? Skip, let install them all or ask user
+		[ "$install" == "n" ] && exit 0
+		if [ "$upnb" -gt 0 ]; then
+			if [ "$install" == "y" ]; then
+				continue
+			else
+				gettext "Do you wish to install them now: y/n ? "
+				read install
+			fi
+			case "$install" in
+				y|Y|yes|YES|Yes)
+					for pkg in $(cat $UP_LIST)
+					do
+						echo 'y' | tazpkg get-install $pkg --forced
+					done
+					# List is generated each time and must be cleaned so
+					# tazpkg-notify dont find upgrade anymore.
+					rm $UP_LIST && touch $UP_LIST ;;
+				*)
+					gettext -e "Leaving without any upgrades installed.\n\n"
+					exit 0 ;;
+			esac
+		fi
+		echo "" ;;
+	bugs)
+		# Show known bugs in package(s)
+		cd $INSTALLED
+		shift
+		LIST=$@
+		[ -n "$LIST" ] || LIST=`ls`
+		MSG=$(gettext "No known bugs.")
+		for PACKAGE in $LIST; do
+			BUGS=""
+			EXTRAVERSION=""
+			. $PACKAGE/receipt
+			if [ -n "$BUGS" ]; then
+				MSG=$(gettext "Bug list completed")
+				echo ""
+				eval_gettext "Bugs in package \$PACKAGE version \$VERSION\$EXTRAVERSION:"; echo
+				cat <<EOT
+  $BUGS
+EOT
+			fi
+		done
+		echo "$MSG" ;;
+	check)
+		# Check installed packages set.
+		check_root
+		
+		# Get repositories priority list.
+		look_for_priority
+		
+		cd $INSTALLED
+		for PACKAGE in `ls`; do
+			if [ ! -f $PACKAGE/receipt ]; then
+				eval_gettext "The package \$PACKAGE installation has not completed"; echo
+				continue
+			fi
+			DEPENDS=""
+			EXTRAVERSION=""
+			. $PACKAGE/receipt
+			if [ -s $PACKAGE/modifiers ]; then
+				eval_gettext \
+					"The package \$PACKAGE \$VERSION\$EXTRAVERSION has been modified by:"; echo
+				for i in $(cat $PACKAGE/modifiers); do
+					echo "  $i"
+				done
+			fi
+			MSG="$(eval_gettext "Files lost from \$PACKAGE \$VERSION\$EXTRAVERSION :")\n"
+			while read file; do
+				[ -e "$file" ] && continue
+				if [ -L "$file" ]; then
+					MSG="$MSG  $(gettext "target of symlink")"
+				fi
+				echo -e "$MSG  $file"
+				MSG=""
+			done < $PACKAGE/files.list
+			MSG="$(gettext "Missing dependencies for") $PACKAGE $VERSION$EXTRAVERSION :\n"
+			for i in $DEPENDS; do
+				[ -d $i ] && continue
+				[ -d $(equivalent_pkg $i) ] && continue
+				echo -e "$MSG  $i"
+				MSG=""
+			done
+			MSG="$(gettext "Dependencies loop between") $PACKAGE and :\n"
+			ALL_DEPS=""
+			check_for_deps_loop $PACKAGE $DEPENDS
+		done
+		gettext "Looking for known bugs... "; echo
+		tazpkg bugs
+		if [ "$PACKAGE_FILE" = "--full" ]; then
+			for file in */md5sum; do
+				CONFIG_FILES=""
+				. $(dirname "$file")/receipt
+				[ -s "$file" ] || continue
+				while read md5 f; do
+					[ -f $f ] || continue
+					for i in $CONFIG_FILES; do
+						case "$f" in
+						$i|$i/*) continue 2;;
+						esac
+					done
+					echo "$md5  $f"
+				done < "$file" | md5sum -c - 2> /dev/null | \
+				  grep -v OK$ | sed 's/FAILED$/MD5SUM MISMATCH/'
+			done
+			FILES=" "
+			for file in $(cat */files.list); do
+				[ -d "$file" ] && continue
+				case "$FILES" in *\ $file\ *) continue;; esac
+				[ $(grep "^$(echo $file | grepesc)$" */files.list 2> /dev/null | \
+					wc -l) -gt 1 ] || continue
+				FILES="$FILES$file "
+				eval_gettext "The following packages provide \$file :"; echo
+				grep -l "^$(echo $file | grepesc)$" */files.list | while read f
+				do
+					pkg=${f%/files.list}
+					echo -n "  $pkg"
+					if [ -f $pkg/modifiers ]; then
+						echo -en " (`gettext \"overridden by\"`) $(echo "$(cat $pkg/modifiers)"))"
+					fi
+					echo ""
+				done
+			done
+			MSG="$(gettext "No package has installed the following files"):\n"
+			find /etc /bin /sbin /lib /usr /var/www \
+				-not -type d 2> /dev/null | while read file; do
+				case "$file" in *\[*) continue;; esac
+				grep -q "^$(echo $file | grepesc)$" */files.list && continue
+				echo -e "$MSG  $file"
+				MSG=""
+			done
+		fi
+		gettext "Check completed."; echo ;;
+	block)
+		# Add a pkg name to the list of blocked packages.
+		check_root
+		check_for_package_on_cmdline
+		echo ""
+		if grep -qs "^$PACKAGE" $BLOCKED; then
+			eval_gettext "\$PACKAGE is already in the blocked packages list."; echo
+			echo ""
+			exit 0
+		else
+			eval_gettext "Add \$PACKAGE to : \$BLOCKED..."
+			echo $PACKAGE >> $BLOCKED
+			status
+			# Log this activity
+			. $INSTALLED/$PACKAGE/receipt
+			log Blocked
+		fi
+		echo "" ;;
+	unblock)
+		# Remove a pkg name from the list of blocked packages.
+		check_root
+		check_for_package_on_cmdline
+		echo ""
+		if grep -qs "^$PACKAGE" $BLOCKED; then
+			eval_gettext "Removing \$PACKAGE from : \$BLOCKED..."
+			sed -i s/$PACKAGE/''/ $BLOCKED
+			sed -i '/^$/d' $BLOCKED
+			status
+			# Log this activity
+			. $INSTALLED/$PACKAGE/receipt
+			log Unblocked
+		else
+			eval_gettext "\$PACKAGE is not in the blocked packages list."; echo
+			echo ""
+			exit 0
+		fi
+		echo "" ;;
+	get)
+		# Downlowd a package with wget.
+		check_root
+		check_for_package_on_cmdline
+		check_for_packages_list
+		
+		get_options_list="root rootconfig"
+		get_options
+		
+		[ "$root" ] && ROOT="$root" && check_base_dir "$root"
+		if [ "$rootconfig" ]; then
+			if [ "$root" ]; then
+				CACHE_DIR=$root/$CACHE_DIR
+				SAVE_CACHE_DIR=$CACHE_DIR
+				LOCALSTATE=$root/$LOCALSTATE
+			else
+				echo "rootconfig needs --root= option used." >&2
+				exit 1
+			fi
+		fi
+		
+		# Get repositories priority list.
+		look_for_priority
+		
+		CURRENT_DIR=$PWD
+		check_for_package_in_list
+		cd $CACHE_DIR
+		if [ -f "$PACKAGE.tazpkg" ]; then
+			eval_gettext "\$PACKAGE already in the cache : \$CACHE_DIR"; echo
+			# Check package download was finished
+			tail -c 2k $PACKAGE.tazpkg | fgrep -q 00000000TRAILER || {
+				eval_gettext "Continuing \$PACKAGE download"; echo
+				download $PACKAGE.tazpkg
+			}
+			if [ "$(md5sum $PACKAGE.tazpkg)" != "$(fgrep "  $PACKAGE.tazpkg" $rep/packages.md5)" ]; then
+				rm -f $PACKAGE.tazpkg
+				download $PACKAGE.tazpkg
+			fi
+		else
+			download $PACKAGE.tazpkg
+		fi
+		PACKAGE_FILE=$CACHE_DIR/$PACKAGE.tazpkg
+		cp -a $PACKAGE_FILE $CURRENT_DIR
+		;;
+	get-install|-gi)
+		# Download and install a package.
+		check_root
+		check_for_package_on_cmdline
+		check_for_packages_list
+
+		get_options_list="root forced list rootconfig"
+		get_options
+		
+		DO_CHECK=""
+		[ "$forced" ] && DO_CHECK=no
+		[ "$root" ] && ROOT="$root" && check_base_dir "$root"
+		[ "$list" ] && INSTALL_LIST="$list"
+		if [ "$rootconfig" ]; then
+			if [ "$root" ]; then
+				CACHE_DIR=$root/$CACHE_DIR
+				SAVE_CACHE_DIR=$CACHE_DIR
+				LOCALSTATE=$root/$LOCALSTATE
+			else
+				echo "rootconfig needs --root= option used." >&2
+				exit 1
+			fi
+		fi
+
+		# Get repositories priority list.
+		look_for_priority
+
+		AUTOEXEC="no"
+		if ! check_for_package_in_list check; then
+			PACKAGE=get-$PACKAGE
+			AUTOEXEC=$PACKAGE
+			check_for_package_in_list
+			if [ -n "$(get_installed_package_pathname $PACKAGE $ROOT)" ]; then
+				CACHE_DIR="${CACHE_DIR%/*}/get"
+				[ -d "$CACHE_DIR" ] || mkdir -p $CACHE_DIR
+				$AUTOEXEC $ROOT
+				exit 0
+			fi
+		fi
+		# Check if forced install.
+		if ! [ "$forced" ]; then
+			check_for_installed_package $ROOT
+		fi
+		cd $CACHE_DIR
+		if [ -f "$PACKAGE.tazpkg" ]; then
+			eval_gettext "\$PACKAGE already in the cache : \$CACHE_DIR"; echo
+			# Check package download was finished
+			tail -c 2k $PACKAGE.tazpkg | fgrep -q 00000000TRAILER || {
+				eval_gettext "Continuing \$PACKAGE download"; echo
+				download $PACKAGE.tazpkg
+			}
+			if [ "$(md5sum $PACKAGE.tazpkg)" != "$(fgrep "  $PACKAGE.tazpkg" $rep/packages.md5)" ]; then
+				rm -f $PACKAGE.tazpkg
+				download $PACKAGE.tazpkg
+			fi
+		else
+			echo ""
+			download $PACKAGE.tazpkg
+		fi
+		PACKAGE_FILE=$CACHE_DIR/$PACKAGE.tazpkg
+		[ "$rootconfig" ] && LOCALSTATE=${LOCALSTATE#$root}
+		install_package $ROOT
+		[ "$AUTOEXEC" != "no" ] && $PACKAGE $ROOT 
+		update_desktop_database $ROOT 
+		update_mime_database $ROOT ;;
+	clean-cache|-cc)
+		# Remove all downloaded packages.
+		check_root
+		files=$(find $CACHE_DIR -name *.tazpkg | wc -l)
+		echo ""
+		echo -e "\033[1m`gettext \"Clean cache:\"`\033[0m $CACHE_DIR"
+		separator
+		gettext "Cleaning cache directory..."
+		rm -rf $CACHE_DIR/*
+		status && separator
+		eval_gettext "\$files file(s) removed from cache."; echo -e "\n" ;;
+	list-undigest)
+		# list undigest URLs.
+		if [ "$2" = "--box" ]; then
+			for i in $LOCALSTATE/undigest/*/mirror; do
+				[ -f $i ] || continue
+				echo "$(basename $(dirname $i))|$(cat $i)"
+			done
+		else
+			echo ""
+			echo -e "\033[1m`gettext \"Current undigest(s)\"`\033[0m"
+			separator
+			for i in $LOCALSTATE/undigest/*/mirror; do
+				if [ ! -f $i ]; then
+					gettext "No undigest mirror found."; echo
+					exit 1
+				fi
+				echo "$(basename $(dirname $i))	$(cat $i)"
+			done
+			echo ""
+		fi ;;
+	remove-undigest)
+		# remove undigest URL.
+		check_root
+		undigest="$2"
+		if [ -d $LOCALSTATE/undigest/$2 ]; then
+			eval_gettext "Remove \$undigest undigest"
+			echo -n " (`translate_querry y`/`translate_querry N`) ? "
+			read answer
+			if [ "$answer" = "$(translate_querry y)" ]; then
+				eval_gettext "Removing \$undigest undigest..."
+				rm -rf $LOCALSTATE/undigest/$2
+				status
+				rmdir $LOCALSTATE/undigest 2> /dev/null
+			fi
+		else
+			eval_gettext "Undigest \$undigest not found"; echo
+		fi ;;
+	add-undigest|setup-undigest)
+		# Add undigest URL.
+		check_root
+		undigest=$2
+		[ -d $LOCALSTATE/undigest ] || mkdir $LOCALSTATE/undigest
+		if [ -z "$undigest" ]; then
+			i=1
+			while [ -d $LOCALSTATE/undigest/$i ]; do
+				i=$(($i+1))
+			done
+			undigest=$i
+		fi
+		if [ ! -d $LOCALSTATE/undigest/$undigest ]; then
+			eval_gettext "Creating new undigest \$undigest."; echo
+			mkdir $LOCALSTATE/undigest/$undigest
+		fi
+		setup_mirror $LOCALSTATE/undigest/$undigest $3 ;;
+	setup-mirror)
+		# Change mirror URL.
+		check_root
+		setup_mirror $LOCALSTATE $2 ;;
+	reconfigure)
+		# Replay post_install from receipt
+		check_for_package_on_cmdline
+		check_root
+		ROOT=""
+		while [ -n "$3" ]; do
+			case "$3" in
+			--root=*)
+				ROOT="${3#--root=}/" ;;
+			*)	shift 2
+				echo -e "\n`gettext \"Unknow option\"` $*.\n" >&2
+				exit 1 ;;
+			esac
+			shift
+		done
+		if [ -d "$ROOT$INSTALLED/$PACKAGE" ]; then
+			check_for_receipt $ROOT
+			# Check for post_install
+			if grep -q ^post_install $ROOT$INSTALLED/$PACKAGE/receipt; then
+				. $ROOT$INSTALLED/$PACKAGE/receipt
+				post_install $ROOT
+				# Log this activity
+				[ -n "$ROOT" ] || log Reconfigured
+			else
+				echo ""
+				eval_gettext "Nothing to do for \$PACKAGE."; echo
+			fi
+		else
+			echo ""
+			eval_gettext "Package \$PACKAGE is not installed."; echo
+			gettext "Install package with 'tazpkg install' or 'tazpkg get-install'"; echo
+			echo ""
+		fi ;;
+	shell)
+		# Tazpkg SHell
+		if test $(id -u) = 0 ; then
+			PROMPT="\\033[1;33mtazpkg\\033[0;39m# "
+		else
+			PROMPT="\\033[1;33mtazpkg\\033[0;39m> "
+		fi
+		if [ ! "$2" = "--noheader" ]; then
+			clear
+			echo ""
+			echo -e "\033[1m`gettext \"Tazpkg SHell\"`.\033[0m"
+			separator
+			gettext "Type 'usage' to list all available commands or 'quit' or 'q' to exit."; echo
+			echo ""
+		fi
+		while true
+		do
+			echo -en "$PROMPT"; read cmd
+			case $cmd in
+				q|quit)
+					break ;;
+				shell)
+					gettext "You are already running a Tazpkg SHell."; echo ;;
+				su)
+					su -c 'exec tazpkg shell --noheader' && break ;;
+				"")
+					continue ;;
+				*)
+					tazpkg $cmd ;;
+			esac
+		done ;;
+	depends)
+		# Display dependencies tree
+		cd $INSTALLED
+		ALL_DEPS=""
+		if [ -f $2/receipt ]; then
+			dep_scan $2 ""
+		fi ;;
+	rdepends)
+		# Display reverse dependencies tree
+		cd $INSTALLED
+		ALL_DEPS=""
+		if [ -f $2/receipt ]; then
+			rdep_scan $2
+		fi ;;
+	convert|-c)
+		# convert misc package format to .tazpkg
+		check_for_package_file
+		[ -n "$TARGET_DIR" -a -s "$TARGET_DIR/files.list.lzma" ] && 
+			TMPLOCALSTATE="$TARGET_DIR"
+		if [ "$(dd if=$PACKAGE_FILE bs=8 count=1 skip=1 2> /dev/null)" \
+		      == "debian-b" ]; then
+			convert_deb
+		else
+		case "$PACKAGE_FILE" in
+		*.deb|*.udeb)
+			convert_deb;;
+		*.rpm)
+			convert_rpm;;
+		*.tgz)
+			convert_tgz;;
+		*.apk|*.pkg.tar.gz)
+			convert_arch;;
+		*.ipk|*.opk)
+			convert_ipk;;
+		*)
+			gettext "Unsupported format"; echo ;;
+		esac
+		fi ;;
+	link)
+		# link a package from another slitaz installation
+		PACKAGE=$2
+		if [ ! -d "$TARGET_DIR" -o \
+		     ! -d "$TARGET_DIR$INSTALLED/$PACKAGE" ]; then
+			cat <<EOT
+usage:   tazpkg link package_name slitaz_root
+example: 'tazpkg link openoffice /mnt' will use less than 100k in
+         your running system ram.
+EOT
+			exit 1
+		fi
+		if [ -e "$INSTALLED/$PACKAGE" ]; then
+			eval_gettext "\$PACKAGE is already installed."; echo
+			exit 1
+		fi
+		ln -s $TARGET_DIR$INSTALLED/$PACKAGE $INSTALLED
+		DEPENDS="$(. $INSTALLED/$PACKAGE/receipt ; echo $DEPENDS)"
+		MISSING=""
+		for i in $DEPENDS; do
+			[ -e $INSTALLED/$i ] && continue
+			MISSING="$MISSING$i "
+			eval_gettext "Missing : \$i"; echo
+		done
+		if [ -n "$MISSING" ]; then
+			echo ""
+			gettext "Link all missing dependencies"
+			echo -n " (`translate_querry y`/`translate_querry N`) ? "
+			read answer
+			echo ""
+			if [ "$answer" = "$(translate_querry y)" ]; then
+				for i in $MISSING; do
+					tazpkg link $i $TARGET_DIR
+				done
+			else
+				echo ""
+				eval_gettext "Leaving dependencies for \$PACKAGE unresolved."; echo
+				gettext "The package is installed but probably will not work."; echo
+				echo ""
+			fi
+		fi
+		. $INSTALLED/$PACKAGE/receipt
+		if grep -q ^pre_install $INSTALLED/$PACKAGE/receipt; then
+			pre_install
+		fi
+		while read path; do
+			[ -e $path ] && continue
+			while true; do
+				dir=$(dirname $path)
+				[ -e $dir ] && break
+				path=$dir
+			done
+			ln -s $TARGET_DIR$path $dir
+		done < $INSTALLED/$PACKAGE/files.list
+		if grep -q ^post_install $INSTALLED/$PACKAGE/receipt; then
+			post_install
+		fi ;;
+	usage|*)
+		# Print a short help or give usage for an unknown or empty command.
+		usage ;;
+esac
+
+exit 0

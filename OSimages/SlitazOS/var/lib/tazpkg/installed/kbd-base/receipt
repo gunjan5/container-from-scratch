@@ -1,0 +1,37 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="96.0K"
+UNPACKED_SIZE="400.0K"
+PACKAGE="kbd-base"
+VERSION="1.15.3"
+CATEGORY="base-system"
+SHORT_DESC="Keyboard maping definitions and loadkeys utility."
+MAINTAINER="pankso@slitaz.org"
+WANTED="kbd"
+WEB_SITE="http://www.kernel.org/pub/linux/utils/kbd/"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p \
+		$fs/usr/share/kbd/keymaps/i386/azerty \
+		$fs/usr/share/kbd/keymaps/i386/dvorak \
+		$fs/usr/share/kbd/keymaps/i386/qwerty \
+		$fs/usr/share/kbd/keymaps/i386/qwertz \
+		$fs/bin
+		
+	cp -a $_pkg/usr/bin/loadkeys $fs/bin
+	
+	# i386 keymaps only.
+	for keymap in `cat $stuff/keymaps-path.list`
+	do
+		cp -a $_pkg/usr/share/kbd/keymaps/i386/$keymap \
+			$fs/usr/share/kbd/keymaps/i386/$keymap
+	done
+	# Include files
+	cp -a $_pkg/usr/share/kbd/keymaps/include \
+		$fs/usr/share/kbd/keymaps
+	cp -a $_pkg/usr/share/kbd/keymaps/i386/include \
+		$fs/usr/share/kbd/keymaps/i386/include
+}
+

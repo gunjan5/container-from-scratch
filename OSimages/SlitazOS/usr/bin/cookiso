@@ -1,0 +1,275 @@
+#!/bin/sh
+#
+# Cookiso utility - Build official ISOs in a chroot environment.
+# The goal is to have a tool well integrated with cookutils but which
+# can run on its own and automate official SliTaz ISO creation.
+#
+
+[ -f "/etc/slitaz/cook.conf" ] && . /etc/slitaz/cook.conf
+[ -f "cook.conf" ] && . ./cook.conf
+
+# --> cook.conf
+# SSH/RSA configuration to upload on a server.
+SSH_CMD="dbclient -i /root/.ssh/id_rsa.dropbear"
+SSH_ISO="/var/www/slitaz/mirror/iso"
+SSH_HOST="slitaz@mirror.slitaz.org"
+#BWLIMIT="--bwlimit=40"
+
+# Cookiso DB files.
+cache="$CACHE/cookiso"
+repo="$SLITAZ/flavors"
+iso="$SLITAZ/iso"
+activity="$cache/activity"
+command="$cache/command"
+rollog="$cache/rolling.log"
+synclog="$cache/rsync.log"
+commits="$cache/commits"
+
+# Parse cmdline options.
+for opt in "$@"
+do
+	case "$opt" in
+		--pkgdb)
+			cook pkgdb --flavors ;;
+		--push)
+			push="yes" ;;
+		--flavors=*)
+			flavors=${opt#--flavors=} ;;
+		--version=*)
+			version=${opt#--version=} ;;
+	esac
+done
+
+# Default to rolling, or: cookiso [cmd] --version=stable
+case "$version" in
+	stable)
+		string=$(cat /etc/slitaz-release) ;;
+	cooking)
+		string=cooking ;;
+	*)
+		version=cooking
+		string=rolling ;;
+esac
+
+# Running command
+[ -d "$cache" ] && echo "$@" > $command
+trap 'rm -f $command && exit 1' INT TERM
+
+#
+# Functions
+#
+
+usage() {
+	cat << EOT
+
+$(echo -e "\033[1mUsage:\033[0m") cookiso [command] [--option]
+
+$(echo -e "\033[1mCommands:\033[0m")
+  usage         Display this short usage.
+  setup         Setup Cookiso build environment.
+  push          Manually push ISO to a server via SSH.
+  gen           Generate specified flavors.
+  4in1          Generate all 4in1 flavors.
+  rolling       Build the rolling ISOs if any changes.
+
+$(echo -e "\033[1mOptions:\033[0m")
+  --pkgdb       Generate packages DB before building ISO.
+  --push        Upload freshly generated ISO to a server.
+  --flavors=    List of flavors to generate with 'gen' command.
+  --version=    Specify SliTaz version: [rolling|cooking|stable]
+
+EOT
+}
+
+spider() {
+	echo '  //  \\'
+	echo ' _\\()//_'
+	echo '/ //  \\ \\'
+	echo ' | \__/ |'
+}
+
+# Check for some flavors on cmdline
+flavors_list() {
+	if [ "$flavors" == "all" ]; then
+		flavors=$(ls $SLITAZ/flavors)
+	fi
+	if [ ! "$flavors" ]; then
+		echo "No flavor specified on cmdline. Use: --flavors="
+		rm -f $command && exit 0
+	fi
+}
+
+# Log activities, we want first letter capitalized.
+log() {
+	grep ^[A-Z] | \
+		sed s"#^[A-Z]\([^']*\)#$(date '+%Y-%m-%d %H:%M') : \0#" >> $activity
+}
+
+log_bot() {
+	sed '/^.\//'d | sed '/^.hg/'d | tee -a $rollog
+}
+
+# Generate requested flavors.
+gen_flavors() {
+	cd $SLITAZ/flavors && hg pull -u
+	mkdir -p $cache && cd $cache
+	rm -rf *.flavor *.list *.conf
+	for flavor in $flavors
+	do
+		if [ "$flavor" != "core-4in1" ]; then
+			name="slitaz-$string-$flavor"
+		else
+			name="slitaz-$string"
+		fi
+		log=$iso/$name.log
+		rm -f $log && touch $log
+		echo "Building $string <a href='?distro=$string-$flavor'>$flavor</a>" | log
+		echo "Cookiso started: $(date '+%Y-%m-%d %H:%M')" | tee -a $log
+		tazlito pack-flavor $flavor | tee -a $log
+		tazlito get-flavor $flavor | tee -a $log
+		# BUG: script sometimes screws up conspy on Tank
+		#script -c "yes '' | tazlito gen-distro" -a $log
+		yes '' | tazlito gen-distro 2>&1 | tee -a $log
+		# Rename ISO and md5
+		mv -f $SLITAZ/distro/slitaz-$flavor.iso $iso/$name.iso
+		cd $iso && md5sum $name.iso > $name.md5
+		echo "Cookiso ended: $(date '+%Y-%m-%d %H:%M')" | tee -a $log
+	done && echo ""
+	# Push ISO to mirror if requested.
+	[ "$push" ] && push_iso
+}
+
+# Push an ISO to a server.
+push_iso() {
+	echo "Pushing to host: ${SSH_HOST}"
+	export DROPBEAR_PASSWORD=none
+	for flavor in $flavors
+	do
+		distro=slitaz-${string}-$flavor
+		file=${distro%-core-4in1}
+		rsync $BWLIMIT -vtP -e "$SSH_CMD" $iso/$file.* \
+			${SSH_HOST}:$SSH_ISO/$string 2>&1 | tee $synclog
+	done
+}
+
+#
+# Commands
+#
+
+case "$1" in
+	setup)
+		# Setup Hg repo and dirs
+		echo -e "\nSetting up Cookiso environment..."
+		cd $SLITAZ
+		if [ ! -d "flavors" ]; then
+			case $version in
+				cooking|rolling)
+					hg clone http://hg.slitaz.org/flavors ;;
+				stable)
+					hg clone http://hg.slitaz.org/flavors-stable flavors ;;
+			esac
+		fi
+		# Needed packages
+		for pkg in mercurial tazlito rsync dropbear
+		do
+			[ -d "/var/lib/tazpkg/installed/$pkg" ] || tazpkg -gi $pkg
+		done
+		echo "Creating directories and files..."
+		mkdir -p $cache $iso
+		touch $activity
+		sed -i s'/^WORK_DIR=.*/WORK_DIR="\/home\/slitaz"/' \
+			/etc/tazlito/tazlito.conf
+		echo ""
+		echo "Flavors files : $SLITAZ/flavors"
+		echo "Cache files   : $cache"
+		echo "ISO images    : $iso"
+		echo "" ;;
+	push)
+		# Manually upload an ISO to a server.
+		flavors_list
+		push_iso ;;
+	gen)
+		# Build one or more flavors.
+		flavors_list
+		echo -e "\nGenerating flavors:\n$flavors"
+		gen_flavors ;;
+	4in1)
+		echo -e "\nGenerating 4in1 distros..."
+		flavors="base justx gtkonly core core-4in1"
+		gen_flavors ;;
+	rolling)
+		#
+		# Official SliTaz rolling release flavors are automatically built.
+		#
+		# Check if packages list was modified or if any commits have been
+		# done in one of the rolling flavors and rebuild ISOs if needed.
+		#
+		pkgs=$SLITAZ/packages/packages.md5
+		last=$cache/packages.md5
+		diff=$cache/packages.diff
+		cook="preinit justx core-4in1"
+		
+		# Log stuff
+		rm -f $rollog && touch $rollog
+		rm -f $commit $commits.tmp && touch $commits.tmp
+		echo "Rolling tracking for changes" | log
+		echo "Cookiso rolling started: $(date '+%Y-%m-%d %H:%M')" | log_bot
+		
+		# Packages changes
+		[ -f "$last" ] || cp -f $pkgs $cache
+		diff $last $pkgs > $diff 
+		if [ -s "$diff" ]; then
+			echo "Found new or rebuilt packages" | log_bot
+			cat $diff | grep "^+" >> $rollog
+			#
+			# TODO: Check new pkg and see if it's part of one of the rolling
+			# flavors, if not we have nothing to build.
+			#
+			for flavor in $cook
+			do
+				echo "$flavor" >> $commits.tmp
+				echo "New packages for : $flavor" | log_bot
+			done
+		else
+			echo "No changes found in packages MD5 sum" | log_bot
+			echo "" > $commits.tmp
+		fi
+		cp -f $pkgs $cache
+		
+		# Hg changes
+		cd $repo || exit 1
+		cur=$(hg head --template '{rev}\n')
+		echo "Updating wok : $repo (rev $cur)" | log_bot 
+		cd $repo && hg pull -u | log_bot 
+		new=$(hg head --template '{rev}\n') 
+		cur=$(($cur + 1))
+		for rev in $(seq $cur $new)
+		do
+			for file in $(hg log --rev=$rev --template "{files}")
+			do
+				flavor=$(echo $file | cut -d "/" -f 1)
+				desc=$(hg log --rev=$rev --template "{desc}" $file)
+				echo "Committed flavor  : $flavor - $desc" | log_bot
+				# Build only rolling flavor
+				if echo "$cook" | fgrep -q $flavor; then
+					echo $flavor >> $commits.tmp
+				fi
+			done
+		done
+		
+		# Keep previous commit and discard duplicate lines
+		cat $commits.tmp | sed /"^$"/d > $commits.new
+		uniq $commits.new > $commits && rm $commits.*
+		nb=$(cat $commits | wc -l)
+		echo "Flavors to cook  : $nb" | log_bot
+		flavors=$(cat $commits) 
+		gen_flavors ;;
+	spider)
+		# SliTaz Easter egg command :-)
+		spider ;;
+	*)
+		usage ;;
+esac
+
+rm -f $command
+exit 0

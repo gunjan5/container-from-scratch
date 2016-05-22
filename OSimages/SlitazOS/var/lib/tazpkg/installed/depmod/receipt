@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="32.0K"
+UNPACKED_SIZE="68.0K"
+PACKAGE="depmod"
+VERSION="3.12"
+CATEGORY="base-system"
+SHORT_DESC="Kernel modules dependancy tool."
+MAINTAINER="pascal.bellard@slitaz.org"
+DEPENDS="glibc-base gcc-lib-base zlib lzlib"
+WEB_SITE="http://ftp.kernel.org/pub/linux/utils/kernel/module-init-tools/"
+WANTED="module-init-tools"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/sbin
+	cp $_pkg/sbin/depmod $fs/sbin
+}
+
+# Overlap busybox
+pre_install()
+{
+	rm -f $1/sbin/depmod
+}
+
+post_remove()
+{
+	ln -s /bin/busybox $1/sbin/depmod
+}

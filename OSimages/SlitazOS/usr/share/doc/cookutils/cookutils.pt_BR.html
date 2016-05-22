@@ -1,0 +1,427 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt" lang="pt">
+<head>
+	<title>Documentação do Cookutils</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+	
+<div id="header">
+	<h1>Documentação do Cookutils</h1>
+</div>
+
+<!-- Start content -->
+<div id="content">
+
+<h2>SliTaz Cook &amp; Cooker</h2>
+
+<p>
+    O Cookutils fornece ferramentas e utilitários que ajudam na construção de
+    pacotes para o SliTaz. Estas ferramentas são fáceis de aprender e utilizar,
+    rápidas e leves. Você será capaz de criar pacotes para a distribuição em
+    apenas alguns comandos. O cookutils fornece os comandos 'cook' e 
+	<a href="#cooker">Cooker</a>.
+</p>
+<p>
+    O comando 'cook' permite a compilação e criação de pacotes, fornecendo um
+    arquivo de log e checando a qualidade do pacote e do arquivo receipt. O
+    Comando 'cooker' é um robô de compilação que fornece automação para a
+    compilação, podendo ser usado como interface para o comando 'cook' na 
+    medida em que possui uma interface web/CGI que fornece os logs de criação
+    de pacotes de forma simples de compreender. Os dois comandos utilizam
+    do mesmo wok e arquivos de dados, assim como as informações de pacotes
+    <a href="#blocked">bloqueados</a> e quebrados, assim como qualquer outra
+    atividade necessária na criação de pacotes.
+</p>
+<p>
+    Para informações técnicas, como estilo de código, por favor consultar o
+    arquivo README encontrado nos fontes ou em /usr/share/doc/cookutils.
+</p>
+
+<h3>Utilização do comando Cook</h3>
+<p>
+    O comando 'cook' fornece uma pequena ajuda pode ser mostrada com a opção
+    'usage'. Também possui algumas opções que executam tarefas especiais nos
+    pacotes antes ou depois da compilação. Para obter ajuda:
+</p>
+<pre>
+# cook usage
+</pre>
+
+<h3>Howto</h3>
+<p>
+    A primeira coisa que você deve ter antes de compilar pacotes é configurar
+    seu ambiente. As duas formas recomandadas de de fazer isto são: compilar
+    pacotes num servidor de compilação ou compilar num ambiente chroot. No caso
+    de utilizar um ambiente chroot, pode-se instalar e usar o Tazdev para
+    criá-lo e utilizá-lo:
+</p>
+<pre>
+# tazdev gen-chroot &amp;&amp; tazdev chroot
+</pre>
+<p>
+    Por padrão o Tazdev cria um ambiente chroot em /home/slitaz/cooking/chroot
+    mas pode-se configurar outro caminho como argumento do comando. A 
+    localização do ambiente chroot não é importante, pois quando se entra nele
+    os caminhos padrão serão utilizados, como /home/slitaz/wok para o wok ou
+    /home/slitaz/log para os logs do 'cook'. Para mostrar a ajuda do tazdev:
+	tazdev usage.
+</p>
+<p>
+    Quando se usa o ambiente chroot há dois diretórios especiais montados
+    com a opção 'bind': src e packages. Os fontes para todos os pacotes são
+    salvos por padrão em /home/slitaz/src, que é montado no chroot para sua
+    utilização pelos utilitários. Este método permite compartilhar os fontes
+    entre vários ambiente chroot, como um para a versão 'cooking' e outro para
+    a estável. O caminho padrão para o diretório de pacotes é:
+    /home/slitaz/[versão]/packages. Assim, os pacotes ficam fora do chroot e
+    são protegidos caso o ambiente chroot seja removido por algum erro.
+</p>
+
+<h3>Primeiros passos</h3>
+<p>
+    Para começar os trabalhos de compilação, deve-se preparar o ambiente para
+    o comando 'cook'. Ele se utiliza do arquivo de configuração cook.conf,
+    onde podem ser informados caminhos alternativos para diretórios e
+    arquivos, caso seja necessário. A opção 'setup' cria alguns diretórios e
+    arquivos que guardam as informações de atividade e erro. Os arquivos
+    criados são em texto puro, podendo ser editados por qualquer editor de 
+    texto. Para preparar o ambiente:
+</p>
+<pre>
+# cook setup
+</pre>
+<p>
+    O comando 'setup' possui a opção --wok que permite clonar o wok do SliTaz
+    durante a configuração do ambiente para o 'cook'. Mesmo não sendo um 
+    desenvolvedor oficial da distribuição, pode-se clonar o repositório e
+    utilizar os pacotes existentes como exemplos para criar os seus próprios.
+    Para configurar e clonar o wok cooking ou undigest:
+</p>
+<pre>
+# cook setup --wok
+# cook setup --undigest
+</pre>
+
+<h3>Testando o ambiente</h3>
+<p>
+    O 'cook' fornece um comando de teste que cria um pacote e o compila. Isto
+    permite verificar se o ambiente funciona corretamente e cria um pacote
+    de exemplo com seu respectivo arquivo receipt, chamado 'cooktest', que 
+    pode ser removido após o teste. Para criar o pacote de teste:
+</p>
+<pre>
+# cook test
+</pre>
+
+<h3>Criando e compilando</h3>
+<p>
+    Se o ambiente está configurado corretamente, pode-se iniciar a criação e
+    compilação de pacotes para o SliTaz a partir do wok. Para criar um novo
+    pacote com um arquivo receipt inicial (que também pode ser criado
+    interativamente):
+</p>
+<pre>
+# cook new nome-do-pacote
+# cook new nome-do-pacote --interactive
+</pre>
+<p>
+    Após a criação de um novo pacote, é necessária a edição do arquivo receipt
+    com um editor de texto. Quando ele está pronto ou se já há um arquivo
+    receipt existente, pode-se compilá-lo com o comando:
+</p>
+<pre>
+# cook nome-do-pacote 
+</pre>
+<p>
+    Se tudo correr bem, o pacote pronto será arquivado no diretório
+    $SLITAZ/packages e os arquivos produzidos em $SLITAZ/wok/nome-do-pacote.
+</p>
+
+<h3>Compilar e instalar</h3>
+<p>
+    Para compilar e instalar o pacote num único comando:
+</p>
+<pre>
+# cook nome-do-pacote --install
+</pre>
+
+<h3>Obter fontes</h3>
+<p>
+    Caso se queira ou seja necessário somente o download dos arquivos fonte
+    para um pacote, sem compilá-lo, pode-se utilizar a opção --getsrc:
+</p>
+<pre>
+# cook nome-do-pacote --getsrc
+</pre>
+
+<h3>Limpando resultados da compilação</h3>
+<p>
+    Após a compilação e empacotamento de algum programa, permanecem no wok
+    vários arquivos resultantes do processo, o que ocupa espaço em disco.
+    Para limpar um único pacote:
+</p>
+<pre>
+# cook nome-do-pacote --clean
+</pre>
+<p>
+    Pode-se também limpar todo o wok de uma só vez, ou apenas remover os
+    arquivos fonte:
+</p>
+<pre>
+# cook clean-wok
+# cook clean-src
+</pre>
+
+<h3>Busca</h3>
+<p>
+    O comando 'cook' oferece uma função de busca simples, que permite achar
+    um determinado pacote no wok, utilizando 'grep' e com suporte a 
+    expressões regulares:
+</p>
+<pre>
+# cook search busybox
+</pre>
+
+<h3>Lista de pacotes</h3>
+<p>
+    Pode-se criar uma lista de pacotes no wok, assim como uma lista de pacotes
+    para ser utilizada pelo Tazpkg. Isto permite criar um repositório local
+    de pacote, assim como cria uma lista de pacotes oficial que é utilizada
+    nos mirrors do SliTaz. Para listar os pacotes no wok atual:
+</p>
+<pre>
+$ cook list-wok
+</pre>
+<p>
+    Ao se criar uma lista de pacotes, o 'cook' verifica se há um repositório
+    de variantes (flavors) em /home/slitaz/flavors. Caso haja, ele irá 
+    compactar as variantes usando a lista de pacotes mais recente. Para
+    criar uma lista de pacotes e uma para ser utilizada com as variantes:
+</p>
+<pre>
+# cook pkgdb
+</pre>
+
+<a name="cooker"></a>
+<h3>O comando 'cooker'</h3>
+<p>
+    O cooker é um robô de compilação, que tem por função checar por commits
+    em um wok, criar uma listagem da ordem de compilação (cooklist) e compilar
+    todos os pacotes. Também pode ser utilizado como interface para o comando
+    'cook' pois ambos se utilizam dos mesmos arquivos de configuração. Outra
+    função é compilar uma grande lista de pacotes de uma só vez, assim como
+    todos os pacotes de uma determinada variante. O cooker possui uma interface
+    Web/CGI que funciona por padrão em qualquer sistema SliTaz, pois este
+    fornece suporte a CGI no servidor web do busybox (httpd). 
+</p>
+<p>
+    O cooker fornece um pequeno texto de ajuda:
+</p>
+<pre>
+# cooker usage
+# cooker -u
+</pre>
+
+<h3>Configuração do Cooker</h3>
+<p>
+    Assim como o 'cook', o 'cooker' precisa de um ambiente funcional para ser
+    utilizado. A principal diferença é que o cooker necessita de dois
+    diretórios wok para: um repositório mercurial limpo como referência e um
+    wok de trabalho. Desta forma é simples comparar os dois woks para obter
+    as modificações necessárias. Caso exista um ambiente de compilação, deve-se
+    o wok existente antes de configurar o wok, pois poderá haver algum
+    conflito. O comando 'setup' também instala alguns pacotes de
+    desenvolvimento, que podem ser configurados no arquivo de configuração
+    cook.conf e na variável SETUP_PKGS. Para configurar o ambiente:
+</p>
+<pre>
+# cooker setup
+</pre>
+<p>
+    Se tudo correr bem, serão criados dois diretórios wok, os arquivos básicos
+    de desenvolvimento serão instalados e todos os arquivos requeridos criados.
+    O comportamento padrão é checar por commits, que pode ser testado com:
+</p>
+<pre>
+# cooker
+</pre>
+
+<h3>Compilando com o cooker</h3>
+<p>
+    Há duas formas de utilizar o cooker: modificar o repositório mercurial
+    wok limpo e executar o cooker sem argumentos ou compilar os pacotes
+    manualmente. O cooker permite a compilação de um único pacote ou todos
+    os pacotes de uma determinada categoria ou variante. Pode-se também tentar
+    compilar todos os pacotes não compilados, mas deve-se ter ciência que esta
+    ferramente não foi desenvolvida para suportar a compilação de centenas de
+    pacotes de uma só vez.
+</p>
+<p>
+    Para compilar um único pacote, a ferramente funciona mais ou menos como
+    o comando 'cook nome-do-pacote', porém produz mais arquivos de log:
+</p>
+<pre>
+# cooker pkg nome-do-pacote 
+</pre>
+<p>
+    Para compilar mais de um pacote de uma só vez, há várias opções. Pode-se
+    compilar todos os pacotes de uma variante, pode-se utilizar uma lista
+    com nomes de pacotes (cooklist), um por linha, e, ainda, compilar todos os 
+    pacotes de uma determinada categoria:
+</p>
+<pre>
+# cooker flavor [nome]
+# cooker list [/caminho/para/cooklist]
+# cooker cat [categoria]
+</pre>
+<p>
+    O cooker permite recompilar uma determinada revisão do repositório
+    mercurial. Isto é útil em ambiente de produção se o robô de compilação
+    for interrompido enquanto compila um determinado commit, podendo-se então
+    prosseguir com compilação manual dos pacotes:
+</p>
+<pre>
+# cooker rev 9496
+</pre>
+
+<a name="blocked"></a>
+<h3>Pacotes bloqueados</h3>
+<p>
+    O 'cook' e o 'cooker' utilizam uma lista de pacotes bloqueados, nos quais
+    são indicados quais pacotes não compilar quando acontece algum commit ou
+    ou quando uma lista de pacotes para compilação é utilizada. Isto é útil
+    para um robô de compilação em ambiente de produção. Quando se bloqueia ou
+    desbloqueia pacotes, pode-se deixar uma nota que será mostrada nas notas
+    de compilação (cooknotes). Exemplos para bloquear algum pacote:
+</p>
+<pre>
+# cook nome-do-pacote --block
+# cooker block nome-do-pacote
+# cooker -n "Nota sobre o pacote bloqueado nome-do-pacote"
+</pre>
+<p>
+    A lista de pacotes bloqueados é mostrada na interface web do cooker. Para
+    desbloquear um pacote, pode-se utilizar o 'cooker' ou o 'cook':
+</p>
+<pre>
+# cook nome-do-pacote --unblock
+# cooker unblock nome-do-pacote
+</pre>
+
+<h3>Interface Web/CGI do cooker</h3>
+<p>
+    Para visualizar os logs de compilação, os resultados de atividades e 
+    erros do processo, pode-se utilizar a interface web do cooker, localizada
+    por padrão no diretório /var/www/cooker. Caso não se utilize de um ambiente
+    chroot e se o servidor web httpd do buxybox estiver sendo executado, a
+    interface pode ser acessada no endereço: 
+    <a href="http://localhost/cooker/cooker.cgi">
+		http://localhost/cooker/cooker.cgi</a> 
+</p>
+<p>
+    Caso se utilize de um ambiente chroot, deve-se instalar o 'cookutils' no
+    sistema anfitrião (host) e modificar o caminho na variável SLITAZ. Uma
+    forma padrão é possuir um chroot em:
+</p>
+<pre>
+/home/slitaz/cooking/chroot
+</pre>
+<p>
+	Com o arquivo /etc/slitaz/cook.conf modificado da seguinte forma:
+</p>
+<pre>
+SLITAZ="/home/slitaz/cooking/chroot/home/slitaz"
+</pre>
+<p>
+    Nota: não é obrigatória a instalação do 'cookutils' no host para usar a
+    interface web. Caso o servidor web Lighttpd esteja instalado, pode-se
+    copiar os arquivos 'cooker.cgi' e 'style.css' para, por exemplo, o 
+    diretório '~/Public' e utilizar um arquivo cook.conf modificado.
+    A vantagem de instalar o 'cookutils' no host é obter atualizações 
+    regulares com o gerenciador de arquivos Tazpkg. Digamos que se tenha
+    clonado ou baixado o cookutils:
+</p>
+<pre>
+$ cp -a cookutils/web ~/Public/cgi-bin/cooker
+$ cp -f cookutils/cook.conf ~/Public/cgi-bin/cooker
+</pre>
+<p>
+    Neste caso, edita-se o arquivo de configuração 
+    '~/Public/cgi-bin/cooker/cook.conf' para configurar o caminho na variável
+    SLITAZ para que tudo funcione.
+</p>
+
+<h3>Notas de compilação (Cooknotes)</h3>
+<p>
+    As notas de compilação permitem escrever algum texto sobre o processo de
+    empacotamento, sendo útil para ambientes colaborativos. Esta função foi
+    criada com o intuito de permitir aos desenvolvedores do SliTaz
+    compartilharem notas entre si e outros desenvolvedores. O cooker pode
+    bloquear a compilação de um pacote ou recompilar um pacote manualmente,
+    por exemplo. Então, pode-se criar uma nota sobre o motivo do pacote ter
+    sido bloqueado ou ter sido recompilado, para que outro desenvolvedor saiba
+    o que está ocorrendo. As notas de compilação são mostradas na interface
+    web e podem ser checadas a partir da linha de comando:
+</p>
+<pre>
+# cooker note "Pacote nome-do-pacote bloqueado devido à alta utilização de CPU."
+# cooker notes
+</pre>
+
+<h3>Cooker como um robô de compilação</h3>
+<p>
+    O 'cooker' foi criado para ser o robô de compilação do SliTaz, o que
+    significa que ele monitora dois repositórios wok, atualiza o repositório
+    mercurial, obtem as diferenças submetidas e compila todos os pacotes
+    que foram adicionados ou modificados. A maneira mais segura e limpa de
+    executar o cooker como um robô de compilação com agendador de atividades
+    cron é utilizando um ambiente chroot, mas o utilitário também pode ser
+    executado diretamente no sistema host, caso se queira.
+</p>
+<p>
+    Para executar o cooker automaticamente, deve-se utilizar o agendador de
+    tarefas cron, adicionando-se uma linha ao arquivo de configuração deste
+    em /var/spool/cron/crontabs. Para configurar para ser executado a cada
+    duas horas
+</p>
+<pre>
+* */2 * * * /usr/bin/cooker
+</pre>
+
+<h3>Robô de compilação iniciado durante o boot</h3>
+<p>
+    O ambiente do 'cooker' e a tarefa do cron podem ser executadas durante o
+    boot. Deve-se ter instalado o utilitário 'cookutils-daemon' instalado no
+    sistema host e utilizar a instalação padrão para que tudo funcione
+    corretamente (diretório cooking em /home/slitaz/cooking). O script daemon
+    montará qualquer sistema de arquivos virtual, caso necessário, assim como
+    os diretórios de fontes e de pacotes. Os arquivos fonte são localizados em
+    /home/slitaz/src e montados no ambiente chroot, para que se possa 
+    compartilha-los entre várias versões (estável, cooking, undigest). Para
+    instalar o utilitário:
+</p>
+<pre>
+# tazpkg get-install cookutils-daemon
+</pre>
+<p>
+    Para iniciar o daemon deve-se possuir uma tarefa do cron agendada para
+    o usuário root no ambiente chroot. O script funcionará como os outros 
+    daemons do sistema, podendo ser controlado com:
+</p>
+<pre>
+# /etc/init.d/cooker [start|stop|restart]
+</pre>
+
+<!-- End content -->
+</div>
+
+<div id="footer">
+	Copyright &copy; 2011 SliTaz contributors
+</div>
+
+</body>
+</html>
+

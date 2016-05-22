@@ -1,0 +1,23 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="32.0K"
+UNPACKED_SIZE="96.0K"
+PACKAGE="gettext-base"
+VERSION="0.18.1.1"
+CATEGORY="base-system"
+SHORT_DESC="Base tools from the GNU Translation Project."
+MAINTAINER="pankso@slitaz.org"
+DEPENDS="glibc-base"
+WANTED="gettext"
+WEB_SITE="http://www.gnu.org/software/gettext/"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/bin
+	cp -a $_pkg/usr/bin/gettext $fs/usr/bin
+	cp -a $_pkg/usr/bin/gettext.sh $fs/usr/bin
+	# These are used in gettext.sh so there needed
+	cp -a $_pkg/usr/bin/envsubst $fs/usr/bin
+	cp -a $_pkg/usr/bin/ngettext $fs/usr/bin
+}

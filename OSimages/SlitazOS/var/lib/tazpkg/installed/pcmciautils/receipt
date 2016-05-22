@@ -1,0 +1,45 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="28.0K"
+UNPACKED_SIZE="80.0K"
+PACKAGE="pcmciautils"
+VERSION="018"
+CATEGORY="system-tools"
+SHORT_DESC="Utils to use with PCMCIA cards"
+MAINTAINER="pankso@slitaz.org"
+DEPENDS="linux sysfsutils udev"
+BUILD_DEPENDS="sysfsutils-dev bison flex"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WEB_SITE="http://www.kernel.org/pub/linux/utils/kernel/pcmcia/pcmcia.html"
+#WGET_URL="http://www.kernel.org/pub/linux/utils/kernel/pcmcia/$TARBALL"
+WGET_URL="http://sourceware.mirrors.tds.net/pub/kernel.org/linux/utils/kernel/pcmcia/$TARBALL"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	# We need lex...
+	cd $src
+	make
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/sbin $fs/etc/udev/rules.d $fs/etc/pcmcia
+	cp -a $src/pccardctl $fs/sbin
+	cp -a $src/pcmcia-check-broken-cis $fs/sbin
+	cp -a $src/pcmcia-socket-startup $fs/sbin
+	# Udev rules and config.
+	cp -a $src/udev/60-pcmcia.rules $fs/etc/udev/rules.d
+	cp -a $src/config/config.opts $fs/etc/pcmcia
+	# Fix path
+	sed -i s#/lib/udev/pcmcia-check-broken-cis#/sbin/pcmcia-check-broken-cis# \
+		$fs/etc/udev/rules.d/60-pcmcia.rules
+	sed -i s#/lib/udev/pcmcia-socket-startup#/sbin/pcmcia-socket-startup# \
+		$fs/etc/udev/rules.d/60-pcmcia.rules
+}
+
+post_install()
+{
+	tazpkg reconfigure udev --root=$1
+}

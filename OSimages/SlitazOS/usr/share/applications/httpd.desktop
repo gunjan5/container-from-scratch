@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Local Web Server
+Exec=browser http://localhost/
+Icon=text-html
+Type=Application
+Categories=Network;

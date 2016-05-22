@@ -1,0 +1,4 @@
+/usr/bin/gettext.sh
+/usr/bin/gettext
+/usr/bin/envsubst
+/usr/bin/ngettext

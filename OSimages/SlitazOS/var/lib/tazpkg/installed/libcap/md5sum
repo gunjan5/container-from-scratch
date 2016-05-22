@@ -1,0 +1,5 @@
+954d2c83e3e583fff9a5af9c15a02428  /lib/libcap.so.2.19
+d33ea86ee8ace77e930ffaeb9962b956  /sbin/setcap
+5a615c7d7e789df3fe26dccb17f6c063  /sbin/getcap
+5d67d2fed606d3ae989a133691d42e10  /sbin/getpcaps
+4c3b0b5057efaaa681f0539385843209  /sbin/capsh

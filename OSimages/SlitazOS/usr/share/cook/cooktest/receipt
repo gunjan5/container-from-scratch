@@ -1,0 +1,46 @@
+# SliTaz package receipt.
+
+PACKAGE="cooktest"
+VERSION="1.0"
+CATEGORY="base-system"
+SHORT_DESC="SliTaz QA test package."
+MAINTAINER="devel@slitaz.org"
+WEB_SITE="http://www.slitaz.org/"
+
+DEPENDS=""
+BUILD_DEPENDS=""
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	echo -e "\n./configure && make && make install"
+	echo "-----------------------------------"
+	echo -e " * Log file  : $LOGS/$PACKAGE.log"
+	
+	# Test if a package is installed.
+	[ -d "$INSTALLED/make" ] && echo " * Package   : make is installed"
+	[ ! -d "$INSTALLED/make" ] && echo " * Package   : make not installed"
+	
+	echo ""
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/tmp
+	cat << EOT
+cp -a \$install/usr/bin \$fs/usr
+------------------------------
+ * \$fs       : $fs"
+ * \$stuff    : $stuff"
+ * \$install  : $install"
+ * \$src      : $src"
+
+EOT
+	# A file to have something to package. Cook fails if package is empty.
+	echo "NOTE: Create, copy files from \$install or \$stuff"
+	echo -n "cook-test:" > $fs/tmp/cook-test
+	date >> $fs/tmp/cook-test
+	echo ""
+	echo -n "End of receipt: press ENTER to continue"; read i
+}

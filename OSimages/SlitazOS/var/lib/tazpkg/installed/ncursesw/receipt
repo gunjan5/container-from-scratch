@@ -1,0 +1,58 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="112.0K"
+UNPACKED_SIZE="296.0K"
+PACKAGE="ncursesw"
+VERSION="5.9"
+SOURCE="ncurses"
+CATEGORY="base-system"
+SHORT_DESC="Library of functions to manage display on terminals."
+MAINTAINER="pankso@slitaz.org"
+TARBALL="$SOURCE-$VERSION.tar.gz"
+WEB_SITE="http://invisible-island.net/ncurses/"
+WGET_URL="ftp://invisible-island.net/ncurses/$TARBALL"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	sed -i 's|\tsh $(srcdir)/MKhashsize.sh|\tash $(srcdir)/MKhashsize.sh|' \
+		include/Makefile.in
+	./configure \
+		--libdir=/lib \
+		--sysconfdir=/etc \
+		--with-shared \
+		--without-debug \
+		--without-ada \
+		--enable-widec \
+		--build=$HOST_SYSTEM \
+		--host=$HOST_SYSTEM &&
+	make && make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/lib $fs/usr/bin
+	
+	# Libs.
+	cp -a $_pkg/lib/libncursesw.so* $fs/lib
+	
+	# Base progs.
+	cp $_pkg/usr/bin/clear $fs/usr/bin
+	cp $_pkg/usr/bin/tset $fs/usr/bin
+	cp $_pkg/usr/bin/reset $fs/usr/bin
+}
+
+# Overlap busybox
+pre_install()
+{
+	rm -f $1/usr/bin/clear
+	rm -f $1/usr/bin/reset
+}
+
+post_remove()
+{
+	ln -s /bin/busybox $1/usr/bin/clear
+	ln -s /bin/busybox $1/usr/bin/reset
+}

@@ -1,0 +1,7 @@
+e6875102b1ee5ea7ec40b42de24eabc5  /usr/bin/isohybrid
+4274617ff2b925f9f64e6051b05105dc  /usr/share/boot/sdi.c32
+633777385e1ce761e9572ea36cb390f9  /usr/share/boot/pxelinux.0.lzma
+23b571400a29918f5392f6e85eeb756e  /usr/share/boot/mbr.bin
+b3f0385034172208b8cff5d3ef3154e6  /usr/share/boot/memdisk.lzma
+a743d0d99c248b72e317a000ccd03e65  /bin/syslinux
+7ba692f70835dfa7d53758b52eefe2f9  /bin/extlinux

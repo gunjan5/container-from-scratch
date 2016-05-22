@@ -1,0 +1,14 @@
+6104dc2aa20b8beaf5a0a37ff6fee563  /usr/share/applications/bootlog.desktop
+463025d88267430332850d575eb210d1  /etc/init.d/README
+27ebb2f81e2f71c2ffdc93f00bb8bac2  /etc/init.d/bootopts.sh
+4a2af741175e8298814b10455714f58a  /etc/init.d/local.sh
+f64dc4a1cb780a9fbb831918eca3b31e  /etc/init.d/network.sh
+e904268f4536d151695e67bfe04ea65f  /etc/init.d/rc.shutdown
+3dec552ecbb7f490fdd2e5aacef05f60  /etc/init.d/rcS
+737c2e0a2e84b970312c28ce18f6fad5  /etc/init.d/system.sh
+75682aaf61af9f5683b91599d71ebc8d  /etc/init.d/wpa_action.sh
+22c435a846ab086bfeb9b43cd3c22bd2  /etc/inittab
+a694b1e3da2307a35fc6ab3a890f9189  /etc/network.conf
+4682a17aa5d514b3a7d4ed02f7335cc4  /etc/rcS.conf
+9c420ca400f5e029d9c63ce001bac321  /bin/bootlog
+ed6e0b47ebf81ec8382ed6f2007b244f  /init

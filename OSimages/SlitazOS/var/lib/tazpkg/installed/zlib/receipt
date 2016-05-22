@@ -1,0 +1,40 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="44.0K"
+UNPACKED_SIZE="92.0K"
+PACKAGE="zlib"
+VERSION="1.2.6"
+CATEGORY="base-system"
+SHORT_DESC="Compression library."
+MAINTAINER="pankso@slitaz.org"
+TARBALL="$PACKAGE-$VERSION.tar.bz2"
+WEB_SITE="http://zlib.net/"
+WGET_URL="$WEB_SITE/$TARBALL"
+
+DEPENDS="glibc-base"
+BUILD_DEPENDS="coreutils-file-special"
+
+# Rules to compile & install the temporary toolchain by Tazwok.
+cook_tmp_toolchain()
+{
+	cd $src
+	./configure --prefix=/tools &&
+	make &&	make install
+}
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	# work around gcc bug; see https://bugs.archlinux.org/task/20647
+	export CFLAGS="${CFLAGS/-O2/-O3} -fno-tree-vectorize -DUNALIGNED_OK"
+	./configure --prefix=/usr --shared &&
+	make &&	make install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+    mkdir -p $fs/usr/lib
+    cp -a $_pkg/usr/lib/libz.so* $fs/usr/lib
+}

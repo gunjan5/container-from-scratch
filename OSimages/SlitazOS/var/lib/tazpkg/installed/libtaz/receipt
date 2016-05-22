@@ -1,0 +1,28 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="20.0K"
+UNPACKED_SIZE="36.0K"
+PACKAGE="libtaz"
+VERSION="1.6"
+CATEGORY="base-system"
+SHORT_DESC="Slitaz generic library."
+MAINTAINER="gokhlayeh@slitaz.org"
+WEB_SITE="http://www.slitaz.org/"
+# Download directly from hg, because this package is needed when
+# cooking toolchain. (mercurial is not available at this time)
+# TARBALL/SOURCE are used to make the archive named well.
+SOURCE="slitaz-dev-tools"
+TARBALL="$SOURCE-$VERSION.tar.bz2"
+WGET_URL="http://hg.slitaz.org/slitaz-dev-tools/archive/$VERSION.tar.bz2"
+CONFIG_FILES="/etc/slitaz/slitaz.conf"
+TAGS="slitaz"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/share/slitaz/web \
+		$fs/usr/lib/slitaz $fs/etc/slitaz
+	cp -a $src/$PACKAGE/libtaz $fs/usr/lib/slitaz
+	cp -a $src/$PACKAGE/libtaz-modules $fs/usr/lib/slitaz
+	cp -a $src/$PACKAGE/slitaz.conf $fs/etc/slitaz
+}

@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="28.0K"
+UNPACKED_SIZE="88.0K"
+PACKAGE="tazusb"
+VERSION="4.1"
+CATEGORY="base-system"
+SHORT_DESC="SliTaz LiveUSB utility."
+MAINTAINER="erjo@slitaz.org"
+DEPENDS="lzma"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.slitaz.org/"
+WGET_URL="http://mirror.slitaz.org/sources/tazusb/$TARBALL"
+TAGS="slitaz"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	make DESTDIR=$DESTDIR install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+#
+genpkg_rules()
+{
+	mkdir -p $fs
+	cp -a $install/usr $fs
+	chown -R root.root $fs
+}

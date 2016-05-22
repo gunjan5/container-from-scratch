@@ -1,0 +1,11 @@
+7c61f79355bfcc0a5bb19fe23a585ca9  /etc/tazlito/tazlito.conf
+d41d8cd98f00b204e9800998ecf8427e  /etc/tazlito/distro-packages.list
+51acda36a73b7a0160e0daf70cc23b11  /usr/bin/tazlito-wiz
+cb589026313542addf0dc3e84cff1315  /usr/bin/tazlito
+d1f9eccd512f1af005e4be733ec6cb84  /usr/share/doc/tazlito/tazlito.fr.html
+62ca0fa77882cb8ac527e9722c898807  /usr/share/doc/tazlito/tazlito.pt_BR.html
+6e4c0e5d7fcf5794008f21b9d495e2cc  /usr/share/doc/tazlito/tazlito.en.html
+6a44684ac3345cac325346cf27d19e89  /usr/share/applications/tazlito-wiz.desktop
+29cf482b2f1de847343d3e4bd53afb8c  /usr/share/applications/tazlito-doc.desktop
+9aa75fe96bc1c2b7ef1804bc85f60b2b  /usr/share/locale/pt_BR/LC_MESSAGES/tazlito-wiz.mo
+6b6a179a768070b8a944b4afa9e30790  /usr/share/locale/fr/LC_MESSAGES/tazlito-wiz.mo

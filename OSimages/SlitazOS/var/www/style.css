@@ -1,0 +1,44 @@
+/* CSS style for SliTaz GNU/Linux. */
+
+html { min-height: 102%; }
+
+body {
+	background: #ffffff;
+	color: black;
+	font: 13px sans-serif, vernada, arial;
+	margin: 0;
+	min-width: 640px;
+}
+
+a { text-decoration: underline; color: #215090; }
+a:hover { text-decoration: none; color: blue; }
+img { border: 0pt none; vertical-align: middle; }
+h2 { color: #444; }
+h3 { color: #666; font-size: 140%; }
+
+#header {
+	height: 40px;
+	background: #351a0a;
+	border-bottom: 8px solid #d66018;
+}
+
+#header h1 {
+	margin: 0;
+	padding: 8px 0 0 8px;
+	color: white;
+	font-size: 20px;
+}
+
+#content {
+	padding: 30px 80px;
+	text-align: justify;
+}
+
+#footer {
+	text-align: center;
+	border-top: 1px solid #ddd;
+	padding: 40px;
+	color: #666;
+}
+
+#footer a { color: #666; padding: 0 2px; }

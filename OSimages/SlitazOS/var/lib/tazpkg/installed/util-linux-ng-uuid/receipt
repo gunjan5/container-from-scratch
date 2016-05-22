@@ -1,0 +1,31 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="24.0K"
+UNPACKED_SIZE="64.0K"
+PACKAGE="util-linux-ng-uuid"
+VERSION="2.19.1"
+CATEGORY="base-system"
+SHORT_DESC="The uuid utility and library from Util linux NG."
+MAINTAINER="pankso@slitaz.org"
+DEPENDS="glibc-base"
+WANTED="util-linux-ng"
+WEB_SITE="http://kernel.org/~kzak/util-linux-ng/"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/lib $fs/usr/lib $fs/usr/bin $fs/usr/sbin
+	cp -a $_pkg/usr/sbin/uuidd $fs/usr/sbin
+	cp -a $_pkg/usr/bin/uuidgen $fs/usr/bin
+	cp -a $_pkg/lib/libuuid.so* $fs/lib
+	cd $fs/usr/lib
+	ln -s /lib/libuuid.so.1.3.0 libuuid.so
+	#cp -a $_pkg/usr/lib/libuuid.so* $fs/usr/lib
+}
+
+post_install()
+{
+	# Remove old libuuid from e2fsprogs package
+	rm $1/lib/libuuid.so.1.2 2>/dev/null
+	rm -rf $1/var/lib/tazpkg/installed/libuuid 2>/dev/null
+}

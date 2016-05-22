@@ -1,0 +1,12 @@
+/etc/tazlito/tazlito.conf
+/etc/tazlito/distro-packages.list
+/usr/bin/tazlito-wiz
+/usr/bin/tazlito
+/usr/share/doc/tazlito/tazlito.fr.html
+/usr/share/doc/tazlito/tazlito.pt_BR.html
+/usr/share/doc/tazlito/tazlito.en.html
+/usr/share/applications/tazlito-wiz.desktop
+/usr/share/applications/tazlito-doc.desktop
+/usr/share/locale/pt_BR/LC_MESSAGES/tazlito-wiz.mo
+/usr/share/locale/fr/LC_MESSAGES/tazlito-wiz.mo
+/usr/share/doc/tazlito/tazlito.html

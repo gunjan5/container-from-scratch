@@ -1,0 +1,37 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="52.0K"
+UNPACKED_SIZE="192.0K"
+PACKAGE="rp-pppoe"
+VERSION="3.10"
+CATEGORY="network"
+SHORT_DESC="Tools to configure a PPPOE network connection."
+MAINTAINER="pankso@slitaz.org"
+BUILD_DEPENDS="ppp"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.roaringpenguin.com/products/pppoe"
+WGET_URL="http://www.roaringpenguin.com/files/download/$TARBALL"
+TAGS="network pppoe"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src/src
+	./configure --prefix=/usr --infodir=/usr/share/info \
+	--mandir=/usr/share/man \
+	$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$PWD/../_pkg install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr
+	
+	cp -a $_pkg/etc $fs
+	cp -a $_pkg/usr/sbin $fs/usr	
+
+	# Fix permissions on all scripts
+	chmod -R 755 $fs/usr/sbin/*
+}

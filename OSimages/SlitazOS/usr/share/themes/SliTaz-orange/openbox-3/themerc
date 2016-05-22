@@ -1,0 +1,93 @@
+# SliTaz GNU/Linux Openbox orange theme, this is the first theme
+# created for SliTaz 1.0 (20080322)
+
+# General
+border.width: 1
+padding.width: 3
+padding.height: 2
+window.handle.width: 2
+window.client.padding.width: 0
+menu.overlap: 0
+*.justify: center
+*.bg.highlight: 50
+*.bg.shadow:    01
+
+# Menu settings
+menu.border.color: #BDBDBD
+menu.border.width: 1
+
+*.title.bg: Raised Gradient vertical
+*.title.bg.color: #e49218
+*.title.bg.colorTo: #d03500
+
+# Menu background
+menu.items.bg: flat gradient vertical
+menu.items.bg.color: #f1efeb
+menu.items.bg.colorTo: #ffffff
+menu.title.text.color: #111111
+
+# Selected menu item
+menu.items.active.bg: Raised Gradient vertical
+menu.items.active.bg.color: #e49218
+menu.items.active.bg.colorTo: #d03500
+menu.items.active.text.color: white
+menu.items.text.color: #111111
+menu.items.disabled.text.color: #aaaaaa
+
+# Window active
+window.active.border.color: #222222
+window.active.title.separator.color: #222222
+
+window.active.title.bg: Raised Gradient vertical
+window.active.title.bg.color: #880000
+window.active.title.bg.colorTo: #FFA500
+
+window.active.title.bg.highlight: 35
+window.active.title.bg.shadow:    00
+
+window.active.label.bg: Parentrelative
+window.active.label.text.color: #ffffff
+window.active.label.text.font:shadow=y:shadowtint=80:shadowoffset=1
+
+# Window button
+window.active.button.*.bg: Parentrelative
+window.active.button.*.image.color: #E5E5E5
+window.active.button.hover.bg: Parentrelative
+window.active.button.hover.image.color: #ffffff
+
+# Window inactive
+window.inactive.border.color: #000000
+window.inactive.border.width: 10
+window.inactive.title.separator.color: #000000
+
+window.inactive.title.bg: Raised Gradient vertical
+window.inactive.title.bg.color: #000000
+window.inactive.title.bg.colorTo: #666666
+
+window.inactive.label.bg: Parentrelative
+window.inactive.label.text.color: #aaaaaa
+
+window.*.handle.bg: Raised solid
+window.*.handle.bg.color: #666666
+
+window.*.grip.bg: Raised solid
+window.*.grip.bg.color: #666666
+
+window.inactive.button.*.bg: Parentrelative
+window.inactive.button.*.image.color: #aaaaaa
+
+window.inactive.button.hover.image.color: #ffffff
+
+# OSD
+osd.border.width: 1
+osd.border.color:  #000000
+
+osd.bg: flat border gradient vertical
+osd.bg.color: #880000
+osd.bg.colorTo: #FFA500
+osd.bg.border.color: #ffffff
+
+osd.label.text.color: #222222
+osd.label.bg: parentrelative
+osd.label.bg.color: #000000
+osd.label.bg.border.color: #ffffff

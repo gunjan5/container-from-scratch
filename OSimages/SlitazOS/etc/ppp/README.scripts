@@ -1,0 +1,67 @@
+README.scripts - PPP scripts documentation for SliTaz GNU/Linux            2007
+===============================================================================
+
+
+This README.scripts file is based on the documentation found in the ppp source
+package (version 2.4.4). The files in the scripts/ directory were contributed
+by Al Longyear (longyear@netcom.com) and Adi Masputra (adi.masputra@sun.com).
+This file was modified for SliTaz by Christophe Lincoln (pankso@slitaz.org).
+
+
+ppp-on
+------
+This script will initiate a connection to the PPP system. It will run
+the chat program with the connection script as a parameter. This is a
+possible security hole. However, it is simple. It is meant to replace
+the previous version of ppp-on which was not very functional.
+
+The ppp-on script has entries for the account name, password, IP
+addresses, and telephone numbers. The parameters are passed to the
+pppd process and, then in turn, to the second part of the connect
+script, as a set of environment variables.
+
+Please make sure that you put the full path name to the ppp-on-dialer
+script in the reference to it in ppp-on.
+
+
+ppp-on-dialer
+-------------
+This is the second part to the simple calling script, ppp-on.  It
+executes the chat program to connect the user with a standard UNIX
+style getty/login connection sequence.
+
+
+callback
+--------
+This script may be used in lieu of the ppp-on-dialer to permit the
+common modem callback sequence. You may need to make changes to the
+expected prompt string for the modem.
+
+The script works by disabling the system's detection of the DCD
+condition and working on the modem status message "NO CARRIER" which
+is generated when the modem disconnects.
+
+It is crude. It does work for my modem connection. Use as you see fit.
+
+
+redialer
+--------
+The redialer script is a replacement for the ppp-on-dialer script.  It
+will do 'attack dialing' or 'demon dialing' of one or more telephone
+numbers. The first number which responds will be used for a
+connection.
+
+There is a limit of ten attempts and a 15 second delay between dialing
+attempts. Both values are set in the script.
+
+
+ppp-off
+-------
+This is a script which will terminate the active ppp connection. Use
+as either "ppp-off" to terminate ppp0, or "ppp-off <device>" to
+terminate the connection on <device>. For example, "ppp-off ppp2" will
+terminate the ppp2 connection.
+
+
+===============================================================================
+http://ppp.samba.org/                                    http://www.slitaz.org/

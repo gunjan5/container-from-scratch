@@ -1,0 +1,398 @@
+#!/bin/sh
+#
+# Tazx - Ncurses X configuration for SliTaz GNU/Linux using Dialog boxes.
+# This tinyutils is part of slitaz-tools. Tazx can configure Xorg with 
+# several Window Managers. The GTK interface to configure X is in tazbox.
+#
+# (c) 2011 SliTaz GNU/Linux - GNU gpl v3.
+# Authors: Christophe Lincoln <pankso@slitaz.org>
+#          Pascal Bellard <pascal.bellard@slitaz.org>
+#
+: ${DIALOG=dialog}
+
+# Default value.
+WM=openbox
+
+# Default user for config files in Live mode, id is 1000 since it is
+# created by /etc/init.d/bootopts.sh.
+USER=$(cat /etc/passwd | grep 1000 | cut -d ":" -f 1)
+
+# Internationalization
+. /usr/bin/gettext.sh
+TEXTDOMAIN='slitaz-tools'
+export TEXTDOMAIN
+
+#
+# Functions
+#
+
+# Be sure we're root.
+check_root() {
+	if [ $(id -u) != 0 ]; then
+		gettext "You must be root to configure X server."
+		echo "" && exit 0
+	fi
+}
+
+# Populate xorg.conf.d.
+xorg_conf_d()
+{
+	# Define the xorg.conf.d (can be /etc/X11/xorg.conf.d or /usr/share/X11/xorg.conf.d)
+	xorg_config=/etc/X11/xorg.conf.d
+
+	# Define the xorg.conf.new place.
+	xorg_template=/root/xorg.conf.new
+
+	# Obtain a default configuration file from Xorg.
+	Xorg -configure :2
+
+	# Backup existing config.
+	tar -cf $xorg_config/../Previous_xorg.conf.d.tar $xorg_config/ &> /dev/null 
+
+	# Put the different sections in separate files in the config directory.
+	sed -e '/Section "ServerLayout"/,/EndSection/!d' \
+		-e "s/EndSection/EndSection\n/" $xorg_template | \
+		grep -v Core > $xorg_config/10-ServerLayout.conf
+	sed -e '/Section "Files"/,/EndSection/!d' \
+		-e "s/EndSection/EndSection\n/" $xorg_template > \
+		$xorg_config/20-Files.conf
+	sed -e '/Section "Module"/,/EndSection/!d' \
+		-e "s/EndSection/EndSection\n/" $xorg_template > \
+		$xorg_config/30-Module.conf
+	sed -e '/Section "Monitor"/,/EndSection/!d' \
+		-e "s/EndSection/EndSection\n/" $xorg_template > \
+		$xorg_config/50-Monitor.conf
+	sed -e '/Section "Device"/,/EndSection/!d' \
+		-e "s/EndSection/EndSection\n/" $xorg_template > \
+		$xorg_config/60-Device.conf
+	sed -e '/Section "Screen"/,/EndSection/!d' \
+		-e "s/EndSection/EndSection\n/" $xorg_template > \
+		$xorg_config/70-Screen.conf
+
+	# Remove the template.
+	rm $xorg_template
+
+	# Configure the keyboard with the right keymap.
+	keymap=`cat /etc/keymap.conf`
+	keyboard_config=$xorg_config/40-Keyboard.conf
+	echo 'Section "InputClass"
+	Identifier "Keyboard Defaults"
+	MatchIsKeyboard "yes"' > $keyboard_config
+	case $keymap in
+		fr_CH-latin1)
+			# Swiss FrenCH
+			echo '	Option "XkbLayout" "ch"
+	Option "XkbVariant" "fr"' >> $keyboard_config ;;
+		uk)
+			# English UK
+			echo '	Option "XkbLayout" "gb"' >> $keyboard_config ;;
+		ru)
+			# Russian
+			echo '	Option "XkbLayout" "us,ru(winkeys)"
+	Option "XkbOptions" "grp:ctrl_shift_toggle, grp_led:scroll"'  >> $keyboard_config ;;
+		slovene)
+			# Slovenian
+			echo '	Option "XkbLayout" "si"
+	Option "XkbOptions" "grp:alt_shift_toggle"' >> $keyboard_config ;;
+		us-acentos)
+			echo '	Option "XkbLayout" "us"
+	Option "XkbVariant" "intl"' >> $keyboard_config ;;
+		*)
+			# Use clean /etc/keymap.conf value.
+			keymap=${keymap%-latin1}
+			keymap=${keymap%-lat2}
+			keymap=${keymap%-lat6}
+			keymap=${keymap%-abnt2}
+			echo '	Option "XkbLayout" "'$keymap\"  >> $keyboard_config ;;
+	esac
+
+	echo 'Endsection' >> $keyboard_config
+
+	# Create a xorg.conf if needed.
+	if [ ! -f /etc/X11/xorg.conf ]; then
+	cat > /etc/X11/xorg.conf << EOT
+# You can put here your own Xorg configurations. This config file is read
+# before all files in /etc/X11/xorg.conf.d and will NOT be erased by any
+# updates.
+EOT
+	fi
+}
+
+# Install xorg server.
+install_xorg()
+{
+	[ -f "/var/lib/tazpkg/packages.list" ] || tazpkg recharge
+	exec 3>&1
+	value=`$DIALOG --clear --colors --title " $(gettext "Install Xorg") " \
+		--menu "\
+$(gettext "Tazx helps you to select your X driver.")" 16 70 5 \
+	$(fgrep xorg-xf86-video /var/lib/tazpkg/packages.list | cut -d- -f4 | \
+		while read x; do echo $x; echo driver; done) \
+	"quit" "Quitter" \
+	2>&1 1>&3`
+	retval=$?
+	exec 3>&-
+	
+	# Continue or exit.
+	case $retval in
+		0) continue ;;
+		1|255) exit 0 ;;
+	esac
+	
+	# Set selected value.
+	case $value in
+		quit) exit 0 ;;
+		*)
+			installed=/var/lib/tazpkg/installed/
+			[ -d "$installed/xorg-server" ] || tazpkg get-install xorg-server
+			[ -d "$installed/xorg-xf86-video-$value" ] || \
+				tazpkg get-install xorg-xf86-video-$value
+			xorg_conf_d ;;
+	esac
+}
+
+# Screen configuration dialog. TODO: menus items to enable/disable X on boot
+# and sed /etc/rcS.conf to remove slim from RUN_DAEMONS.
+config_dialog()
+{
+	exec 3>&1
+	value=`$DIALOG \
+		--clear --colors \
+		--title " Configure X " \
+		--menu "\
+$(gettext "Tazx dialog helps you to configure your Xorg server.")\n\
+$(gettext "Window Manager:") \Z2$WM\Zn \
+$(gettext "X server:") \Z2Xorg\Zn" 16 70 5 \
+	"xorg" "$(gettext "Install or reconfigure Xorg")" \
+	"xfbdev" "$(gettext "Install TinyX server Xfbdev")" \
+	"quit" "$(gettext "Quit Tazx utility")" \
+	2>&1 1>&3`
+	retval=$?
+	exec 3>&-
+	
+	# Continue or exit.
+	case $retval in
+		0) continue ;;
+		1|255) exit 0 ;;
+	esac
+	
+	# Set selected value.
+	case $value in
+		xorg)
+			install_xorg ;;
+		xfbdev)
+			# FIXME: Much to do here, for now just install Xfbdev.
+			tazpkg get-install xorg-server-Xfbdev ;;
+		*) exit 0 ;;
+	esac
+}
+
+# Window manager specific configuration.
+wm_config()
+{
+	case $WM in
+		ob|openbox)
+			WM=openbox-session
+			# Check if a personal autostart script exists if OB is installed.
+			if [ -d "/var/lib/tazpkg/installed/openbox" ]; then
+				if [ ! -f "$HOME/.config/openbox/autostart.sh" ]; then
+					mkdir -p $HOME/.config/openbox
+					cp /etc/xdg/openbox/autostart.sh $HOME/.config/openbox
+				fi
+				# Script for default user (uid=1000).
+				if [ ! -f "/home/$USER/.config/openbox/autostart.sh" ]; then
+					mkdir -p /home/$USER/.config/openbox
+					cp /etc/xdg/openbox/autostart.sh /home/$USER/.config/openbox
+				fi
+				if [ ! -f "/home/$USER/.config/openbox/menu.xml" ]; then
+					mkdir -p /home/$USER/.config/openbox
+					cp /etc/xdg/openbox/menu.xml /home/$USER/.config/openbox
+				fi
+				chown -R $USER.users /home/$USER/.config
+			fi ;;
+		jwm)
+			WM=jwm
+			JWM_CONFIG=$HOME/.jwmrc
+			if [ -d "/var/lib/tazpkg/installed/jwm" ]; then
+				if [ ! -f "$JWM_CONFIG" ]; then
+					cp /etc/jwm/system.jwmrc $JWM_CONFIG
+				fi
+				# In Live mode default user/root JWM config does not exist and
+				# $HOME is not set, this is because tazx is executed by boot
+				# scripts.
+				if [ ! -f "/home/$USER/.jwmrc" ]; then
+					cp /etc/jwm/system.jwmrc /home/$USER/.jwmrc
+					chown $USER.users /home/$USER/.jwmrc
+				fi
+				if [ ! -f "/root/.jwmrc" -a `id -u` = 0 ]; then
+					cp /etc/jwm/system.jwmrc /root/.jwmrc
+				fi
+			fi ;;
+		pekwm)
+			WM=pekwm
+			if [ -d "/var/lib/tazpkg/installed/pekwm" ]; then
+				if [ -d "$HOME/.pekwm" ]; then
+					cp -R /etc/pekwm $HOME/.pekwm
+				fi
+				# In Live mode we want config before starting pekwm the first time.
+				if [ ! -d "/home/$USER/.pekwm" ]; then
+					cp -R /etc/pekwm /home/$USER/.pekwm
+					chown -R $USER.users /home/$USER/.pekwm
+					chmod +x /home/$USER/.pekwm/start
+				fi
+				if [ ! -d "/root/.pekwm" -a `id -u` = 0 ]; then
+					cp -R /etc/pekwm /root/.pekwm
+					chmod +x /root/.pekwm/start
+				fi
+			fi ;;
+		e17|enlightenment)
+			WM=enlightenment_start ;;
+		fluxbox)
+			WM=startfluxbox ;;
+		dwm|karmen)
+			WM=$WM-session ;;
+		awesome)
+			WM=awesome ;;
+		xfce|xfce4)
+			WM=xfce4-session ;;
+	esac
+}
+
+# Sample xinitrc for user (WM can be specified with F1 at slim login).
+xinitrc_sample()
+{
+	cat >  $FILE << "EOF"
+# ~/.xinitrc: Executed by slim login manager to startx X session.
+# You can use F1 with Slim to change your window manager or configure
+# it permanently with your personal applications.conf file.
+#
+. $HOME/.config/slitaz/applications.conf
+
+case $1 in
+	e17|enlightenment*)
+		exec enlightenment_start ;;
+	openbox|openbox-session|ob)
+		exec openbox-session ;;
+	dwm|dwm-session)
+		exec dwm-session ;;
+	fluxbox|startfluxbox)
+		exec startfluxbox ;;
+	awesome)
+		exec awesome ;;
+	pekwm)
+		exec pekwm ;;
+	karmen|karmen-session)
+		exec karmen-session ;;
+	jwm)
+		lxpanel &
+		exec jwm ;;
+	xfce|xfce4|xfce4-session)
+		xfce4-session ;;
+	*)
+		exec $WINDOW_MANAGER ;;
+esac
+EOF
+	# Set default WM in applications.conf user file. Default WM can be
+	# configured graphically with 'desktopbox tazapps'
+	. $CONFIG
+	sed -i s/"WINDOW_MANAGER=.*"/"WINDOW_MANAGER=\"$WM\""/ \
+		$CONFIG
+}
+
+# ~/.xinitrc for X login from a DM.
+creat_xinitrc()
+{
+	FILE=$HOME/.xinitrc
+	CONFIG=$HOME/.config/slitaz/applications.conf
+	if [ ! -f $CONFIG ]; then
+		mkdir -p $HOME/.config/slitaz
+		cp /etc/slitaz/applications.conf $CONFIG
+	fi
+	xinitrc_sample
+	# .xinitrc and config for /etc/skel so new added user will get
+	# a working X session.
+	if test $(id -u) = 0; then
+		FILE=/etc/skel/.xinitrc
+		CONFIG=/etc/skel/.config/slitaz/applications.conf
+		mkdir -p /etc/skel/.config/slitaz
+		cp -f /etc/slitaz/applications.conf $CONFIG
+		xinitrc_sample
+	fi
+	# In Live mode default user needs a xinitrc, since tazx
+	# is executed only by root.
+	CONFIG=/home/$USER/.config/slitaz/applications.conf
+	if [ ! -f $CONFIG ]; then
+		mkdir -p /home/$USER/.config/slitaz
+		cp /etc/slitaz/applications.conf $CONFIG
+	fi
+	chown -R $USER.users /home/$USER/.config/slitaz
+	if [ ! -f /home/$USER/.xinitrc ]; then
+		FILE=/home/$USER/.xinitrc
+		xinitrc_sample
+		chown $USER.users $FILE
+	fi
+}
+
+# Create ~/.xsession to keep the configuration selected (used
+# only by startx, Slim login manager uses .xinitrc).
+creat_xsession()
+{
+	[ -f $HOME/.xsession ] && cp -f $HOME/.xsession $HOME/.previous_xsession
+	cat > $HOME/.xsession << _EOF_
+# ~/.xsession: Start X window session manually on your system (startx).
+#
+Xorg &
+#xterm &
+_EOF_
+	# LXpanel by default with JWM.
+	if [ "$WM" = "jwm" ]; then
+		echo 'lxpanel &' >> $HOME/.xsession
+	fi
+	echo "exec $WM" >> $HOME/.xsession
+	chmod 700 $HOME/.xsession
+}
+
+
+# Commands - WM can be specified on cmdline.
+
+case "$1" in
+	install-xorg)
+		check_root
+		if [ -n "$2" ]; then
+			WM=$2
+		fi
+		echo "xorg" > /etc/X11/screen.conf
+		install_xorg
+		wm_config
+		creat_xinitrc
+		creat_xsession ;;
+	config-xorg)
+		check_root
+		if [ -n "$2" ]; then
+			WM=$2
+		fi
+		echo "xorg" > /etc/X11/screen.conf
+		wm_config
+		creat_xinitrc
+		creat_xsession
+		xorg_conf_d 
+		if grep -qs screen= /proc/cmdline ; then
+			MODE="$(sed 's/.*screen=\([0-9]*x[0-9]*\).*/\1/' < /proc/cmdline)"
+			sed -i "s/.*EndSubSection.*/\\t\\tModes\\t\"$MODE\"\\n&/" \
+				/etc/X11/xorg.conf.d/70-Screen.conf
+		fi ;;
+	*)
+		# User can get a new .xinitrc with tazx from cmdline.
+		if [ -n "$1" ]; then
+			WM=$1
+		fi
+		if test $(id -u) = 0; then
+			echo "xorg" > /etc/X11/screen.conf
+			config_dialog
+		fi
+		wm_config
+		creat_xinitrc
+		creat_xsession ;;
+esac
+
+exit 0

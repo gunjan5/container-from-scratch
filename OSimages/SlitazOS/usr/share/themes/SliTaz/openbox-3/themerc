@@ -1,0 +1,69 @@
+# SliTaz GNU/Linux Openbox theme. Images are from the Natura theme
+# and colors match SliTaz current style. Name: Sunset
+
+# General
+border.width: 1
+padding.width: 2
+padding.height: 4
+window.handle.width: 2
+window.client.padding.width: 0
+menu.overlap: 0
+*.justify: center
+*.bg.highlight: 50
+*.bg.shadow:    01
+*.title.bg: flat
+*.title.bg.color: #351a0a
+#*.title.bg.colorTo: #342812
+
+# Menu settings (match SliTaz GTK/Clearlooks colors)
+menu.title.text.color: #cfcfcf
+menu.items.bg: flat
+menu.items.bg.color: #f9f7f3
+#menu.items.bg.colorTo: #cfcfcf
+menu.separator.color: #dcd8cf
+menu.border.color: #908266
+menu.border.width: 1
+menu.items.active.bg: Gradient Vertical Flat
+menu.items.active.bg.color: #d66018
+menu.items.active.bg.colorTo: #9d5122
+menu.items.active.text.color: white
+menu.items.text.color: #000000
+menu.items.disabled.text.color: #cfcfcf
+
+# Window
+window.active.border.color: #72320e
+window.inactive.border.color: #351a0a
+window.inactive.border.width: 10
+window.active.title.bg: flat
+window.active.title.bg.color: #351a0a
+#window.active.title.bg.colorTo: #342812
+window.active.title.bg.highlight: 35
+window.active.title.bg.shadow:    00
+window.active.title.separator.color: #351a0a
+window.inactive.title.separator.color: #72320e
+window.inactive.title.bg: flat
+window.inactive.title.bg.color: #72320e
+#window.inactive.title.bg.colorTo: #888173
+window.active.label.bg: Parentrelative
+window.active.label.text.color: #cfcfcf
+#window.active.label.text.font:shadow=y:shadowtint=80:shadowoffset=1
+window.inactive.label.bg: Parentrelative
+window.inactive.label.text.color: #bbbbbb
+window.active.button.*.bg: Parentrelative
+window.active.button.*.image.color: #cfcfcf
+window.active.button.hover.bg: Parentrelative
+window.active.button.hover.image.color: #ffffff
+window.inactive.button.*.bg: Parentrelative
+window.inactive.button.*.image.color: #cfcfcf
+window.inactive.button.hover.image.color: #ffffff
+
+window.*.handle.bg: Raised Raised
+window.*.handle.bg.color: #d66018
+window.*.grip.bg: Raised Raised
+window.*.grip.bg.color: #351a0a
+
+# OSD
+osd.bg: flat
+osd.bg.color: #351a0a
+#osd.bg.colorTo: #342812
+osd.border.color: #d66018

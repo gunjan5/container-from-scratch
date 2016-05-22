@@ -1,0 +1,70 @@
+#!/bin/sh
+#
+# Tiny man fake using online manuals.
+# Copyright (C) 2009-2012 SliTaz GNU/Linux.
+#
+
+if [ ! -x /usr/bin/retawq ]; then
+	echo -e "\nMissing Retawq web browser..."
+	echo -e "Please run: su -c 'tazpkg get-install retawq'\n"
+	exit 0
+fi
+
+local i
+local SECTION
+local MSG
+local TOPIC
+local MAN_SECTION
+
+case "$1" in
+	''|-*)
+		cat <<EOT
+
+Usage: man [section] command
+
+EOT
+		return ;;
+esac
+
+SECTION=all
+MAN_SECTION='*'
+MSG=""
+
+if [ -n "$2" ]; then
+	SECTION=$1
+	MAN_SECTION=$1
+	MSG=" in section $SECTION"
+	shift
+fi
+
+TOPIC=$1
+
+if [ -x /usr/bin/retawq -a -f /usr/share/doc/$TOPIC/$TOPIC.html ]; then
+	retawq --dump=file:///usr/share/doc/$TOPIC/$TOPIC.html | less -M
+	return
+elif [ -x /usr/bin/retawq -a -f /usr/share/doc/slitaz-tools/$TOPIC.html ]; then
+	retawq --dump=file:///usr/share/doc/slitaz-tools/$TOPIC.html | less -M
+	return
+fi
+
+for i in /usr/share/$LC_ALL/man$MAN_SECTION /usr/share/man$MAN_SECTION; do
+	if [ -f $i/raw-$TOPIC.* ]; then
+		i=$(ls $i/raw-$TOPIC.*)
+		case "$i" in
+		*gz) (zcat $i || unlzma -c $i 2> /dev/null) | less -M;;
+		*) less -M $i;;
+		esac
+		return
+	fi
+	if [ -x /usr/bin/retawq -a -f $i/$TOPIC.html ]; then
+		retawq --dump=file://$i/$TOPIC.html | less -M
+		return
+	fi
+done
+
+(wget -O - "http://mirror.slitaz.org/man/$SECTION/$TOPIC.html" || \
+	wget -O - "http://man.he.net/?topic=$TOPIC&section=$SECTION") 2> /dev/null | \
+	awk "BEGIN { s=0; n=0 } /<PRE>/ { s=1 } { if (s) { print; n++} } /<\/PRE>/ { s=0 } END { if (n == 0) print \"No manual entry for $TOPIC$MSG\" }" | \
+	sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&amp;/\&/g' | less -M
+
+exit 0

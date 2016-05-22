@@ -1,0 +1,4 @@
+#!/bin/sh
+# tazbootlog: Display SliTaz boot log messages.
+#
+cat /var/log/dmesg.log /var/log/boot.log | sed "s/.\[3g.*\]R//"

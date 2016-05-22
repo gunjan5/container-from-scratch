@@ -1,0 +1,14 @@
+
+# sound devices
+SUBSYSTEM=="sound",				GROUP="audio"
+SUBSYSTEM=="sound",				MODE="0664"
+
+# storage
+SUBSYSTEM=="ide",				GROUP="root"
+SUBSYSTEM=="ide",				MODE="0660
+SUBSYSTEM=="ata",				GROUP="root"
+SUBSYSTEM=="ata",				MODE="0660
+SUBSYSTEM=="scsi",				GROUP="root"
+SUBSYSTEM=="scsi",				MODE="0660
+
+

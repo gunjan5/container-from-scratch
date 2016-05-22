@@ -1,0 +1,12 @@
+/usr/bin/tazusb
+/usr/bin/tazusb-box
+/usr/share/doc/tazusb/style.css
+/usr/share/doc/tazusb/tazusb.en.html
+/usr/share/doc/tazusb/tazusb.fr.html
+/usr/share/doc/tazusb/tazusb.pt_BR.html
+/usr/share/locale/fr/LC_MESSAGES/tazusb-box.mo
+/usr/share/locale/fr/LC_MESSAGES/tazusb.mo
+/usr/share/locale/pt_BR/LC_MESSAGES/tazusb-box.mo
+/usr/share/locale/pt_BR/LC_MESSAGES/tazusb.mo
+/usr/share/applications/tazusb-box.desktop
+/usr/share/doc/tazusb/tazusb.html

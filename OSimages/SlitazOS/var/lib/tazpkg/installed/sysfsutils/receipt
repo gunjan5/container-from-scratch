@@ -1,0 +1,32 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="32.0K"
+UNPACKED_SIZE="96.0K"
+PACKAGE="sysfsutils"
+VERSION="2.1.0"
+CATEGORY="system-tools"
+SHORT_DESC="Utilites built upon sysfs."
+MAINTAINER="pankso@slitaz.org"
+DEPENDS="linux"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://linux-diag.sourceforge.net/Sysfsutils.html"
+WGET_URL="$SF_MIRROR/linux-diag/$TARBALL"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	./configure --prefix=/usr --infodir=/usr/share/info \
+	--mandir=/usr/share/man $CONFIGURE_ARGS
+	make
+	make DESTDIR=$PWD/_pkg install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/lib
+	cp -a $_pkg/usr/bin $fs/usr
+	cp -a $_pkg/usr/lib/*.so* $fs/usr/lib
+}
+

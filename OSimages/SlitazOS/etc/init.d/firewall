@@ -1,0 +1,90 @@
+#!/bin/sh
+# /etc/init.d/firewall - SliTaz firewall daemon script using iptables.
+# Config file is: /etc/firewall.conf
+#
+. /etc/init.d/rc.functions
+. /etc/firewall.conf
+
+case $1 in
+  start)
+    # Kernel security. 0 = disable, 1 = enable.
+    #
+    if [ "$KERNEL_SECURITY" = "yes" ] ; then
+      echo -n "Setting up kernel security rules... "
+      # ICMP redirects acceptance.
+      for conf in /proc/sys/net/ipv4/conf/*/accept_redirects ; do
+        echo "0" > $conf
+      done
+      for conf in /proc/sys/net/ipv4/conf/*/secure_redirects ; do
+        echo "0" > $conf
+      done
+      # IP source routing.
+      for conf in /proc/sys/net/ipv4/conf/*/accept_source_route ; do
+        echo "0" > $conf
+      done
+      # Log impossible addresses.
+      for conf in /proc/sys/net/ipv4/conf/*/log_martians ; do
+        echo "1" > $conf
+      done
+      # Ip spoofing protection.
+      for conf in /proc/sys/net/ipv4/conf/*/rp_filter ; do
+        echo "1" > $conf
+      done
+        echo "1" > /proc/sys/net/ipv4/tcp_syncookies
+      status
+    else
+      echo "Kernel security rules are disabled in: /etc/firewall.conf... "
+    fi
+    # Netfilter/iptables rules. We get the rules from /etc/firewall.conf.
+    #
+    if [ "$IPTABLES_RULES" = "yes" ] ; then
+      echo -n "Setting up iptables rules defined in: /etc/firewall.conf... "
+      iptables_rules
+      status
+    else
+      echo "Iptables rules are disabled in: /etc/firewall.conf... "
+      exit 0
+    fi
+    ;;
+  stop)
+  	if [ "$IPTABLES_RULES" = "yes" ] ; then
+      echo -n "Stopping iptables firewall rules... "
+      iptables -P INPUT ACCEPT
+      iptables -P OUTPUT ACCEPT
+      iptables -P FORWARD ACCEPT
+      iptables -F
+      iptables -X
+      status
+    else
+      echo "Iptables rules are disabled in: /etc/firewall.conf... "
+      exit 0
+    fi
+    ;;
+  restart)
+    $0 stop
+    sleep 2
+    $0 start
+    ;;
+  status)
+    echo ""
+    echo -e "\033[1m===================== SliTaz firewall statistics =====================\033[0m"
+    echo ""
+    if [ "$KERNEL_SECURITY" = "yes" ] ; then
+      echo "Kernel security: enabled"
+    else
+      echo "Kernel security: disabled"
+    fi
+    echo ""
+    echo "Netfilter/iptables rules: "
+    echo ""
+    iptables -nL
+    echo ""
+    ;;
+  *)
+    echo ""
+    echo -e "\033[1mUsage:\033[0m /etc/init.d/`basename $0` [start|stop|restart|status]"
+    echo ""
+    exit 1
+    ;;
+esac
+

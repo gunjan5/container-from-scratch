@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Cookutils Doc
+Exec=browser file:///usr/share/doc/cookutils/cookutils.html
+Icon=text-html
+Type=Application
+Categories=Documentation;

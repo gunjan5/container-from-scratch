@@ -1,0 +1,150 @@
+SliTaz Cookutils
+================================================================================
+
+
+The SliTaz Cookutils provide tools and utils to build SliTaz packages.
+
+
+Cook
+--------------------------------------------------------------------------------
+The cook tool should be used in a chroot environment: simply use the command
+'tazdev gen-chroot' to build one. You can also build packages directly but
+build deps will not be handled correctly since cook will install missing
+packages to perform a build and then remove them only if they were not
+installed before, this way we can keep a clean build environment.
+
+We use standard SliTaz paths to work such as /home/slitaz/wok, if you work on
+cooking from stable or want to keep a clean system: create a chroot.
+
+Cook features:
+
+    * Setup a build env
+    * Check and install missing build deps
+    * Compile and generate the package
+    * Remove installed build deps
+    * Provide a log for each cook
+    * Clean one or all packages in the wok
+    * Check for receipt and package quality
+    * Clean chroot even on Ctrl-C
+
+Cook does not:
+
+    * Depend on Hg but can use it to manage a wok
+    * Do complex work like compiling the whole system from source in
+      one command (but it can rebuild the full system step by step).
+    * Check build deps for you, use: BUILD_DEPENDS
+    * The work of a Build Bot, unix philosophy: one tool for one task
+    * Cook a package if your receipt is crappy :-)
+
+Cook paths variables used in receipt:
+
+    * $src     : Package source: wok/pkg/source
+    * $stuff   : Package stuff: wok/pkg/stuff
+    * $fs      : Package file system: wok/pkg/taz/*/fs
+    * $install : All installed files by the package
+                 Old style is $_pkg and cook is compatible
+
+Cook internal paths variables:
+
+    * $pkgdir  : Package directory in the wok: wok/pkg
+    * $receipt : Package receipt in wok: wok/pkg/receipt
+    * $taz     : The taz directory: wok/pkg/taz
+    * $pack    : Package to compress: wok/taz/pkg-*
+
+Cook also manages packages lists so they can be used for a personal packages
+repository or sent to the official mirror. We create and use:
+
+    * packages.list    Simple list of package-versions
+    * packages.md5     MD5sum list of all packages
+    * packages.txt     List of packages with version, desc and sizes
+    * packages.desc    Packages with name, version, category, desc
+    * packages.equiv   Equivalent packages list
+    * files.list.lzma  A list of files provided by all packages
+
+
+Cooker
+--------------------------------------------------------------------------------
+The Cooker is a Build Bot which automates the build process but doesn't make
+the dinner for you! We need quality receipts to cook succesfully and the goal
+is not to have a bloated script so please Keep It Short and Simple.
+
+Cmdline tool  : /usr/bin/cooker
+Web interface : /var/www/cooker
+Cache folder  : /home/slitaz/cache
+
+The web interface consists of one CGI script and one CSS style. Cook logs can
+be produced by cook and the cooker just acts as a fronted to check them in
+a nice way. A web interface also highlights success and error and can show
+receipts and the cooker logs such as the last ordered list or commits check.
+
+Database files in the cache folder
+
+    * activity   : Activity information for the web interface
+    * blocked    : List of manually blocked packages
+    * broken     : Broken packages list, when cook fails it is added here
+    * commits    : List of packages of the last commit check
+    * cooklist   : Cooklist for unbuilt packages or custom commands
+    * cooknotes  : All the notes added with 'cooker -n "My note"
+    * installed* : Lists used to compare installed packages before and after 
+		   a package is cooked so we can remove them
+
+The Cooker web interface can by highly customized through the CSS style and via
+an optional header.html file that must be in the same directory as the CGI
+script, like for style.css and a custom favicon. You can find a header.html
+example in the data/ directory or in /usr/share/cook if cookutils are installed.
+
+
+Cookiso
+-------------------------------------------------------------------------------
+Cookiso is the official tool to automate the ISO build. The goal is to provide
+a simple to use, rock solid tool with a web interface à la Cooker. It shares
+configuration and templates with the Cooker but can be run on its own so it
+can be used by contributors or customers to automate custom ISO building.
+Cookiso must be run in a chroot which can be the same chroot as the Cooker.
+
+Cookiso is also used to build rolling ISOs by tracking changes in a packages
+list or Hg repository. The rolling command is designed to be run by cron
+in a chroot environment. Here are some usage examples:
+
+# cookiso setup
+# cookiso gen --flavors="base justx"
+# cookiso gen --flavors=base --version=cooking
+
+
+Toolchain
+--------------------------------------------------------------------------------
+To rebuild the full SliTaz toolchain at once - cook and the Cooker will use the
+slitaz-toolchain package. No built-in code manages that since it is not a
+common task. The toolchain package will build all needed packages in the correct
+order, which is very important.
+
+
+Coding style
+--------------------------------------------------------------------------------
+Here are the cookutils coding style notes, follow them if you want your code
+included in the package.
+
+    * In all cases: KISS
+    * Use tab and not space to indent
+    * Max 80 char by line (try to edit in a Xterm 80x24)
+    * Use names rather than $1 $2 $3
+    * Variables from config file are $UPPERCASE
+    * Variables initialized by cook are $lowercase
+    * Functions can be a single word or use_underline()
+      my_function() {
+          echo "Hello World"
+      }
+    * Use $(command) and not: `command`
+    * Cook uses gettext for messages, not the cooker
+    * If you add a feature, add also the doc to explain it
+    * Use clean case with space before case end ;;
+      case "$pkg" in
+	    a) echo "Hello World" ;;
+	    *) continue ;;
+      esac
+    * Make commands and options as short as possible
+    * Think to log everything to help debug
+    * Quote variables if used in a test: [ "$var" ]
+
+
+================================================================================

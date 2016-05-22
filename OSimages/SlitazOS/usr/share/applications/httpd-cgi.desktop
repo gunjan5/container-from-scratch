@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=CGI SHell Environment
+Exec=browser http://localhost/cgi-env.sh
+Icon=text-x-script
+Type=Application
+Categories=Application;Development;

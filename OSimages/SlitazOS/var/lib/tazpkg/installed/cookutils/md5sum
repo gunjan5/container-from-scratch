@@ -1,0 +1,17 @@
+15d093671fc38d81d7feb047542fd284  /etc/slitaz/cook.conf
+ea930c8c1e9a8827417f234c12ef2ed8  /etc/slitaz/cook.site
+5e1b56e4a924fd5db5614fa865f15aa9  /usr/bin/cook
+1d2580164c7dd7a78120121cb6db31bb  /usr/bin/cooker
+dc8615dd4a695bea0ebae075f2888187  /usr/bin/cookiso
+cc7d09fb0738c838c35f6b0e1d77bfc4  /usr/share/applications/cookutils-doc.desktop
+d71e0cfcee291de8780ec8f9274770b1  /usr/share/cook/cooklist
+b82d26f69b557f306d1be47c9ba40f54  /usr/share/cook/cooktest/receipt
+53ae9ebe9c1025bc6ce8bc57e835e8f4  /usr/share/cook/header.html
+21399e74036043e601ebe066bb3c8528  /usr/share/cook/receipt
+a7c74f661717f3c45d56ec6ea0184f63  /usr/share/doc/cookutils/cookutils.en.html
+b168d7f56fb9bccf91e2d52363a62083  /usr/share/doc/cookutils/cookutils.pt_BR.html
+1dc098e84c643e7a8f06ba8928bbd5a5  /usr/share/doc/cookutils/style.css
+a7da1ffac5d7d97755913b1c69b12706  /usr/share/doc/cookutils/README
+3a441739f6de1d30f5625f1f73b81406  /var/www/cooker/cooker.cgi
+45e04fb50f10b96d991550255a3cd7b1  /var/www/cooker/cookiso.cgi
+810fdb9596645ec2a52b1cc2f5fdfa86  /var/www/cooker/style.css

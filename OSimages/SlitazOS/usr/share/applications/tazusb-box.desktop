@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Create a LiveUSB
+Name[fr]=Créer un LiveUSB
+Name[pt]=Criação de LiveUSB
+Name[pt_BR]=Criação de LiveUSB
+Exec=tazbox su tazusb-box
+Icon=usb-creator
+Type=Application
+Categories=System;

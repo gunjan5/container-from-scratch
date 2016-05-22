@@ -1,0 +1,84 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="112.0K"
+UNPACKED_SIZE="376.0K"
+PACKAGE="syslinux"
+VERSION="4.05"
+CATEGORY="base-system"
+SHORT_DESC="LiveCD ISO bootloader (isolinux)"
+MAINTAINER="pankso@slitaz.org"
+TARBALL="$PACKAGE-$VERSION.tar.xz"
+WEB_SITE="http://syslinux.zytor.com/"
+WGET_URL="ftp://ftp.kernel.org/pub/linux/utils/boot/syslinux/$TARBALL"
+BUILD_DEPENDS="kbd-base perl nasm"
+DEPENDS="gpxe"
+CONFIG_FILES="/boot/isolinux"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+compile_rules()
+{
+    cd $src
+    cp $stuff/tools/isohybrid.sh .
+    cp $stuff/tools/keytab-lilo.pl .
+    cp $stuff/extra/ifmem.c com32/modules
+    cp $stuff/extra/md5sum.c com32/modules
+    grep -q ifmem.c32 com32/modules/Makefile ||
+	sed -i 's/ifcpu64.c32/ifcpu64.c32 ifmem.c32 md5sum.c32/' com32/modules/Makefile
+    make -C com32
+    ./isohybrid.sh --build
+    for i in /usr/share/kbd/keymaps/i386/*/*.map.gz; do
+        [ "$(basename $(dirname $i))" = "include" ] && continue
+        j=$(basename $i)
+        j=${j%.map.gz}.kbd
+        ./keytab-lilo.pl /usr/share/kbd/keymaps/i386/qwerty/us.map.gz $i > $j
+    done
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+    mkdir -p $fs/boot/isolinux
+    cp -a $src/core/isolinux.bin $fs/boot/isolinux
+    cp -a $src/com32/modules/reboot.c32 $fs/boot/isolinux
+    cp -a $src/com32/modules/ifmem.c32 $fs/boot/isolinux
+    cp -a $src/com32/modules/md5sum.c32 $fs/boot/isolinux
+    cp -a $src/com32/menu/vesamenu.c32 $fs/boot/isolinux
+    cp -a $src/modules/poweroff.com $fs/boot/isolinux
+    # $stuff/isolinux.msg is the old way the have a splash image.
+    cp $stuff/*.cfg $stuff/*.txt $stuff/help.* $stuff/opts.* $fs/boot/isolinux
+    while read cfg kbd loc ; do
+        sed -e "s/^display/kbdmap $cfg.kbd\ndisplay/" \
+            -e "s/^label/say Now using $kbd keyboard and $loc locale.\nlabel/" \
+            -e "s/rootfs.gz/rootfs.gz lang=$loc kmap=$kbd/" \
+	        < $fs/boot/isolinux/default.cfg > $fs/boot/isolinux/$cfg.cfg
+        cp $src/$kbd.kbd $fs/boot/isolinux/$cfg.kbd
+	cat >> $fs/boot/isolinux/common.cfg <<EOT
+label $cfg
+	config $cfg.cfg
+EOT
+    done <<EOT
+be    be-latin1    fr_FR
+br    br-abnt2     pt_PT
+ca    cf           fr_FR
+de    de-latin1    de_DE
+de_CH de_CH-latin1 de_DE
+en    uk           C
+es    es           es_ES
+fi    fi-latin1    fi
+fr    fr-latin1    fr_FR
+fr_CH fr_CH-latin1 fr_FR
+hu    hu           hu
+it    it           it_IT
+jp    jp106        jp_JP
+pt    pt-latin1    pt_PT
+ru    ru           ru_RU
+us    us           C
+EOT
+    chown root.root $fs/boot/isolinux/*
+}
+
+# Pre and post install commands for Tazpkg.
+post_install()
+{
+    sed -i "s/XXXXXXXX/$(date +%Y%m%d)/" $1/boot/isolinux/isolinux.cfg
+}

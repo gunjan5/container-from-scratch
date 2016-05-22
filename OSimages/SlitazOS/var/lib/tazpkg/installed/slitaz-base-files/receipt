@@ -1,0 +1,111 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="28.0K"
+UNPACKED_SIZE="136.0K"
+PACKAGE="slitaz-base-files"
+VERSION="4.6"
+CATEGORY="base-system"
+SHORT_DESC="Linux tree and the necessary files for the base system."
+MAINTAINER="pankso@slitaz.org"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.slitaz.org/"
+WGET_URL="http://mirror.slitaz.org/sources/base-files/$TARBALL"
+CONFIG_FILES="
+/etc/adduser.conf
+/etc/passwd
+/etc/fstab
+/etc/issue
+/etc/hosts
+/etc/host.conf
+/etc/hostname
+/etc/group
+/etc/gshadow
+/etc/shadow
+/etc/daemons.conf
+/etc/nsswitch.conf
+/etc/networks
+/etc/profile
+/etc/securetty
+/etc/services
+/etc/shells"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p \
+		$fs/bin \
+		$fs/dev \
+		$fs/home \
+		$fs/media/cdrom \
+		$fs/media/flash \
+		$fs/media/usbdisk \
+		$fs/mnt \
+		$fs/proc \
+		$fs/root \
+		$fs/sbin \
+		$fs/sys \
+		$fs/tmp \
+		$fs/usr/bin \
+		$fs/usr/games \
+		$fs/usr/lib \
+		$fs/usr/local \
+		$fs/usr/sbin \
+		$fs/usr/share/doc \
+		$fs/var/cache \
+		$fs/var/games \
+		$fs/var/lib \
+		$fs/var/lock \
+		$fs/var/log \
+		$fs/var/run \
+		$fs/var/spool \
+		$fs/var/tmp
+
+	# Copy all rootfs from the stuff and set permissions.
+	cp -a $src/rootfs/* $fs
+
+	chown -R root.root $fs/*
+	chmod 1777 $fs/tmp
+	chmod 640 $fs/etc/shadow
+	chmod 640 $fs/etc/gshadow
+	chmod 0750 $fs/root
+
+	# Populate /dev with $fs/sbin/mktazdevs.sh.
+	$fs/sbin/mktazdevs.sh $fs/dev
+
+	# Creat /etc/mtab symlink.
+	cd $fs/etc
+	ln -s /proc/mounts mtab
+}
+
+# Pre and post install to backup all /etc/settings
+#
+pre_install()
+{
+	local root
+	root=$1
+	echo "Creating backup of all files in /etc..."
+	cp -a $root/etc $root/tmp/etc.bak 2>/dev/null
+}
+
+post_install()
+{
+	local root
+	root=$1
+	echo "Restoring files from /etc/etc.bak..."
+	cp -a $root/tmp/etc.bak/* $root/etc 2>/dev/null
+	rm -rf $root/tmp/etc.bak
+
+	# Reset permission.
+	chmod 640 $root/etc/shadow
+	chmod 640 $root/etc/gshadow
+
+	if ! grep -q audio $root/etc/group; then
+		chroot $root/ /bin/addgroup -g 20 audio
+	fi
+}
+
+pre_remove()
+{
+	# We can not remove this package !
+	exit 1
+}

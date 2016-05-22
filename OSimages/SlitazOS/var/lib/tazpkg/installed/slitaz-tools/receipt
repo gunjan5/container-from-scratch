@@ -1,0 +1,67 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="72.0K"
+UNPACKED_SIZE="312.0K"
+PACKAGE="slitaz-tools"
+VERSION="4.9.1"
+CATEGORY="system-tools"
+SHORT_DESC="SliTaz tools provide installer and utils usable on termnial."
+MAINTAINER="pankso@slitaz.org"
+DEPENDS="slitaz-boot-scripts dialog gettext-base slitaz-configs-base"
+BUILD_DEPENDS="gettext"
+SUGGESTED="slitaz-tools-boxes"
+TARBALL="$PACKAGE-$VERSION.tar.gz"
+WEB_SITE="http://www.slitaz.org/"
+WGET_URL="http://mirror.slitaz.org/sources/tools/$TARBALL"
+CONFIG_FILES="
+/etc/TZ
+/etc/keymap.conf
+/etc/X11/screen.conf
+/etc/locale.conf
+/etc/firewall.conf
+/etc/slitaz/applications.conf"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+    cd $src
+    make && make DESTDIR=$DESTDIR install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs
+	cp -a $install/* $fs
+	chmod 0644 $fs/usr/share/locale/*/*/*.mo
+	chown -R root.root $fs
+}
+
+# Pre install commands.
+pre_install()
+{
+ 	local root
+ 	root=$1
+	# Backup file to restore with post install
+	echo "Creating backups of configs..."
+	cp $root/etc/TZ $root/etc/TZ.bak 2>/dev/null
+	cp $root/etc/keymap.conf $root/etc/keymap.conf.bak 2>/dev/null
+	cp $root/etc/X11/screen.conf $root/etc/X11/screen.conf.bak 2>/dev/null
+	cp $root/etc/locale.conf $root/etc/locale.conf.bak 2>/dev/null
+	cp $root/etc/firewall.conf $root/etc/firewall.conf.bak 2>/dev/null
+}
+
+# Post install
+post_install()
+{
+	echo "Restoring configs backups..."
+	mv -f $root/etc/TZ.bak $root/etc/TZ 2>/dev/null
+	mv -f $root/etc/keymap.conf.bak $root/etc/keymap.conf 2>/dev/null
+	mv -f $root/etc/X11/screen.conf.bak $root/etc/X11/screen.conf 2>/dev/null
+	mv -f $root/etc/locale.conf.bak $root/etc/locale.conf 2>/dev/null
+	mv -f $root/etc/firewall.conf.bak $root/etc/firewall.conf 2>/dev/null
+	# Install boxes package if old slitaz-tools
+	if [ -f $root/usr/bin/mountbox ] && [ ! -d /var/lib/tazpkg/installed/slitaz-tools-boxes ]; then
+		tazpkg get-install slitaz-tools-boxes
+	fi
+}

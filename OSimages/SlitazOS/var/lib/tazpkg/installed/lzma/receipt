@@ -1,0 +1,97 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="56.0K"
+UNPACKED_SIZE="140.0K"
+PACKAGE="lzma"
+VERSION="4.57"
+CATEGORY="base-system"
+SHORT_DESC="Compressor with a high compression ratio."
+MAINTAINER="pascal.bellard@slitaz.org"
+TARBALL="lzma$(echo $VERSION | sed 's/\.//').tar.bz2"
+WEB_SITE="http://sourceforge.net/projects/sevenzip/"
+WGET_URL="$SF_MIRROR/sevenzip/$TARBALL"
+DEPENDS="lzlib zlib gcc-lib-base"
+TAGS="compression archive"
+
+# Rules to compile & install the temporary toolchain.
+cook_tmp_toolchain()
+{
+	# Put & configure the home-script as needed for tmp toolchain.
+	rm /tools/usr/bin/lzma /tools/usr/bin/unlzma /tools/usr/bin/lzcat
+	cp stuff/lzma /tools/usr/bin
+	chmod 755 /tools/usr/bin/lzma
+	ln -s /tools/usr/bin/lzma /tools/usr/bin/unlzma
+	ln -s /tools/usr/bin/lzma /tools/usr/bin/lzcat
+	sed 's~/usr~/tools/usr~' -i /tools/usr/bin/lzma
+
+	cd $src
+	if [ ! -f done.lzlib.u ]; then
+		patch -p0 < $stuff/lzlib.u || return 1
+		touch done.lzlib.u
+	fi
+	cd CPP/7zip/Compress/LZMA_Alone
+
+	# Remove copyright message.
+	sed '/MY_VERSION_COPYRIGHT_DATE/d' -i LzmaAlone.cpp
+
+	make -f makefile.gcc lzma
+	{ make -f makefile.gcc liblz.so.1.0.0 &&
+	make -f makefile.gcc lzma
+	} || return 1
+
+	cp -a lzma-shared /tools/usr/bin/lzma-alone
+	cp -a liblz.so.1.0.0 /tools/lib
+	ln -s /tools/lib/liblz.so.1.0.0 /tools/lib/liblz.so
+	ln -s /tools/lib/liblz.so.1.0.0 /tools/lib/liblz.so.1
+}
+
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	if [ ! -f done.lzlib.u ]; then
+		patch -p0 < $stuff/lzlib.u || return 1
+		touch done.lzlib.u
+	fi
+	cd CPP/7zip/Compress/LZMA_Alone
+
+	# Remove copyright message.
+	sed '/MY_VERSION_COPYRIGHT_DATE/d' -i LzmaAlone.cpp
+
+	make -f makefile.gcc lzma
+	make -f makefile.gcc liblz.so.1.0.0 &&
+	make -f makefile.gcc lzma
+}
+
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr/bin
+	cp -a $src/CPP/7zip/Compress/LZMA_Alone/lzma-shared $fs/usr/bin/lzma-alone
+	cp $stuff/lzma $fs/usr/bin
+	chmod 755 $fs/usr/bin/lzma
+	ln -s lzma $fs/usr/bin/unlzma
+	ln -s lzma $fs/usr/bin/lzcat
+}
+
+# Pre and post install commands for Tazpkg.
+# We must remove all Busybox symlink before installing.
+#
+pre_install()
+{
+	local root
+	root=$1
+	echo "Processing pre-install commands..."
+	echo -n "Removing all Busybox replaced utils... "
+	rm -f $root/usr/bin/unlzma
+	rm -f $root/usr/bin/lzcat
+	status
+}
+
+post_remove()
+{
+	ln -s /bin/busybox $1/usr/bin/unlzma
+	ln -s /bin/busybox $1/usr/bin/lzcat
+}

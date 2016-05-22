@@ -1,0 +1,96 @@
+#!/bin/sh
+#
+# TazPKG Notify - Notification icon for Tazpkg packages. Recharging pkgs
+# list can be done automatically at boot, so notifies users if some
+# updates are available. Also notifies users if the packages list is too
+# old and out-of-date or if no packages list found. This script should
+# be run by the WM autostart script or ~/.xsession and needs a systray to
+# sit in like in LXpanel or Tint2.
+#
+# Copyright (C) 2012 SliTaz GNU/Linux - GNU gpl v2
+#
+# Authors : Christophe Lincoln <pankso@slitaz.org>
+#
+
+# I18n
+. /usr/bin/gettext.sh
+TEXTDOMAIN='tazpkg-notify'
+export TEXTDOMAIN
+
+fifo=/tmp/$(basename $0).fifo
+panel="http://tazpanel:82/pkgs.cgi"
+db="/var/lib/tazpkg"
+doc="file:///usr/share/doc/tazpkg/tazpkg.html"
+installed=$(ls $db/installed | wc -l)
+text="$(gettext "Installed packages") <b>$installed</b>"
+icon="/usr/share/pixmaps/tazpkg.png"
+[ -f "$db/packages.list" ] && mtime=$(find $db/packages.list -mtime +10;)
+[ -f "$db/packages.up" ] && up=$(cat $db/packages.up | wc -l)
+
+# Notification icon
+listen() {
+	# Manage the I/O redirection from SHell
+	rm -f $fifo && mkfifo $fifo		
+	# Attach a file descriptor
+	exec 3<> $fifo	
+	# Notification icon
+	yad --notification --listen --image=$icon \
+		--text="$(gettext "Checking packages lists") - $text" <&3
+	# Clean-up
+	rm -f $fifo
+}
+
+# Notication menu (right click)
+menu() {
+	cat << EOT
+menu:\
+$(gettext "My packages")!tazweb $panel?list!tazpkg|\
+$(gettext "Recharge lists")!tazweb $panel?recharge!tazpkg-up|\
+$(gettext "Check upgrade")!tazweb $panel?up!tazpkg-up|\
+$(gettext "TazPKG SHell")!terminal -e tazpkg shell!xterm|\
+$(gettext "TazPKG manual")!tazweb $doc!text-html|\
+$(gettext "Close notification")!quit!gtk-close
+EOT
+}
+
+case $1 in
+	usage|help|*-h)
+		gettext "Usage:"; echo " $(basename $0)" ;;
+	*)
+		# Sleep before displaying the notification icon and
+		# sleep to let user read the tooltips.
+		sleep 4
+		listen &
+		sleep 2
+		menu > $fifo
+		sleep 6
+		# Missing packages list
+		if [ ! -f $db/packages.list ]; then
+			tooltip=$(eval_gettext \
+				"No packages list found - \$text")
+			echo "action:tazweb $panel?recharge" > $fifo
+			echo "tooltip:$tooltip" > $fifo
+			echo "icon:tazpkg-up" > $fifo && exit 0
+		fi
+		# Too old packages list
+		if [ "$mtime" ]; then
+			tooltip=$(gettext "Your packages list is older than 10 days")
+			echo "action:tazweb $panel?recharge" > $fifo
+			echo "tooltip:$tooltip" > $fifo
+			echo "icon:tazpkg-up" > $fifo && exit 0
+		fi
+		# Available upgrades
+		if [ "$up" -gt 0 ]; then
+			tooltip=$(eval_gettext \
+				"There are <b>\$up</b> upgradeable packages")
+			echo "action:tazweb $panel?up" > $fifo
+			echo "tooltip:$tooltip" > $fifo
+			echo "icon:tazpkg-up" > $fifo && exit 0
+		fi
+		# Nothing to do, close notification
+		tooltip=$(eval_gettext "System is up to date - \$text")
+		echo "tooltip:$tooltip" > $fifo
+		sleep 10
+		echo "quit" > $fifo ;;
+esac
+exit 0

@@ -1,0 +1,84 @@
+status()
+{
+	local CHECK=$?
+	echo -en "\\033[70G[ "
+	if [ $CHECK = 0 ]; then
+		echo -en "\\033[1;32mOK"
+	else
+		echo -en "\\033[1;31mFailed"
+	fi
+	echo -e "\\033[0;39m ]"
+}
+
+get_config()
+{
+	if [ -f "./`basename $0`.conf" ]; then
+		. ./`basename $0`.conf
+	elif [ -f "/etc/slitaz/`basename $0`.conf" ]; then
+		. /etc/slitaz/`basename $0`.conf
+	else
+		echo -e "\nUnable to find the configuration file : /etc/slitaz/`basename $0`.conf" >&2
+		echo -e "Please read the `basename $0` documentation.\n" >&2
+		exit 1
+	fi
+}
+
+# The classic SliTaz check_root function used in nearly all SliTaz tools.
+check_root()
+{
+	[ $(id -u) = 0 ] && return
+   echo -e "\nYou must be root to run `basename $0` with this option." >&2
+   echo -e "Please type 'su' and root password to become super-user.\n" >&2
+   exit 1
+}
+
+# A classic check_dir function: - create directory if needed and echo about it.
+# Return error if directory is created (to chain other commands with ||)
+check_dir()
+{
+	if ! [ -d "$1" ]; then
+		echo -n "Creating $1..."
+		mkdir -p "$1"
+		status
+		return 1
+	fi
+}
+
+# Install package if missing.
+check_pkg()
+{
+	if ! [ -d $INSTALLED/$1 ]; then
+#		report step "Installing package : $1"
+		tazpkg get-install $1
+#		report end-step
+	fi
+}
+
+# Display a horizontal line, can be used for a clearer script.
+horizontal_line()
+{
+	echo "================================================================================"
+}
+
+# Store -- options in a variable.
+# Test phase.
+# Need to add something to filter options and report errors in case option is not
+# listed and used by the command.
+get_options()
+{
+	if echo "$log_command" | fgrep -q ' '--help; then
+		echo "Available options for $(echo `basename "$log_command"` | cut -d ' ' -f 1,2) : $get_options_list"
+		exit 0
+	fi
+	for get_option in $(echo "$log_command" | tr ' ' '\n' | grep ^-- | sed 's/^--//'); do
+		if [ "${get_options_list/${get_option%%=*}}" = "$get_options_list" ]; then
+			echo "Option ${get_option%%=*} is incorrect, valid options are : $get_options_list". >&2
+			exit 1
+		fi
+		if [ "$get_option" = "${get_option/=}" ]; then
+			export $get_option=yes
+		else
+			export $get_option
+		fi
+	done
+}

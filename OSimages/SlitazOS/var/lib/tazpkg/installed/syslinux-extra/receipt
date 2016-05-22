@@ -1,0 +1,30 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="108.0K"
+UNPACKED_SIZE="228.0K"
+PACKAGE="syslinux-extra"
+VERSION="4.05"
+CATEGORY="system-tools"
+SHORT_DESC="MBR/FAT/EXT3/PXE bootloader files"
+MAINTAINER="pankso@slitaz.org"
+WANTED="syslinux"
+WEB_SITE="http://syslinux.zytor.com/"
+
+DEPENDS="syslinux"
+BUILD_DEPENDS="lzma"
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+    mkdir -p $fs/usr/share/boot $fs/usr/bin $fs/bin
+    lzma e $src/memdisk/memdisk $fs/usr/share/boot/memdisk.lzma 2> /dev/null
+    cp -a $src/mbr/mbr.bin $fs/usr/share/boot
+    lzma e $src/core/pxelinux.0 $fs/usr/share/boot/pxelinux.0.lzma 2> /dev/null
+    #lzma e $src/com32/menu/vesamenu.c32 $fs/usr/share/boot/vesamenu.c32.lzma
+    #lzma e $src/com32/modules/mboot.c32 $fs/usr/share/boot/mboot.c32.lzma
+    cp $src/com32/modules/sdi.c32 $fs/usr/share/boot/
+    cp -a $src/linux/syslinux-nomtools $fs/bin/syslinux
+    cp -a $src/extlinux/extlinux $fs/bin
+    cp -a $src/isohybrid.sh $fs/usr/bin/isohybrid
+    chown root.root $fs/usr/share/boot/* $fs/bin/*
+}

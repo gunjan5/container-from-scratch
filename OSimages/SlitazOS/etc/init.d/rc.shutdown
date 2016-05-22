@@ -1,0 +1,37 @@
+#!/bin/sh
+# /etc/init.d/rc.shutdown - This script is used by /etc/inittab to stop
+# all daemons and shutdown the system.
+#
+. /etc/init.d/rc.functions
+. /etc/rcS.conf
+
+log=/var/lib/shutdown.log
+
+# Bold info message with uptime
+clear && echo "System is going down for reboot or halt." > $log
+uptime >> $log
+
+# Store last alsa settings.
+if [ -x /usr/sbin/alsactl ]; then
+	alsactl store
+fi
+
+# Stop all daemons started at boot time.
+for daemon in $RUN_DAEMONS
+do
+	if [ -x /etc/init.d/$daemon ]; then
+		/etc/init.d/$daemon stop >> $log
+	fi
+done
+
+# Sync all filesystems.
+sync
+
+# Swap off.
+/sbin/swapoff -a
+
+# Kill all processes.
+killall5
+
+# Umount filesystems.
+/bin/umount -a -r 2>/dev/null

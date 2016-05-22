@@ -1,0 +1,38 @@
+# SliTaz package receipt.
+
+PACKED_SIZE="76.0K"
+UNPACKED_SIZE="168.0K"
+PACKAGE="dialog"
+VERSION="1.1-20110707"
+CATEGORY="base-system"
+SHORT_DESC="Script-interpreter which provides a set of curses widgets."
+MAINTAINER="pankso@slitaz.org"
+DEPENDS="ncursesw"
+BUILD_DEPENDS="ncursesw-dev"
+TARBALL="$PACKAGE-$VERSION.tgz"
+WEB_SITE="http://invisible-island.net/dialog/"
+WGET_URL="ftp://invisible-island.net/$PACKAGE/$TARBALL"
+
+# Rules to configure and make the package.
+compile_rules()
+{
+	cd $src
+	./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--with-ncursesw \
+		--enable-widec \
+		$CONFIGURE_ARGS &&
+	make &&
+	make DESTDIR=$DESTDIR install
+}
+
+# Rules to gen a SliTaz package suitable for Tazpkg.
+genpkg_rules()
+{
+	mkdir -p $fs/usr $fs/etc
+	cp -a $_pkg/usr/bin $fs/usr
+	# Config file.
+	cp $stuff/dialogrc $fs/etc
+}

@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# Start X session on SliTaz GNU/Linux.
+#
+
+if [ -f "$HOME/.xsession" ]; then
+  exec $HOME/.xsession
+else
+  tazx
+  exec $HOME/.xsession
+fi

@@ -1,0 +1,11 @@
+#!/bin/sh
+# Launch SliTaz default X Terminal.
+#
+. /etc/slitaz/applications.conf
+
+USER_CONFIG="$HOME/.config/slitaz/applications.conf"
+[ -f  $USER_CONFIG ] && . $USER_CONFIG
+
+$TERMINAL "$@" &
+
+exit 0

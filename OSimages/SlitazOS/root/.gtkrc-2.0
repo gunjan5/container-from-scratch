@@ -1,0 +1,13 @@
+# ~/.gtkrc-2.0 - GTK+ theme, icon and font configuration.
+#
+# System files   : /usr/share/{themes,icons,fonts}
+# Personal files : ~/.icons and ~/.fonts
+#
+
+gtk-theme-name = "SliTaz"
+#gtk-theme-name = "Clearlooks-DeepSky"
+#gtk-theme-name = "Clearlooks-Olive"
+
+gtk-icon-theme-name = "SliTaz"
+
+gtk-font-name = "DejaVu Sans 9"

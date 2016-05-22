@@ -1,0 +1,16 @@
+/etc/init.d/README for SliTaz init boot scripts.
+===============================================================================
+
+
+SliTaz doesn't use runlevels; inittab starts /etc/init.d/rcS, which uses the
+config file /etc/rcS.conf to run all scripts specified with $RUN_SCRIPTS, and
+then starts all daemons specified with $RUN_DAEMONS. The idea is to centralize
+the main system boot initialization in one configuration file. Init scripts can
+use the rc.functions file (part of the base-files) to call for the status
+function. Daemons can use /etc/daemons.conf to call for default options; in
+this way users/admins don't need to edit the daemon init script located
+in the /etc/init.d directory.
+
+
+===============================================================================
+                                                         http://www.slitaz.org/

@@ -1,0 +1,403 @@
+
+# Usage : use_report functions/commands
+# 'use_report' execute functions/commands and redirect the output.
+# You can use 'report' function to display messages, steps, blocs and
+# status in the terminal and organize the display of the log.
+
+report_verbosity_opt=all
+
+report_display()
+{
+	while read out; do
+		[ "$out" = €øß ] && report_stop_display && return
+		echo -e " ...\n               ~~~~~~~~~~~~~~~~~~~~ Messages ~~~~~~~~~~~~~~~~~~~~               "
+		echo "$out"
+		break
+	done
+	while read out; do
+		[ "$out" = €øß ] && report_stop_display && return
+		echo "$out"
+	done
+}
+
+report_create_html()
+{
+	mkdir -p "${log_opt%/*}"
+	echo '<div id="report">' >> "$log_opt"
+
+	echo -e "<strong>$(basename "$log_command")</strong>\n<em>$(date)</em>" >> "$log_opt"
+}
+
+report_start()
+{
+	# Create the temporary directory if needed.
+	! [ -d /tmp/libtaz/ ] && mkdir -p /tmp/libtaz
+	! [ -d $SLITAZ_LOG ] && mkdir -p $SLITAZ_LOG
+
+	# Give permissions to all users if user is root.
+	if test $(id -u) = 0 ; then
+		chmod 777 /tmp/libtaz
+		chmod -R 777 $SLITAZ_LOG
+	fi
+
+	# Get a random logfile name.
+	if [ "$report_pid" ]; then
+		log_tmp=/tmp/libtaz/$report_pid
+		embeded_mode=enabled
+		initial_bloc_level=$bloc_level
+		if [ "$open_bloc" ]; then
+			initial_bloc_level=$(($bloc_level+1))
+			embeded_open_bloc=yes
+		fi
+		if [ -p $log_tmp.stdout ] && ! [ "$open_bloc" = yes ]; then
+			report_step_status
+		fi
+	else
+		log_tmp=/tmp/libtaz/$$
+		report_pid=$$
+	fi
+	
+	# Use the default logfile if no logfile was specified by the main script.
+	[ ! "$log_opt" ] && [ "$report_log_all" = yes ] && \
+		log_opt="$SLITAZ_LOG/`basename $0`/$(date -Iseconds).html"
+	export report_pid log_opt
+	
+	#if [ "$embeded_mode" != enabled ]; then
+
+	# Initialize html logfile if needed, or prepare it to be edited.
+	[ "$log_opt" ] && { [ ! "$embeded_mode" ] || [ ! -f "$log_opt" ]; } && report_create_html
+	
+	echo -n "" > $log_tmp
+
+	# Initialize named pipes & set I/O redirections.
+	[ "$embeded_mode" ] || exec 3>&1 4>&2
+	
+	# Start debugging if the option is enabled.
+	if [ "$debug_opt" ]; then
+		exec 2>$log_tmp.stdout
+		set -vx
+		echo "[--------------------------/!\ DEBUG MODE ENABLED /!\--------------------------]"
+	fi
+	
+	# Theses variable are used to configure the display of steps in a terminal.
+	bloc1_delimiter="================================================================================"
+	bloc1_display="  "
+	bloc2_delimiter="----------------------------------------------------------------------------"
+	bloc2_display="   > "
+	bloc3_delimiter="* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *"
+	bloc3_display="     * "
+	
+	# Use a trap to exit cleanly if app is killed.
+	trap "report_exit $(basename $0) killed by user" SIGINT SIGTERM
+	
+	# Use another display function if quiet is enabled.
+	[ "$report_verbosity_opt" = "none" ] && report_display()
+{
+	while read out; do
+		[ "$out" = €øß ] && report_stop_display && return
+	done
+}
+}
+
+report_stop_display()
+{
+	rm $log_tmp.stderr $log_tmp.stdout
+	sed '/^€øß$/d' -i $log_tmp
+	touch $log_tmp.end
+}
+
+report_listen()
+{
+	mkfifo $log_tmp.stderr $log_tmp.stdout
+		{
+			{ tee -a $log_tmp $log_tmp.error <$log_tmp.stderr | while read line; do echo -e "\\033[1;31m${line}\\033[0m"; done; }&
+			{ tee -a $log_tmp <$log_tmp.stdout; }&
+		} | report_display&
+		usleep 10000
+	exec 1>>$log_tmp.stdout 2>>$log_tmp.stderr
+}
+
+report_stop_listen()
+{
+	if [ -p $log_tmp.stdout ]; then
+		[ -f $log_tmp.end ] && rm $log_tmp.end
+		usleep 10000 && echo €øß
+		while ! [ -f $log_tmp.end ]; do
+			usleep 10000
+		done
+		exec 1>&3 2>&4
+		rm $log_tmp.end
+	fi
+}
+
+report_stop()
+{
+	! [ "$report_pid" ] && exit
+	# End step and close blocs.
+	[ "$step_running" ] && report end-step
+	while [ $(($bloc_level)) -gt $(($initial_bloc_level)) ]; do
+		report close-bloc
+	done
+
+	if [ "$embeded_mode" = enabled ]; then
+		[ "$bloc_level" ] && echo $(eval echo \$bloc${bloc_level}_status) > $log_tmp.status
+		if [ "$embeded_open_bloc" = opened ]; then
+			touch $log_tmp.eob
+		fi
+	else
+		[ "$log_opt" ] && echo '</div>' >> "$log_opt"
+		exec  3>&- 4>&-
+		rm -f $log_tmp*
+		unset report_pid log_opt
+		
+		# Stop debugging
+		[ "$debug_opt" ] && set +vx
+	fi
+}
+
+# Use this to stop a program with an error.
+report_exit()
+{
+	# Log&display error message.
+	echo -e "$@" >&2
+
+	# Close step as failed.
+	if [ "$step_running" ]; then
+		(exit 1)
+		report end-step
+	fi
+
+	# Set blocs as failed, report and exit.
+	bloc1_status="failed"
+	bloc2_status="failed"
+	bloc3_status="failed"
+	report_stop
+	exit 1
+}
+
+# Usage :	report [command] [message]
+#
+# type :message 	simply display the message.
+#	step	 	name the step and display status when ended.
+#	end-step	display status of the step, it's done automatically when
+#			starting a new step, closing a bloc or stopping a report.
+#	open-bloc	open the list of steps in the operation.
+#	close-bloc	close the current bloc.
+report()
+{
+	# First : get status before it is changed by other commands.
+	check_status=$?
+	case "$1" in
+		start)
+			report_start
+		;;
+		stop)
+			report_stop
+		;;
+		exit)
+			shift && report_exit "$@"
+		;;
+		# TODO : Code displaying a message during a step run.
+		message)
+			shift
+			echo -e "${current_bloc_display}$@"
+			report_message="$@"
+			[ "$log_opt" ] && echo -e "<div class=\"message\">$report_message</div>" >> "$log_opt"
+		;;
+		step)
+			[ "$log_step" ] && echo "$2" > $log_step
+			[ "$open_bloc" ] && report_open_bloc
+			[ "$step_running" ] && report_step_status
+			echo -ne "$current_bloc_display$2\\033[70G[ \\033[1;32mR\\033[33mU\\033[31mN\\033[0;39m ]" >&3
+			[ "$log_opt" ] && echo -e "<div class=\"$2\">\n<strong>$2</strong>" >> "$log_opt"
+			export step_running="$2"
+			report_listen
+		;;
+		end-step)
+			if ! [ "$step_running" ]; then
+				report_return_code=$check_status
+			else
+				report_step_status
+			fi
+		;;
+		open-bloc)
+			export open_bloc=yes
+		;;
+		close-bloc)
+			if [ -f "$log_tmp.eob" ]; then
+				report_open_bloc
+				check_status=$(cat $log_tmp.status)
+				rm $log_tmp.status
+				report_set_bloc_status
+			elif [ "$step_running" ]; then
+				report_step_status
+			fi
+
+			# Then close the bloc and report status if it was open.
+			if ! [ "$open_bloc" ]; then
+				export current_bloc_display="$(eval echo \"\$bloc$((${bloc_level}-1))_display\")"
+				[ "$(eval echo \"\$bloc${bloc_level}_delimiter\")" ] && \
+					echo -e "$current_bloc_display$(eval echo \"\$bloc${bloc_level}_delimiter\")" >&3
+				echo -en "$current_bloc_display... $(eval echo \"\$bloc${bloc_level}_running\")" >&3
+				check_status=$(eval echo \$bloc${bloc_level}_status)
+				report_display_status
+				
+				# Set the bloc status in the log file.
+				if [ "$log_opt" ]; then
+					sed "s~<div class=\"bloc_level$bloc_level\">~<div class=\"$check_status\">~" -i "$log_opt"
+					echo "</div>" >> "$log_opt"
+				fi	
+				echo "" >&3
+				export bloc_level=$(($bloc_level-1))
+				[ "$bloc_level" = 0 ] && unset bloc_level
+			else
+				unset open_bloc
+			fi
+		;;
+		sublog)
+			shift
+			! [ "$log_list" ] && log_list="$log_opt"
+			export log_list="$1 $log_list"
+			export log_opt="$1"
+			report_create_html
+		;;
+		end-sublog)
+			[ "$log_opt" ] || continue
+			export log_list="${log_list#* }"
+			echo '</div>' >> "$log_opt"	
+			# Grep the summary of sublog (main action + status) and put
+			# it in the main log, plus a link.
+			[ "$log_list" ] && { sed -n '/<div id="report">/,$p' $log_opt | \
+				grep -A1 -F '<div class=' | sed 1,2!d &&
+				echo '<a class="sublog" href="'$log_opt'">SubLog</a>' && \
+				echo "</div>" 
+			} >> ${log_list%% *}
+			export log_opt="${log_list%% *}"
+			report_step_status
+			;;
+	esac
+	return $report_return_code
+}
+
+# Open a bloc of substeps in a terminal and log.
+report_open_bloc()
+{
+	unset open_bloc
+	[ "$embeded_open_bloc" = "yes" ] && embeded_open_bloc=opened
+	[ -f "$log_tmp.eob" ] && rm $log_tmp.eob	
+	export bloc_level=$(($bloc_level+1))
+	export bloc${bloc_level}_running="$step_running"
+	if [ -p $log_tmp.stdout ]; then
+		if [ -s $log_tmp ]; then
+			prebloc=yes
+			report_step_status
+			prebloc=
+		else
+			report_stop_listen
+			echo ' ...' >&3
+		fi
+		[ "$(eval echo \$bloc${bloc_level}_delimiter)" ] &&  \
+			echo "$current_bloc_display$(eval echo \"\$bloc${bloc_level}_delimiter\")" >&3
+		[ "$log_opt" ] && sed "s~<div class=\"$step_running\">~<div class=\"bloc_level$bloc_level\">~" -i "$log_opt"
+	else
+		exec 1>&3 2>&4
+	fi
+	export current_bloc_display="$(eval echo \"\$bloc${bloc_level}_display\")"
+	unset bloc${bloc_level}_status
+	unset step_running
+}
+
+# These are the two new status functions used by the report tool.
+# States are :	ok - no error since the start of the step
+#		warning - there was an error(s) since the start of the step
+#		failed - the last executed command has exited abnormally
+report_step_status()
+{
+	unset report_return_code
+	if [ -p $log_tmp.stdout ]; then
+		report_stop_listen
+
+		# Close message bloc if opened.
+		if [ -s $log_tmp -a "$report_verbosity_opt" = all ] || \
+			[ -s $log_tmp.error -a "$report_verbosity_opt" != none ]; then
+			echo "               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~               " >&3
+			! [ "$prebloc" ] && echo -en "$current_bloc_display... $step_running" >&3 && report_addemptyline="yes"
+		fi
+	
+		# Check, display and log the status of the step.
+		if ! [ "$check_status" = "0" ]; then
+			check_status=failed
+		else
+			[ -s "$log_tmp.error" ] && check_status=warning || check_status=ok
+		fi
+		! [ "$prebloc" ] && report_display_status
+		[ "$report_addemptyline" ] && echo "" >&3 && unset report_addemptyline
+		[ "$log_opt" ] && report_rec_log
+	fi
+
+	[ -f "$log_tmp.eob" ] && rm $log_tmp.eob
+
+	# Set blocs status if needed.
+	[ -f $log_tmp.status ] && check_status=$(cat $log_tmp.status) && rm $log_tmp.status
+	[ "$bloc_level" ] && report_set_bloc_status
+
+	# Clear variables / temporary logs.
+	! [ "$prebloc" ] && export step_running=""
+	check_status=""
+	echo -n "" > $log_tmp.error
+	echo -n "" > $log_tmp
+}
+
+report_display_status()
+{
+	[ "$report_return_code" = 1 ] && check_status=failed
+	echo -en "\\033[70G          " >&3
+	echo -en "\\033[70G[ " >&3
+	[ "$check_status" = ok ] && report_return_code=0 && echo -en "\\033[1;32mOK" >&3
+	[ "$check_status" = warning ] && report_return_code=0 && echo -en "\\033[1;33mWarning" >&3
+	[ "$check_status" = failed ] && report_return_code=1 && echo -en "\\033[1;31mFailed" >&3 
+	echo -e "\\033[0;39m ]" >&3
+}
+
+report_term_to_html()
+{
+	report_decolorize | sed -e 's~<~\&lt;~' -e 's~>~\&gt;~' -e 's~STDERR: \(.*\)~<span class="error">\1<\/span>~' -e 's~	~\&nbsp;\&nbsp;\&nbsp;\&nbsp;~'
+}
+
+report_decolorize()
+{
+	tr -d '\e' | sed -r "s/\[([0-9]{1,3}(;[0-9]{1,3})*)[m|G]//g"
+}
+
+report_rec_log()
+{
+	! [ "$prebloc" ] && sed "s~<div class=\"$step_running\">~<div class=\"$check_status\">~" -i "$log_opt"
+	if [ -s "$log_tmp" ]; then
+		if [ -s "$log_tmp.error" ]; then
+			cat $log_tmp.error | sort -u | while read line; do
+				# Format line to avoid sed errors :
+				line=$(echo "$line" | sed -e 's~\*~\\\*~g' -e 's~\[~\\\[~g' -e 's~\]~\\\]~g')
+				sed "s~^$line$~STDERR: $line~" -i $log_tmp
+			done
+		fi
+		echo -n "<pre>" >> "$log_opt"
+		cat $log_tmp | report_term_to_html >> "$log_opt"
+		echo "</pre>" >> "$log_opt"
+	fi
+	! [ "$prebloc" ] && echo "</div>" >> "$log_opt"
+}
+
+# These variables keep the status of the blocs.
+# A bloc is reported as ok if all child steps are ok and has failed
+# if all child steps are failed (or if a fatal error occurs).
+# In other cases the bloc is reported as a warning.
+report_set_bloc_status()
+{
+	bloc_status=$(eval echo \$bloc${bloc_level}_status)
+	for n in $(seq $bloc_level -1 1); do
+		! [ "$(eval echo \$bloc${n}_status)" ] && eval bloc${n}_status=$check_status
+		! [ "$(eval echo \$bloc${n}_status)" = "$check_status" ] && \
+			eval bloc${n}_status=warning
+	done
+}
+

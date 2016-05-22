@@ -1,0 +1,112 @@
+# Run-time configuration file for dialog, on SliTaz GNU/Linux.
+# $id: 20/01/2007 17:33:16 root@slitaz $
+# Types of values:
+#
+# Number     -  <number>
+# String     -  "string"
+# Boolean    -  <ON|OFF>
+# Attribute  -  (foreground,background,highlight?)
+#
+
+
+# Shadow dialog boxes? This also turns on color.
+use_shadow = OFF
+
+# Turn color support ON or OFF
+use_colors = ON
+
+# Screen color
+screen_color = (WHITE,BLACK,ON)
+
+# Shadow color
+shadow_color = (WHITE,BLACK,OFF)
+
+# Dialog box color
+dialog_color = (WHITE,BLACK,OFF)
+
+# Dialog box title color
+title_color = (YELLOW,BLACK,ON)
+
+# Dialog box border color
+border_color = (YELLOW,BLACK,OFF)
+
+# Active button color
+button_active_color = (WHITE,BLACK,ON)
+
+# Inactive button color
+button_inactive_color = (WHITE,BLACK,OFF)
+
+# Active button key color
+button_key_active_color = (WHITE,GREEN,OFF)
+
+# Inactive button key color
+button_key_inactive_color = (RED,BLACK,OFF)
+
+# Active button label color
+button_label_active_color = (BLACK,WHITE,OFF)
+
+# Inactive button label color
+button_label_inactive_color = (WHITE,BLACK,OFF)
+
+# Input box color
+inputbox_color = (BLACK,WHITE,OFF)
+
+# Input box border color
+inputbox_border_color = (BLACK,BLACK,ON)
+
+# Search box color
+searchbox_color = (YELLOW,WHITE,ON)
+
+# Search box title color
+searchbox_title_color = (WHITE,WHITE,ON)
+
+# Search box border color
+searchbox_border_color = (RED,WHITE,ON)
+
+# File position indicator color
+position_indicator_color = (YELLOW,BLACK,ON)
+
+# Menu box color
+menubox_color = (RED,BLACK,OFF)
+
+# Menu box border color
+menubox_border_color = (RED,BLACK,OFF)
+
+# Item color
+item_color = (WHITE,BLACK,ON)
+
+# Selected item color
+item_selected_color = (GREEN,BLACK,ON)
+
+# Tag color
+tag_color = (WHITE,BLACK,ON)
+
+# Selected tag color
+tag_selected_color = (GREEN,BLACK,ON)
+
+# Tag key color
+tag_key_color = (WHITE,BLACK,ON)
+
+# Selected tag key color
+tag_key_selected_color = (GREEN,BLACK,ON)
+
+# Check box color
+check_color = (MAGENTA,BLACK,ON)
+
+# Selected check box color
+check_selected_color = (WHITE,MAGENTA,ON)
+
+# Up arrow color
+uarrow_color = (GREEN,BLUE,ON)
+
+# Down arrow color
+darrow_color = (GREEN,BLUE,ON)
+
+# Item help-text color
+itemhelp_color = (MAGENTA,BLACK,ON)
+
+# Active form text color
+form_active_text_color = (BLACK,YELLOW,OFF)
+
+# Form text color
+form_text_color = (BLACK,WHITE,OFF)

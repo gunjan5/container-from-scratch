@@ -1,0 +1,20 @@
+!~/.Xdefault: Control the behavior of x-clients.
+!
+
+! Xcursor theme (~/.icons).
+!
+Xcursor.theme:		slitaz-polar
+
+! XTerm settings.
+!
+xterm*background:	black
+xterm*foreground:	white
+xterm*cursorColor:	#6AA2D8
+xterm*scrollBar:	off
+xterm*faceName:		DejaVu Sans Mono
+xterm*faceSize:		10
+
+! Xload settings.
+!
+!xload*background:	black
+!xload*foreground:	lightblue

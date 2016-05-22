@@ -1,0 +1,451 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="pt" lang="pt">
+<head>
+	<title>Manual Tazpkg (pt)</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+
+<!-- Header -->
+<div id="header">
+	<h1>Manual Tazpkg</h1>
+</div>
+
+<!-- Start content -->
+<div id="content">
+
+<h2>NOME</h2>
+
+<p>
+	Tazpkg - Tiny autonomous zone package manager
+</p>
+
+<h2>SINTAXE</h2>
+
+<pre>
+ tazpkg [command] [package|dir|pattern|list|cat|--opt] [dir|--opt]
+</pre>
+
+<h2>DESCRIÇÃO</h2>
+
+<p>
+Tazpkg é um gerenciador de pacotes ultraleve (~ 35KB) que instala, lista, baixa,
+atualiza ou remove pacotes precompilados em um sistema GNU/Linux. Tazpkg fornece
+comandos para busca e criação de pacotes e foi criado independentemente. Os 
+pacotes usando a extensão *.tazpkg são constituidos de arquivos cpio 
+que contém um sistema de arquivos comprimido com o gzip, uma receita e uma 
+descrição opcional. O Tazpkg também gerencia dependências baseado nas receitas
+de pacote: cada receita contém todas as informações sobre um pacote e também
+pode incluir funções de pré e pós-instalação. A mesma receita é usada pelo
+Cookutils para compilar fontes e gerar um pacote .tazpkg.
+</p>
+<p>
+O Tazpkg é inteiramente construído a partir do zero usando SHell Script.
+Compatível com o Bash, roda sobre o Ash - parte do projeto Busybox. O Tazpkg
+é distribuído sob a licença livre GNU GPL V3.
+</p>
+
+<h2>COMANDOS</h2>
+
+<a name="list"></a>
+<h3>list</h3>
+<p>
+Lista pacotes instalados no sistema. Este comando mostra uma lista em formato
+de coluna com todos os pacotes instalados, e também permite listar categorias,
+pacotes baseados em categorias e pacotes bloqueados para instalação. Você também
+pode usar o comando "search" (buscar) para uma lista baseada em um termo ou em
+um nome de pacote:
+</p>
+<pre>
+ # tazpkg list
+ # tazpkg list cat|categories
+ # tazpkg list blocked
+</pre>
+
+<a name="xhtml-list"></a>
+<h3>xhtml-list</h3>
+<p>
+O comando "xhtml-list" cria uma lista em formato xHTML de todos os pacotes
+instalados no sistema que pode ser lida com o seu navegador web favorito. Pode
+ser utilizado por um usuário comum e criar uma página "instaled-packages.html"
+(pacotes instalados) no diretório atual. Note que você pode mudar o nome da 
+lista gerada por meio da linha de comando:
+</p>
+<pre>
+ # tazpkg xhtml-list
+ # tazpkg xhtml-list list-name.html
+</pre>
+
+<a name="list-mirror"></a>
+<h3>list-mirror</h3>
+<p>
+Lista pacotes disponíveis no mirror. Este comando mostra o arquivo "packages-list"
+recarregado a partir do mirror. Se este arquivo não existir, será pedido a 
+você que rode o comando "tazpkg recharge" como usuário root para listar os
+pacotes disponíveis. A opção --diff é usada para mostrar as diferenças entre
+a última e a atual lista de pacotes:
+</p>
+<pre>
+ # tazpkg list-mirror
+ # tazpkg list-mirror --diff
+</pre>
+
+<a name="info"></a>
+<h3>info</h3>
+<p>
+Mostra qualquer informação disponível na receita para o pacote em questão - sua
+versão, categoria, mantenedor, website e quaisquer dependências (veja também 
+Cookutils para mais informações sobre receitas):
+</p>
+<pre>
+ # tazpkg info busybox
+</pre>
+
+<a name="desc"></a>
+<h3>desc</h3>
+<p>
+Descrição do pacote (se existir). Este comando mostra o arquivo "description.txt"
+de cada pacote (um arquivo de texto simples, justificado em 80 caracteres para
+caber num terminal padrão):
+</p>
+<pre>
+ # tazpkg desc busybox
+</pre>
+
+<a name="list-config"></a>
+<h3>list-config</h3>
+<p>
+Lista os arquivos de configuração do sistema. A opção --box mostra estas
+informações em formato de tabela
+</p>
+<pre> # tazpkg list-config
+ # tazpkg list-config --box
+</pre>
+
+<a name="list-files"></a>
+<h3>list-files</h3>
+<p>
+Lista todos os arquivos instalados pelo pacote. Este comando lê e mostra o
+conteúdo do arquivo "files.list" de cada pacote, o qual é automaticamente gerado
+quando um pacote é criado e também é usado para remover arquivos quando se 
+desinstala um pacote. Para listar os arquivos instalados pelo pacote bc:
+</p>
+<pre>
+ # tazpkg list-files bc
+</pre>
+
+<a name="search"></a>
+<h3>search</h3>
+<p>
+Busca por pacotes por proprietário ou nome do pacote. Este comando busca pelo
+termo informado nos pacotes instalados e na lista de pacotes disponíveis no
+mirror. Para obter a mais recente lista de pacotes disponíveis, rode "tazkpg
+recharge" antes de iniciar uma busca:
+</p>
+<pre>
+ # tazpkg search gcc
+</pre>
+
+<a name="search-file"></a>
+<h3>search-file</h3>
+<p>
+O comando "search-file" permite a busca por um arquivo entre os instalados pelos
+pacotes. Este comando é muito útil para achar o caminho completo para um 
+arquivo e determinar se um arquivo está presente no sistema. Exemplo:
+</p>
+<pre>
+ $ tazpkg search-file libnss
+</pre>
+
+<a name="install"></a>
+<h3>install</h3>
+<p>
+Este comando instala um pacote disponível localmente que possui a extensão
+.tazpkg. Veja "get-install" para instalar pacotes disponíves na internet. Note
+que você pode forçar a instalação com a opção --force. Você também dispõe de 
+opções para desinstalação e reinstalação ou para especificar o sistema root 
+no qual você deseja instalar o pacote com a opção -root= :
+</p>
+<pre>
+ # tazpkg install package-1.0.tazpkg
+ # tazpkg install path/to/package-1.0.tazpkg --forced
+ # tazpkg install path/to/package-1.0.tazpkg --root=/mnt/rootfs
+</pre>
+
+<a name="install-list"></a>
+<h3>install-list ou get-install-list</h3>
+<p>
+Instala uma seleção de pacotes listados em um arquivo. Este comando permite a
+você instalar vários pacotes com um único comando, e também oferece a opção 
+--forced:
+</p>
+<pre>
+ # tazpkg install-list my-packages.list
+ # tazpkg get-install-list my-packages.list --forced
+</pre>
+
+<a name="link"></a>
+<h3>link</h3>
+<p>
+Permite a instalação de um pacote a partir de uma mídia qualquer. 
+A configuração é feita criando links simbólicos e consome pouca memória.
+Geralmente é usado em sistemas LiveCD para instalar pacotes encontrados
+numa mídia USB:
+</p>
+<pre>
+ # tazpkg link openoffice /media/usbdisk
+</pre>
+
+<a name="remove"></a>
+<h3>remove</h3>
+<p>
+Remove um pacote. Será pedido que você confirme a ação (y/N). Este comando
+deleta todos os arquivos instalados pelo pacote. Para ver a lista de arquivos,
+use o comando "list-files" seguido do nome do pacote. Exemplo com o pacote bc:
+</p>
+<pre>
+ # tazpkg remove bc
+</pre>
+
+<a name="extract"></a>
+<h3>extract</h3>
+<p>
+Extrai um pacote em um diretório. Se você não especificar o diretório de destino,
+o pacote será extraido no diretório atual usando o formato nome do pacote-versão:
+</p>
+<pre>
+ # tazpkg extract package.tazpkg
+ # tazpkg extract package.tazpkg target/dir
+</pre>
+
+<a name="pack"></a>
+<h3>pack</h3>
+<p>
+O comando "pack" cria um pacote a partir de um diretório preparado previamente
+ou a partir de um pacote extraido localmente. Pode também criar manualmente um
+pacote .tazpkg (veja a documentação do Cookutils para a criação automática de 
+pacotes). Para "empacotar" (pack) um pacote:
+</p>
+<pre>
+ # tazpkg pack package-version
+</pre>
+
+<a name="repack"></a>
+<h3>repack</h3>
+<p>
+O comando "repack" permite a recriação de um pacote a partir dos arquivos
+instalados no sistema em que este pacote foi instalado. Para "re-empacotar"
+(repack) um pacote:
+</p>
+<pre>
+ # tazpkg repack package
+</pre>
+
+<a name="repack-config"></a>
+<h3>repack-config</h3>
+<p>
+O comando 'repack-config' recria um pacote a partir dos arquivos de 
+configuração do sistema (veja list-config). É suficiente para instalar
+um pacote para encontrar a configuração atual. Para re-empacotar os 
+arquivos de configuração:
+</p>
+<pre> # tazpkg repack-config
+</pre>
+
+<a name="recharge"></a>
+<h3>recharge</h3>
+<p>
+Recarrega a lista de pacotes disponíves no mirror. Este comando baixa o arquivo
+"packages.list" (lista de pacotes instaláveis) mais recente e salva a antiga. 
+Uma vez que a lista está atualizada, você pode usar os comandos "list" e 
+"search". Para ver uma relação com as diferenças entre a lista atual e a 
+antiga, use o comando "list-mirror --diff" e para ver e atualizar pacotes,
+use o comando "upgrade". Para recarregar a lista de pacotes:
+</p>
+<pre>
+ # tazpkg recharge
+</pre>
+
+<a name="upgrade"></a>
+<h3>up ou upgrade</h3>
+<p>
+O comando upgrade permite a atualização de todos os pacotes disponíveis no mirror.
+Atualizar pacotes é uma parte importante da manutenção da segurança do sistema,
+permitindo o acesso às últimas atualizações e correções. O projeto SliTaz,
+embora leve, fornece atualizações de segurança regulares e geralmente oferece
+as últimas versões dos programas. Note que esta função é direcionada àquelas
+pessoas que possuem o SliTaz instalado no seu disco rígido. Pacotes atualizados
+a partir do LiveCD serão perdidos no desligamento do sistema. Para atualizar
+ou mostrar as opções para o comando:
+</p>
+<pre>
+# tazpkg up
+# tazpkg --help-up
+# tazpkg up --recharge --install
+# tazpkg up -r -i
+</pre>
+
+<a name="check"></a>
+<h3>check</h3>
+<p>
+O comando "check" checa por dependências em pacotes instalados e determina
+se todos os arquivos necessários para o re-empacotamento de um pacote estão
+presentes:
+</p>
+<pre>
+ # tazpkg check package
+</pre>
+
+<a name="block"></a>
+<h3>block ou unblock</h3>
+<p>
+Os comandos "block" e "unblock" permitem o bloqueio de pacotes instalados para
+que estes não possam ser atualizados com o comando "upgrade". A lista de pacotes
+bloqueados está contida no arquivo /var/lib/tazpkg/blocked-packages.list, 
+que também pode ser editado manualmente. Para bloquear ou desbloquear pacotes,
+como o Grub, por exemplo:
+</p>
+<pre>
+ # tazpkg block grub
+ Ou :
+ # tazpkg unblock grub
+</pre>
+
+<a name="get"></a>
+<h3>get</h3>
+<p>
+Baixa um pacote do mirror (se existir). O arquivo baixado é arquivado no
+diretório atual. Para descobrir qual o diretório atual utilize o comando "pwd".
+Para baixar o pacote Grub:
+</p>
+<pre>
+ # tazpkg get grub
+</pre>
+
+<a name="get-install"></a>
+<h3>get-install</h3>
+<p>
+Baixa e instala um pacote de um mirror na internet. O comando "get-install" 
+inicia checando se o pacote requerido existe no mirror e se já foi baixado.
+Para uma lista de pacotes do mirror, usa-se o comando "list-mirror". Para 
+baixar e instalar o pacote Grub:
+</p>
+<pre>
+ # tazpkg get-install grub
+</pre>
+
+<a name="clean-cache"></a>
+<h3>clean-cache</h3>
+<p>
+Remove pacotes *.tazpkg baixados que se encontram no cache. Durante a instalação,
+o Tazpkg mantém uma cópia dos pacotes baixados da internet. Isto é feito para
+economizar banda no caso de uma reinstalação, mas pode ser que você queira
+ter mais espaço no disco rígido ou baixar os pacotes novamente:
+</p>
+<pre>
+ # tazpkg clean-cache
+</pre>
+
+<a name="setup-mirror"></a>
+<h3>setup-mirror</h3>
+<p>
+Configura a URL do mirror. O comando "setup-mirror" pedirá a URL do novo mirror.
+Você pode especificar várias URLs separadas por espaços. Note que você também
+pode modificar manualmente o arquivo /var/lib/tazpkg/mirror. A URL deve apontar
+para um diretório contendo um arquivo "packages.list" e os pacotes:
+</p>
+<pre>
+ # tazpkg setup-mirror
+</pre>
+
+<a name="reconfigure"></a>
+<h3>reconfigure</h3>
+<p>
+Executa novamente o script de pós instalação de um pacote. Exemplo
+usando o gcc:
+</p>
+<pre> # tazpkg reconfigure gcc
+</pre>
+
+<a name="depends"></a>
+<h3>depends ou rdepends</h3>
+<p>
+Mostra a árvore de dependências (direta ou inversamente) para um pacote.
+Exemplo utilizando o mpd:
+</p>
+<pre> 
+ # tazpkg depends mpd
+ # tazpkg rdepends mpd
+</pre>
+
+<a name="add-undigest"></a>
+<h3>add-undigest ou setup-undigest</h3>
+<p>
+Define a URL de um mirror não oficial para testar ou usar pacotes que
+não estão disponíveis no mirror oficial (chamados 'undigest'). Note que 
+em vez de rodar este comando você pode editar diretamente o arquivo 
+/var/lib/tazpkg/undigest/'repositorio'. A URL deve apontar para um 
+diretório na web que contenha um arquivo 'packages.list':
+</p>
+<pre>
+ # tazpkg add-undigest public-repository http://my.home.org/slitaz
+ # tazpkg setup-undigest local-repository /home/slitaz/packages
+</pre>
+
+<a name="remove-undigest"></a>
+<h3>remove-undigest</h3>
+<p>
+Remove a URL de um mirror undigest:
+</p>
+<pre>
+ # tazpkg remove-undigest my-repository
+</pre>
+
+<a name="list-undigest"></a>
+<h3>list-undigest</h3>
+<p>
+Lista os mirrors undigest adicionados:
+</p>
+<pre>
+ # tazpkg list-undigest
+</pre>
+
+<a name="convert"></a>
+<h3>convert</h3>
+<p>
+Converte pacotes .deb (debian), .rpm (RedHat), .tgz (Slackware) ou
+.pgk.tar.gz (Archlinux) em pacotes .tazpkg (SliTaz):
+</p>
+<pre>
+ # tazpkg convert pacote{.deb|.rpm|.tgz|.pkg.tar.gz}
+</pre>
+
+<a name="set-release"></a>
+<h3>set-release</h3>
+<p>
+Este comando muda a versão atual e faz a atualização de pacotes para
+o lançamento mais recente:
+</p>
+<pre> # tazpkg set-release cooking
+</pre>
+
+<a name="bugs"></a>
+<h3>bugs</h3>
+<p>
+Mostra uma lista de bugs conhecidos dos pacotes:
+</p>
+<pre> # tazpkg bugs
+</pre>
+<h2>MANTENEDOR</h2>
+<p>
+Christophe Lincoln &lt;pankso at slitaz.org&gt;
+</p>
+
+<!-- End content -->
+</div>
+
+</body>
+</html>
+

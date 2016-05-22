@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Vi Text Editor
+Name[fr]=Editeur de texte Vi
+Exec=terminal vi
+Icon=text-editor
+Type=Application
+Categories=Application;Development;
