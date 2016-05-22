@@ -5,7 +5,7 @@ import (
 	//"os"
 )
 
-func TestMainRun(t testing.T) {
+func TestMainRun(t *testing.T) {
 	cases := []struct {
 		name string
 		cmd  string
@@ -13,15 +13,15 @@ func TestMainRun(t testing.T) {
 		arg2 string
 	}{
 		{"cfs", "run", "ls", "-l"},
-		{"cfs", "child", "ls", "-la"},
-		{"cfs", "invalid", "no", "-n"},
-		{"cfs", "run", "invalidArg", "invalidFlag"},
+	//	{"cfs", "run", "pwd", ""},
+	//	{"cfs", "invalid", "no", "-n"},
+	//	{"cfs", "run", "invalidArg", "invalidFlag"},
 	}
 
 	app := makeCmd()
 
 	for _, entry := range cases {
-		app.Run(entry.name, entry.cmd, entry.arg1, entry.arg2)
+		app.Run([]string{entry.name, entry.cmd, entry.arg1, entry.arg2})
 
 	}
 
