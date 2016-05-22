@@ -1,0 +1,11 @@
+# RTC
+
+KERNEL=="rtc|rtc0",         MODE="0644"
+
+# KVM
+
+KERNEL=="kvm",	            GROUP="staff"
+
+# Zram
+
+KERNEL=="zram*",            GROUP="root",         MODE="0600"

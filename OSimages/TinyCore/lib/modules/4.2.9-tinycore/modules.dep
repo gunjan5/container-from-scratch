@@ -1,0 +1,527 @@
+/lib/modules/4.2.9-tinycore/kernel/arch/x86/kernel/cpu/microcode/microcode.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/arch/x86/kernel/msr.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/arch/x86/kernel/iosf_mbi.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/arch/x86/kernel/cpuid.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/arch/x86/oprofile/oprofile.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/crypto/async_tx/async_xor.ko.gz: /lib/modules/4.2.9-tinycore/kernel/crypto/async_tx/async_tx.ko.gz /lib/modules/4.2.9-tinycore/kernel/crypto/xor.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/crypto/async_tx/async_tx.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/crypto/async_tx/async_raid6_recov.ko.gz: /lib/modules/4.2.9-tinycore/kernel/crypto/async_tx/async_tx.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/crypto/async_tx/async_pq.ko.gz: /lib/modules/4.2.9-tinycore/kernel/crypto/async_tx/async_xor.ko.gz /lib/modules/4.2.9-tinycore/kernel/crypto/async_tx/async_tx.ko.gz /lib/modules/4.2.9-tinycore/kernel/crypto/xor.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/crypto/async_tx/async_memcpy.ko.gz: /lib/modules/4.2.9-tinycore/kernel/crypto/async_tx/async_tx.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/crypto/xor.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/crypto/sha512_generic.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/crypto/seqiv.ko.gz: /lib/modules/4.2.9-tinycore/kernel/crypto/crypto_null.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/crypto/jitterentropy_rng.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/crypto/ghash-generic.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/crypto/gcm.ko.gz: /lib/modules/4.2.9-tinycore/kernel/crypto/crypto_null.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/crypto/drbg.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/crypto/cts.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/crypto/ctr.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/crypto/crypto_null.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/crypto/cmac.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/crypto/ccm.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/acpi/sbshc.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/acpi/sbs.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/sbshc.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/acpi/battery.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/acpi/ac.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/bcma/bcma.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/block/aoe/aoe.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/block/rsxx/rsxx.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/block/virtio_blk.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/block/nbd.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/block/loop.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/block/floppy.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/char/hw_random/virtio-rng.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/char/hw_random/via-rng.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/char/hw_random/timeriomem-rng.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/char/hw_random/intel-rng.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/char/hw_random/geode-rng.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/char/hw_random/amd-rng.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/char/toshiba.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/char/ppdev.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/parport/parport.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/char/lp.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/parport/parport.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/connector/cn.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/speedstep-smi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/speedstep-lib.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/speedstep-lib.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/speedstep-ich.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/speedstep-lib.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/powernow-k8.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/powernow-k7.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/powernow-k6.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/p4-clockmod.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/speedstep-lib.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/longrun.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/longhaul.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/gx-suspmod.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/cpufreq_userspace.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/cpufreq_stats.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/cpufreq_powersave.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/cpufreq_conservative.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/cpufreq-nforce2.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/amd_freq_sensitivity.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/cpufreq/acpi-cpufreq.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/crypto/qat/qat_common/intel_qat.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/crypto/qat/qat_dh895xcc/qat_dh895xcc.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/crypto/qat/qat_common/intel_qat.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/devfreq/governor_userspace.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/devfreq/governor_simpleondemand.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/devfreq/governor_powersave.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/devfreq/governor_performance.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/wacom.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-zydacron.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-zpff.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-xinmo.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-wiimote.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-waltop.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-uclogic.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-twinhan.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-topseed.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-tmff.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-tivo.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-thingm.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-sunplus.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-steelseries.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-speedlink.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-sony.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-sjoy.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-sensor-hub.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-sensor-custom.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-sensor-hub.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-samsung.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-saitek.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-savu.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-common.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-ryos.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-common.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-pyra.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-common.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-lua.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-common.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-kovaplus.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-common.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-konepure.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-common.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-koneplus.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-common.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-kone.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-isku.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-common.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-common.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-arvo.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat-common.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-roccat.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-rmi.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-prodikeys.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-primax.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-plantronics.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-pl.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-picolcd.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/lcd.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/core/fb_sys_fops.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/core/sysimgblt.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/core/sysfillrect.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/core/syscopyarea.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-petalynx.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-penmount.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-ortek.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-ntrig.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-multitouch.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-monterey.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-microsoft.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-magicmouse.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-logitech.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-logitech-hidpp.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-logitech-dj.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-lenovo.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-lcpower.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-kye.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-keytouch.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-kensington.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-icade.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-hyperv.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hv/hv_vmbus.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-holtekff.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-holtek-mouse.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-holtek-kbd.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-gyration.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-gt683r.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-gaff.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-ezkey.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-emsff.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-elo.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-elecom.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-dr.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-cypress.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-chicony.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-cherry.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-betopff.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-belkin.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-axff.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-aureal.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-appleir.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-apple.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hid/hid-a4tech.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hv/hv_vmbus.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/hv/hv_utils.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hv/hv_vmbus.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/connector/cn.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/hv/hv_balloon.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hv/hv_vmbus.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/keyboard/cros_ec_keyb.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/misc/wistron_btns.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/input/input-polldev.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/misc/uinput.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/misc/pcspkr.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/misc/ideapad_slidebar.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/misc/atlas_btns.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/misc/apanel.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/input-polldev.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/serio/serio_raw.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/serio/hyperv-keyboard.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hv/hv_vmbus.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/matrix-keymap.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/input-polldev.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/input/ff-memless.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/memstick/core/mspro_block.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/memstick/core/memstick.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/memstick/core/ms_block.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/memstick/core/memstick.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/memstick/core/memstick.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/memstick/host/tifm_ms.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/misc/tifm_core.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/memstick/core/memstick.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/memstick/host/rtsx_usb_ms.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mfd/rtsx_usb.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/memstick/core/memstick.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/memstick/host/r592.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/memstick/core/memstick.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/memstick/host/jmb38x_ms.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/memstick/core/memstick.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mfd/wl1273-core.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/mfd/vx855.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/mfd/sm501.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/mfd/rtsx_usb.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/mfd/lpc_sch.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/mfd/lpc_ich.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/mfd/kempld-core.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/mfd/cros_ec_i2c.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mfd/cros_ec.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mfd/cros_ec.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/misc/altera-stapl/altera-stapl.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/misc/cb710/cb710.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/misc/eeprom/eeprom_93cx6.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/misc/lis3lv02d/lis3lv02d.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/input-polldev.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/misc/mei/mei.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/misc/mei/mei-txe.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/misc/mei/mei.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/misc/mei/mei-me.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/misc/mei/mei.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/misc/vmw_vmci/vmw_vmci.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/misc/tifm_core.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/misc/tifm_7xx1.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/misc/tifm_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/card/sdio_uart.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/card/mmc_block.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/wbsd.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/vub300.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/via-sdmmc.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/ushc.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/usdhi6rol0.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/toshsd.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/tifm_sd.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/misc/tifm_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/sdricoh_cs.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/sdhci.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/sdhci-pltfm.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/sdhci.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/sdhci-pci.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/sdhci.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/sdhci-acpi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/sdhci.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/rtsx_usb_sdmmc.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mfd/rtsx_usb.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/mtk-sd.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/mmc/host/cb710-mmc.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/misc/cb710/cb710.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/bonding/bonding.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/3com/typhoon.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/3com/3c59x.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/3com/3c589_cs.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/3com/3c574_cs.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/3com/3c515.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/3com/3c509.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/wd.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/8390.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/smc-ultra.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/8390.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/pcnet_cs.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/8390.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/ne2k-pci.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/8390.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/ne.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/8390p.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/axnet_cs.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/8390p.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/8390/8390.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/adaptec/starfire.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/agere/et131x.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/alteon/acenic.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/altera/altera_tse.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/amd/pcnet32.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/amd/nmclan_cs.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/amd/ni65.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/amd/lance.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/amd/amd8111e.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/atheros/alx/alx.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mdio.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/atheros/atl1c/atl1c.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/atheros/atl1e/atl1e.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/atheros/atlx/atl2.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/atheros/atlx/atl1.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/broadcom/bnx2x/bnx2x.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mdio.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/broadcom/genet/genet.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/broadcom/tg3.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/broadcom/cnic.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/broadcom/bnx2.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/broadcom/b44.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/ssb/ssb.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/brocade/bna/bna.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/cadence/macb.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/chelsio/cxgb/cxgb.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mdio.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/chelsio/cxgb3/cxgb3.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mdio.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/chelsio/cxgb4/cxgb4.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/chelsio/cxgb4vf/cxgb4vf.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/cirrus/cs89x0.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/cisco/enic/enic.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/dec/tulip/xircom_cb.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/dec/tulip/winbond-840.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/dec/tulip/uli526x.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/dec/tulip/tulip.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/dec/tulip/dmfe.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/dec/tulip/de4x5.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/dec/tulip/de2104x.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/dlink/sundance.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/dlink/dl2k.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/emulex/benet/be2net.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/fujitsu/fmvj18x_cs.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/hp/hp100.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/icplus/ipg.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/intel/e1000/e1000.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/intel/e1000e/e1000e.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/intel/fm10k/fm10k.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/intel/i40e/i40e.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/intel/i40evf/i40evf.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/intel/igb/igb.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/i2c/algos/i2c-algo-bit.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/intel/igbvf/igbvf.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/intel/ixgb/ixgb.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/intel/ixgbe/ixgbe.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mdio.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/intel/ixgbevf/ixgbevf.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/intel/e100.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/marvell/sky2.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/marvell/skge.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/marvell/mvmdio.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/mellanox/mlx4/mlx4_en.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/mellanox/mlx4/mlx4_core.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/mellanox/mlx4/mlx4_core.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/micrel/ksz884x.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/micrel/ks8851_mll.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/myricom/myri10ge/myri10ge.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/natsemi/ns83820.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/natsemi/natsemi.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/neterion/vxge/vxge.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/neterion/s2io.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/nvidia/forcedeth.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp_pch.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/packetengines/yellowfin.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/packetengines/hamachi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/qlogic/netxen/netxen_nic.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/qlogic/qlcnic/qlcnic.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/qlogic/qlge/qlge.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/qlogic/qla3xxx.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/rdc/r6040.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/realtek/r8169.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/realtek/8139too.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/realtek/8139cp.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/samsung/sxgbe/samsung-sxgbe.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/sfc/sfc.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/i2c/algos/i2c-algo-bit.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mdio.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/sis/sis900.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/sis/sis190.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/smsc/smsc9420.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/smsc/smsc911x.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/smsc/smc91c92_cs.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/smsc/smc9194.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/smsc/epic100.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/stmicro/stmmac/stmmac.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/stmicro/stmmac/stmmac-platform.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/stmicro/stmmac/stmmac.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/stmicro/stmmac/stmmac-pci.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/stmicro/stmmac/stmmac.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/stmicro/stmmac/stmmac-platform.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/stmicro/stmmac/stmmac.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/sun/sunhme.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/sun/sungem.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/sungem_phy.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/sun/niu.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/sun/cassini.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/tehuti/tehuti.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/ti/tlan.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/ti/cpsw_ale.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/via/via-velocity.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/via/via-rhine.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/wiznet/w5300.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/wiznet/w5100.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/xircom/xirc2ps_cs.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/jme.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/fealnx.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/ethoc.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/ec_bhf.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ethernet/dnet.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/hyperv/hv_netvsc.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hv/hv_vmbus.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/ipvlan/ipvlan.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/vitesse.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/ste10Xp.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/smsc.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/realtek.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/qsemi.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/national.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/micrel.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/mdio-bitbang.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/mdio-bcm-unimac.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/marvell.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/lxt.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/icplus.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/et1011c.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/dp83867.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/davicom.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/cicada.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/broadcom.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/bcm87xx.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/bcm7xxx.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/at803x.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/phy/amd.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/zaurus.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/cdc_ether.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/sr9800.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/sr9700.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/smsc95xx.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/smsc75xx.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/sierra_net.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/rtl8150.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/rndis_host.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/cdc_ether.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/r8152.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/qmi_wwan.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/usb/class/cdc-wdm.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/plusb.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/pegasus.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/net1080.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/mcs7830.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/lg-vl600.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/cdc_ether.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/kaweth.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/kalmia.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/ipheth.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/int51x1.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/huawei_cdc_ncm.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/cdc_ncm.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/usb/class/cdc-wdm.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/hso.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/gl620a.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/dm9601.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/cx82310_eth.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/cdc_subset.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/cdc_ncm.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/cdc_mbim.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/cdc_ncm.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/usb/class/cdc-wdm.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/cdc_ether.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/cdc_eem.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/catc.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/ax88179_178a.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/asix.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/usb/usbnet.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/vmxnet3/vmxnet3.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/virtio_net.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/veth.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/sungem_phy.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/nlmon.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/netconsole.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/mii.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/mdio.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/macvtap.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/net/macvlan.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/macvlan.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/net/geneve.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/ntb/ntb.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/parport/parport_pc.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/parport/parport.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/parport/parport.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/pci/pci-stub.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/pcmcia/pd6729.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/pcmcia/i82365.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/pcmcia/i82092.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/phy/phy-bcm-kona-usb2.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/chrome/cros_ec_lpc.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mfd/cros_ec.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/chrome/cros_ec_devs.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/chrome/chromeos_pstore.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/chrome/chromeos_laptop.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/toshiba_haps.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/toshiba_bluetooth.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/toshiba_acpi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/topstar-laptop.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/tc1100-wmi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/sony-laptop.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/samsung-q10.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/samsung-laptop.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/pvpanic.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/panasonic-laptop.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/mxm-wmi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/msi-wmi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/msi-laptop.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/intel_pmc_ipc.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/intel_oaktrail.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/intel_menlow.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/intel_ips.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/intel-smartconnect.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/intel-rst.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/ideapad-laptop.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/ibm_rtl.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/hp_accel.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/misc/lis3lv02d/lis3lv02d.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/input/input-polldev.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/hp-wmi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/hp-wireless.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/hdaps.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/input-polldev.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/fujitsu-tablet.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/fujitsu-laptop.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/eeepc-wmi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/asus-wmi.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/eeepc-laptop.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/dell-wmi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/dell-wmi-aio.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/dell-smo8800.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/dell-rbtn.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/compal-laptop.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/classmate-laptop.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/asus-wmi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/asus-nb-wmi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/asus-wmi.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/asus-laptop.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/input/input-polldev.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/apple-gmux.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/apple_bl.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/amilo-rfkill.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/alienware-wmi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/acerhdf.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/acer-wmi.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/platform/x86/wmi.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/input/sparse-keymap.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/acpi/video.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/powercap/intel_rapl.ko.gz: /lib/modules/4.2.9-tinycore/kernel/arch/x86/kernel/iosf_mbi.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp_pch.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/ptp/ptp.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/pps/pps_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/scsi/hv_storvsc.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hv/hv_vmbus.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/spmi/spmi.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/ssb/ssb.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/mmc/core/mmc_core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/thermal/int340x_thermal/processor_thermal_device.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/thermal/int340x_thermal/int340x_thermal_zone.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/thermal/intel_soc_dts_iosf.ko.gz /lib/modules/4.2.9-tinycore/kernel/arch/x86/kernel/iosf_mbi.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/thermal/int340x_thermal/int340x_thermal_zone.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/thermal/int340x_thermal/int3403_thermal.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/thermal/int340x_thermal/int340x_thermal_zone.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/thermal/int340x_thermal/int3402_thermal.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/thermal/int340x_thermal/int340x_thermal_zone.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/thermal/int340x_thermal/int3400_thermal.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/thermal/int340x_thermal/acpi_thermal_rel.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/thermal/int340x_thermal/acpi_thermal_rel.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/thermal/intel_soc_dts_thermal.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/thermal/intel_soc_dts_iosf.ko.gz /lib/modules/4.2.9-tinycore/kernel/arch/x86/kernel/iosf_mbi.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/thermal/intel_soc_dts_iosf.ko.gz: /lib/modules/4.2.9-tinycore/kernel/arch/x86/kernel/iosf_mbi.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/thunderbolt/thunderbolt.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/tty/ipwireless/ipwireless.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/tty/serial/8250/serial_cs.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/tty/serial/8250/8250_fintek.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/tty/serial/8250/8250_dw.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/tty/nozomi.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/class/usblp.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/class/cdc-wdm.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/class/cdc-acm.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/common/usb-otg-fsm.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/common/ulpi.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/host/xhci-pci.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/usb/host/xhci-hcd.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/host/xhci-hcd.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/misc/yurex.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/misc/usb3503.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/misc/ezusb.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/misc/appledisplay.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/storage/ums-realtek.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/usbip/vhci-hcd.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/usb/usbip/usbip-core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/usbip/usbip-host.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/usb/usbip/usbip-core.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/usb/usbip/usbip-core.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/platform_lcd.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/lcd.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/lcd.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/kb3886_bl.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/generic_bl.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/bd6107.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/apple_bl.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/adp8870_bl.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/adp8860_bl.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/video/backlight/backlight.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/core/sysimgblt.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/core/sysfillrect.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/core/syscopyarea.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/core/fb_sys_fops.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/udlfb.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/core/fb_sys_fops.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/core/sysimgblt.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/core/sysfillrect.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/core/syscopyarea.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/video/fbdev/hyperv_fb.ko.gz: /lib/modules/4.2.9-tinycore/kernel/drivers/hv/hv_vmbus.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/drivers/virtio/virtio_pci.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/virtio/virtio_mmio.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/virtio/virtio_input.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/virtio/virtio_balloon.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/drivers/i2c/algos/i2c-algo-bit.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/fs/fat/msdos.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/fs/ntfs/ntfs.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/fs/squashfs/squashfs.ko.gz: /lib/modules/4.2.9-tinycore/kernel/lib/lz4/lz4_decompress.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/lib/lz4/lz4_decompress.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/lib/reed_solomon/reed_solomon.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/lib/ts_kmp.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/lib/ts_fsm.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/lib/ts_bm.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/lib/crc8.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/lib/cordic.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/lib/bch.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/net/802/stp.ko.gz: /lib/modules/4.2.9-tinycore/kernel/net/llc/llc.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/net/802/psnap.ko.gz: /lib/modules/4.2.9-tinycore/kernel/net/llc/llc.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/net/802/p8022.ko.gz: /lib/modules/4.2.9-tinycore/kernel/net/llc/llc.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/net/802/mrp.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/net/802/garp.ko.gz: /lib/modules/4.2.9-tinycore/kernel/net/802/stp.ko.gz /lib/modules/4.2.9-tinycore/kernel/net/llc/llc.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/net/8021q/8021q.ko.gz: /lib/modules/4.2.9-tinycore/kernel/net/802/mrp.ko.gz /lib/modules/4.2.9-tinycore/kernel/net/802/garp.ko.gz /lib/modules/4.2.9-tinycore/kernel/net/802/stp.ko.gz /lib/modules/4.2.9-tinycore/kernel/net/llc/llc.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/net/llc/llc.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/net/sunrpc/auth_gss/rpcsec_gss_krb5.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/net/vmw_vsock/vsock.ko.gz:
+/lib/modules/4.2.9-tinycore/kernel/net/vmw_vsock/vmw_vsock_vmci_transport.ko.gz: /lib/modules/4.2.9-tinycore/kernel/net/vmw_vsock/vsock.ko.gz /lib/modules/4.2.9-tinycore/kernel/drivers/misc/vmw_vmci/vmw_vmci.ko.gz
+/lib/modules/4.2.9-tinycore/kernel/security/keys/encrypted-keys/encrypted-keys.ko.gz:

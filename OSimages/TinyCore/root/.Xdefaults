@@ -1,0 +1,11 @@
+Aterm*scrollBar: true
+Aterm*transparent: true
+Aterm*title: Terminal
+Aterm*foreground: white
+Aterm*background: black
+Aterm*faceName: Vera Sans
+Aterm*faceSize: 11
+Aterm*cursorColor: green
+Aterm*fading: 70
+Aterm*shading: 50
+Aterm*color12: DodgerBlue1

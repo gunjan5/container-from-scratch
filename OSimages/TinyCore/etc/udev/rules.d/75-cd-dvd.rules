@@ -1,0 +1,4 @@
+# these rules generate the /dev/{cdrom,dvd} symlinks
+
+ACTION=="add", SUBSYSTEM=="block", ATTRS{media}=="cdrom", RUN+="/usr/sbin/cd_dvd_symlinks.sh"
+ACTION=="add", SUBSYSTEM=="block", KERNEL=="sr[0-9]*", RUN+="/usr/sbin/cd_dvd_symlinks.sh"

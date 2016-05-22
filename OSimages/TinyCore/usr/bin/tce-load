@@ -1,0 +1,293 @@
+#!/bin/busybox ash
+# (c) Robert Shingledecker 2004-2010
+# tcz concept and code from Jason Williams
+#
+. /etc/init.d/tc-functions
+useBusybox
+checknotroot
+PROG_NAME=$(basename $0)
+KERNELVER=$(uname -r)
+unset WGET INSTALL COPYINSTALL BOOTING ONDEMAND DOWNLOAD_ONLY LOAD_ONLY SUPPRESS
+FORCE="n"  # Overwrite system files default to no. Use -f to force overwrite.
+SAVED_DIR=`pwd`
+
+ONBOOTNAME="$(getbootparam lst 2>/dev/null)"
+[ -n "$ONBOOTNAME" ] || ONBOOTNAME="onboot.lst"
+TCEINSTALLED=/usr/local/tce.installed
+TCEDIR=/etc/sysconfig/tcedir
+
+abort(){
+	echo "Version `version`";
+	echo "Usage: ${PROG_NAME} [ -i -w -wi -wo -wil -ic -wic -wicl]{s} extensions"
+	echo "  -i   Loads local extension"
+	echo "  -w   Download extension only"
+	echo "  -wi  Download and install extension"
+	echo "  -wo  Download and create an ondemand item"
+	echo "  Adding -c to any -i option will force a one time copy to file system"
+	echo "  Adding -l to any -i option indicates load only - do not update onboot or ondemand"
+	echo "  Adding -s to any option will suppress OK message used by apps GUI"
+	echo -e  "\nExample usage:"
+	echo " Load local extension:"
+	echo "   tce-load -i /mnt/hda1/tce/optional/nano.tcz"
+	echo " Download into tce/optional directory, updates OnBoot and installs:"
+	echo "   tce-load -w -i nano.tcz"
+	echo " Download only into tce/optional directory:"
+	echo "   tce-load -w nano.tcz"
+	exit 2
+}
+
+abort_to_saved_dir(){
+	echo "1" > /tmp/appserr
+	if [ "$BOOTING" ]; then
+		SKIP=TRUE
+	else
+		#cd "$SAVED_DIR"
+		exit 1
+	fi
+}
+
+while getopts wilcbosft: OPTION
+do
+	case ${OPTION} in
+		w) WGET=TRUE ;;
+		i) INSTALL=TRUE ;;
+		l) LOAD_ONLY=TRUE ;;
+		c) COPYINSTALL=TRUE ;;
+		b) BOOTING=TRUE ;;
+		o) ONDEMAND=TRUE ;;
+		s) SUPPRESS=TRUE ;;
+		f) FORCE="y" ;;
+		t) TCEDIR="$OPTARG" ;;
+		*) abort ;;
+	esac
+done
+shift `expr $OPTIND - 1`
+[ -z "$1" ] || ( [ -z "$WGET" ] && [ -z "$INSTALL" ] ) && abort
+
+app_exists() {
+	[ -f "$2/$1" ] && [ -f "$2/$1".md5.txt ] && (cd "$2" && md5sum -cs "$1".md5.txt)
+}
+
+fetch_app() {
+	echo "Downloading: $1"
+	wget -cq "$MIRROR"/"$1".md5.txt 2>/dev/null
+	wget -c "$MIRROR"/"$1"
+	md5sum -c "$1".md5.txt
+	if [ "$?" != 0 ]; then
+		echo "Error on $1"
+		abort_to_saved_dir
+	fi
+}
+
+copyInstall() {
+	[ -d /mnt/test ] || sudo /bin/mkdir -p /mnt/test
+	sudo /bin/mount $1 /mnt/test -t squashfs -o loop,ro,bs=4096
+	if [ "$?" == 0 ]; then
+		if [ "$(ls -A /mnt/test)" ]; then
+			yes "$FORCE" | sudo /bin/cp -ai /mnt/test/. / 2>/dev/null
+			[ -n "`find /mnt/test/ -type d -name modules`" ] && MODULES=TRUE
+		fi
+		sudo /bin/umount -d /mnt/test
+	fi
+}
+
+update_system() {
+	if [ "$BOOTING" ]; then
+		[ "$MODULES" ] && sudo /bin/touch /etc/sysconfig/newmodules
+	else
+		[ "$THISAPP" != "$EXTENSION" ] || [ "$DOWNLOAD_ONLY" ] || [ "$LOAD_ONLY" ] || echo "$THISAPP" >> ../$ONBOOTNAME
+		if [ "$MODULES" ]; then
+			sudo /sbin/depmod -a 2>/dev/null
+			sudo /sbin/udevadm trigger
+		fi
+		sudo /sbin/ldconfig 2>/dev/null
+	fi
+	if [ -x "$TCEINSTALLED"/$2 ]; then
+		if [ "$BOOTING" ] ; then
+			echo "$TCEINSTALLED"/$2 >> /tmp/setup.lst
+		else
+			sudo "$TCEINSTALLED"/$2
+		fi
+	else
+		touch "$TCEINSTALLED"/$2
+	fi
+}
+
+install(){
+	unset MODULES EMPTYEXT
+
+	if [ "$LANG" != "C" ]; then
+		LOCALEEXT="${1%.tcz}-locale.tcz"
+		[ -f "$LOCALEEXT" ] && install "$LOCALEEXT"
+	fi
+
+	THISAPP="$1"
+	APPNAME="${THISAPP%.*}"
+
+	if [ "$INSTALL" ]; then
+		if [ "$COPYINSTALL" ] || [ -e "${FROMWHERE%/*}"/copy2fs.flg ] || grep -qw $APPNAME "${FROMWHERE%/*}"/copy2fs.lst 2>/dev/null; then
+			copyInstall "$THISAPP"
+			update_system "$THISAPP" "$APPNAME"
+			if [ ! "$BOOTING" ]; then
+				[ -s /etc/sysconfig/desktop ] && desktop.sh "$APPNAME"
+			fi
+		else
+			[ -d /tmp/tcloop/"$APPNAME" ] || sudo /bin/mkdir -p /tmp/tcloop/"$APPNAME"
+			awk -v appname="/tmp/tcloop/$APPNAME" ' { if ( $2 == appname )  exit 1 }' /etc/mtab
+			[ "$?" == 1 ] || sudo /bin/mount "$THISAPP" /tmp/tcloop/"$APPNAME" -t squashfs -o loop,ro,bs=4096 2>&1
+			[ "$?" == 0 ] || abort_to_saved_dir
+			[ "`find /tmp/tcloop/${APPNAME} -mindepth 1 -maxdepth 2 | wc -l`" -le 1 ] && EMPTYEXT=1
+
+			if [ -z "$EMPTYEXT" ]; then
+				yes "$FORCE" | sudo /bin/cp -ais /tmp/tcloop/"$APPNAME"/* / 2>/dev/null
+				[ -n "`find /tmp/tcloop/$APPNAME -type d -name modules`" ] && MODULES=TRUE
+				update_system "$THISAPP" "$APPNAME"
+				if [ ! "$BOOTING" ]; then
+					[ -s /etc/sysconfig/desktop ] && desktop.sh "$APPNAME"
+				fi
+			else
+				sudo /bin/umount -d /tmp/tcloop/"$APPNAME"
+				update_system "$THISAPP" "$APPNAME"
+			fi
+		fi
+		[ "$BOOTING" ] && [ "$SHOWAPPS" ] && echo -n "${YELLOW}$APPNAME ${NORMAL}"
+	fi
+
+	return 0
+}
+
+recursive_scan_dep() {
+	echo -e "$@"|awk '
+	function recursive_scan(name, optional, mirror, _, depfile, line, i) {
+		gsub(/[\t ]+/, "", name)
+		if (name) {
+			sub(/\-KERNEL\.tcz/, "-"KERNELVER".tcz", name)
+			if (name in MARK) {
+				if (MARK[name] == 2) {
+					if (! SUPPRESS)
+						system("echo Warning loop dependency: "name" 1>&2")
+				} else {
+					RESULT[++IDX]="@#"name
+				}
+			} else {
+				IDX+=1
+				RESULT[IDX]=name
+				IRANGE[name"#1"]=IDX
+				depfile=optional"/"name".dep"
+				if (mirror && (system("test ! -f "depfile) == 0 || system("test ! -f "optional"/"name) == 0))
+					if (system("rm -f "depfile"; wget -c -P "optional" "mirror"/"name".dep 2>/dev/null") == 0 && ! SUPPRESS)
+						system("echo "name".dep OK 1>&2")
+				MARK[name]=2
+				if (mirror || system("test -f "optional"/"name) == 0) {
+					while (getline line < depfile > 0)
+						recursive_scan(line, optional, mirror)
+					close(depfile)
+				}
+				MARK[name]=1
+				IRANGE[name"#2"]=IDX
+			}
+		}
+	}
+	function output(idx1, idx2, _, name, i, refname) {
+		for (i=idx2; i>=idx1; i--) {
+			name=RESULT[i]
+			if (! (name in PRINTED)) {
+				PRINTED[name]=1
+				if (substr(name, 1, 2) == "@#") {
+					refname = substr(name, 3)
+					output(IRANGE[refname"#1"]+0, IRANGE[refname"#2"])
+				} else {
+					print name
+				}
+			}
+		}
+	}
+	BEGIN {KERNELVER="'"$KERNELVER"'"; SUPPRESS="'"$SUPPRESS"'"; IDX=0;}
+	{pi=IDX; recursive_scan($1, $2 ? $2 : ".", $3); print "@ "$1; output(pi+1, IDX); delete PRINTED;}
+	'
+}
+
+# Main
+echo "0" > /tmp/appserr
+[ -d "$TCEDIR" ] || exit 1
+[ -n "$1" ] || exit 1
+[ -f /etc/sysconfig/showapps ] && SHOWAPPS=TRUE && SUPPRESS=TRUE
+#  Check for download only
+[ -z "$INSTALL" ] && DOWNLOAD_ONLY=1
+[ -z "$WGET" ] && [ "$INSTALL" ] && LOAD_ONLY=1
+
+OPTIONAL="`realpath $TCEDIR`/optional"
+TARGETSLOCAL=""
+TARGETSFETCH=""
+FROMWHERE=""
+
+for TARGETAPP in $@; do
+
+TARGETAPP="${TARGETAPP%.tcz}.tcz"
+TARGETAPP="${TARGETAPP/-KERNEL.tcz/-${KERNELVER}.tcz}"
+EXTENSION="${TARGETAPP##*/}"
+APPNAME="${EXTENSION%.*}"
+
+if [ -z "$FROMWHERE" ]; then
+	if [ "$TARGETAPP" = "$EXTENSION" ] && [ ! -f "$EXTENSION" ]; then
+		FROMWHERE="$OPTIONAL"
+	else
+		FROMWHERE=`dirname "$TARGETAPP"`
+	fi
+fi
+
+# If load local or install then also check if already installed.
+if [ "$INSTALL" ] && [ ! "$BOOTING" ]; then
+	if [ -f "$TCEINSTALLED/$APPNAME" ]; then
+		echo "$APPNAME is already installed!"
+		continue
+	fi
+fi
+
+if [ "$WGET" ]; then
+	if app_exists "$EXTENSION" "$FROMWHERE"; then
+		echo "$APPNAME is already downloaded."
+	else
+		mkdir -p "$FROMWHERE"
+		TARGETSFETCH="$TARGETSFETCH\n$EXTENSION"
+		[ "$DOWNLOAD_ONLY" ] && [ "$ONDEMAND" ] && ondemand "$EXTENSION"
+	fi
+else
+	TARGETSLOCAL="$TARGETSLOCAL\n$EXTENSION"
+fi
+
+done # Finish the for-loop for multiple extensions
+
+cd "$FROMWHERE" || exit 1
+
+if [ "$TARGETSFETCH" ]; then
+	getMirror
+	TARGETSFETCH="`echo -e $TARGETSFETCH | awk '/\w/ {print $1" . '"$MIRROR"'"}'`"
+	recursive_scan_dep "$TARGETSFETCH" | while read F; do
+		{ test "${F%% *}" = "@" && EXTENSION="${F#@ }" && SKIP="" || test "$SKIP"; } && continue
+		F="${F##*/}"
+		app_exists "$F" "." || fetch_app "$F"
+		[ -f "$TCEINSTALLED/${F%.*}" ] || install "$F"
+	done || exit 1 # subshell cannot exit directly
+fi
+
+if [ "$TARGETSLOCAL" ]; then
+	TARGETSLOCAL="`echo -e $TARGETSLOCAL | awk '/\w/ {print $1}'`"
+	recursive_scan_dep "$TARGETSLOCAL" | while read F; do
+		{ test "${F%% *}" = "@" && EXTENSION="${F#@ }" && SKIP="" || test "$SKIP"; } && continue
+		F="${F##*/}"
+		if [ ! -f "$TCEINSTALLED/${F%.*}" ]; then
+			if [ -f "$F" ]; then
+				install "$F"
+				[ "$SUPPRESS" ] || echo "$F: OK"
+			else
+				echo "$F not found!"
+				abort_to_saved_dir
+			fi
+		fi
+	done || exit 1 # subshell cannot exit directly
+fi
+
+[ "$BOOTING" ] && exit 0
+[ $(which "$DESKTOP"_restart) ] && "$DESKTOP"_restart 2>/dev/null
+exit 0

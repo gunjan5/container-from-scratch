@@ -1,0 +1,34 @@
+Tiny Core accepts the following persistence options:
+
+tce={hda1|sda1}            Specify Restore TCE apps directory
+restore={hda1|sda1|floppy} Specify saved configuration location
+waitusb=X                  Wait X seconds for slow USB devices
+swapfile{=hda1}            Scan or Specify swapfile
+home={hda1|sda1}           Specify persistent home directory
+opt={hda1|sda1}            Specify persistent opt directory
+local={hda1|sda1}          Specify PPI directory or loopback file
+lst=yyy.lst                Load alternate static yyy.lst on boot
+mydata=yyyy                Specify alternate backup file name
+base                       Skip TCE load only the base system
+norestore                  Turn off the automatic restore
+safebackup                 Saves a backup copy (mydatabk.tgz)
+showapps                   Display application names when booting
+vga=7xx                    7xx from table (See below)
+xsetup                     Prompt user for Xvesa setup
+lang=en                    C only unless getlocale.tcz is installed
+kmap=us                    US only unless kmaps.tcz is installed
+text                       Textmode
+superuser                  Textmode as user root
+noicons                    Do not use icons
+noswap                     Do not use swap partition
+nodhcp                     Skip the dhcp request at boot
+noutc                      BIOS is using localtime
+pause                      Pause at completion of boot messages
+ 
+Tiny Core accepts the following additional boot time options:
+
+ Color            640x480     800x600      1024x768     1280x1024
+   256    8 bit     769         771           773          775
+ 32000   15 bit     784         787           790          793
+ 65000   16 bit     785         788           791          794
+ 16.7M   24 bit     786         789           792          795

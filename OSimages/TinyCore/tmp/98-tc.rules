@@ -1,0 +1,5 @@
+KERNEL=="ram*", SUBSYSTEM=="block", GOTO="tc.rules_end"
+KERNEL=="loop*", SUBSYSTEM=="block", GOTO="tc.rules_end"
+ACTION=="add",		SUBSYSTEM=="block",	RUN+="/bin/sh -c '/usr/sbin/rebuildfstab'"
+ACTION=="remove",	SUBSYSTEM=="block",	RUN+="/bin/sh -c '/usr/sbin/rebuildfstab'"
+LABEL="tc.rules_end"
