@@ -11,7 +11,7 @@ import (
 
 func Run(ctx *cli.Context) error {
 	command := exec.Command("/proc/self/exe", append([]string{"child"}, os.Args[2:]...)...)
-	command.SysProcAttr = &syscall.SysProcAttr{
+	command.SysProcAttr = &syscall.SysProcAttr{ //add some namespaces: UTS, PID, MNT
 		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
 	}
 	command.Stdin = os.Stdin
