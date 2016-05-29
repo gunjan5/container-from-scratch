@@ -10,7 +10,9 @@ import (
 )
 
 func Run(ctx *cli.Context) error {
-	command := exec.Command("/proc/self/exe", append([]string{"NewRoot"}, ctx.Args()[2:]...)...)
+	_ = "breakpoint"
+	fmt.Println("inside Run...")
+	command := exec.Command("/proc/self/exe", append([]string{"newroot"}, ctx.Args()[2:]...)...)
 
 	command.SysProcAttr = &syscall.SysProcAttr{ //add some namespaces: UTS, PID, MNT
 		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
