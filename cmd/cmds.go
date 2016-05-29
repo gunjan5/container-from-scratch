@@ -10,7 +10,7 @@ import (
 )
 
 func Run(ctx *cli.Context) error {
-	command := exec.Command("/proc/self/exe", append([]string{"Child"}, ctx.Args()[2:]...)...)
+	command := exec.Command("/proc/self/exe", append([]string{"NewRoot"}, ctx.Args()[2:]...)...)
 
 	command.SysProcAttr = &syscall.SysProcAttr{ //add some namespaces: UTS, PID, MNT
 		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
@@ -45,6 +45,9 @@ func Child(ctx *cli.Context) error {
 }
 
 func NewRoot(ctx *cli.Context) error {
+
+	fmt.Println("inside NewRoot")
+	fmt.Println(ctx.Args()[:])
 
 	if err := syscall.Chroot("./OSimages/TinyCore"); err != nil {
 		fmt.Errorf("ERROR: Chroot error ", err)
