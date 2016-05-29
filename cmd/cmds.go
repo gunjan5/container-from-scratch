@@ -43,6 +43,17 @@ func Child(ctx *cli.Context) error {
 	return nil
 }
 
+func NewRoot(ctx *cli.Context) error {
+
+	if err := syscall.Chroot("./OSimages/TinyCore"); err != nil {
+		fmt.Errorf("ERROR: Chroot error ", err)
+		os.Exit(1)
+	}
+
+	return nil
+
+}
+
 func check(err error) {
 	if err != nil {
 		panic(err)

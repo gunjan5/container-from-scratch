@@ -25,16 +25,22 @@ func makeCmd() *cli.App {
 
 	app.Commands = []cli.Command{
 		{
-			Name:        "run",
+			Name:        "Run",
 			ShortName:   "r",
 			Description: "run fast, break things...",
 			Action:      cmd.Run,
 		},
 		{
-			Name:        "child",
+			Name:        "Child",
 			ShortName:   "c",
 			Description: "children... how annoying!",
 			Action:      cmd.Child,
+		},
+		{
+			Name:        "newroot",
+			ShortName:   "n",
+			Description: "chroot!",
+			Action:      cmd.NewRoot,
 		},
 	}
 
