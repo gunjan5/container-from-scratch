@@ -37,7 +37,7 @@ func makeCmd() *cli.App {
 			Action:      cmd.Child,
 		},
 		{
-			Name:        "newroot",
+			Name:        "NewRoot",
 			ShortName:   "n",
 			Description: "chroot!",
 			Action:      cmd.NewRoot,

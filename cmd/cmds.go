@@ -10,7 +10,8 @@ import (
 )
 
 func Run(ctx *cli.Context) error {
-	command := exec.Command("/proc/self/exe", append([]string{"Child"}, os.Args[2:]...)...)
+	command := exec.Command("/proc/self/exe", append([]string{"Child"}, ctx.Args()[2:]...)...)
+
 	command.SysProcAttr = &syscall.SysProcAttr{ //add some namespaces: UTS, PID, MNT
 		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
 	}
@@ -50,6 +51,15 @@ func NewRoot(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
+	command := exec.Command(ctx.Args()[2], ctx.Args()[3:]...)
+	command.Stdin = os.Stdin
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+
+	if err := command.Run(); err != nil {
+		fmt.Println("ERROR", err)
+		os.Exit(1)
+	}
 	return nil
 
 }
