@@ -21,8 +21,11 @@ image:
 run:
 	docker run --rm -it gunjan5/container-from-scratch
 
+buildlinux:
+	GOOS=linux GOARCH=amd64 go build -o cfs
+
 build:
-	GOOS=linux GOARCH=amd64 go build -o app
+	go build -o cfs
 
 depsave:
 	godep save
