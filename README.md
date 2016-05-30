@@ -11,9 +11,19 @@ $ git clone https://github.com/gunjan5/container-from-scratch.git
 $ cd container-from-scratch
 $ make build
 ```
-- Run it! 
-- Format is `sudo ./cfs <action_command> <OS_image> <command_to_run_inside_the_container>`
-- Supported OS_images provided with this repo: BusyBox, SlitazOS, TinyCore 
+- `run` command format is: `sudo ./cfs <action_command> <OS_image> <command_to_run_inside_the_container>`
+- Supported OS_images provided with this repo: `BusyBox`, `SlitazOS`, `TinyCore` 
+```bash
+$ whoami
+gunjan
+$ pwd
+/home/gunjan/go/src/github.com/gunjan5/container-from-scratch
+$ sudo ./cfs run SlitazOS sh
+/ # whoami
+root
+/ # pwd
+/
+```
 ```bash
 $ sudo ./cfs run TinyCore ls
 [./cfs run TinyCore ls]
@@ -21,13 +31,7 @@ $ sudo ./cfs run TinyCore ls
 [TinyCore ls]
 bin      core.gz  dev      etc      init     lib      linuxrc  opt      root     sbin     tmp      usr      var
 ```
-```bash
- sudo ./cfs run SlitazOS pwd
-[./cfs run SlitazOS pwd]
-[/proc/self/exe newroot SlitazOS pwd]
-[SlitazOS pwd]
-/
-```
+
 
 
 
