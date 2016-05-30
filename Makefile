@@ -33,3 +33,6 @@ depsave:
 depupdate:
 	go get -t -v ./...
 	godep update
+
+resrote:
+	godep restore

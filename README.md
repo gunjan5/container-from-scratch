@@ -9,6 +9,7 @@ Make container from scratch using Golang
 ```bash
 $ git clone https://github.com/gunjan5/container-from-scratch.git
 $ cd container-from-scratch
+$ make get # to download dependancies or make restore to restore Godeps saved dependancies
 $ make build
 ```
 - `run` command format is: `sudo ./cfs <action_command> <OS_image> <command_to_run_inside_the_container>`
