@@ -12,7 +12,8 @@ import (
 func Run(ctx *cli.Context) error {
 	_ = "breakpoint"
 	fmt.Println("inside Run...")
-	command := exec.Command("/proc/self/exe", append([]string{"newroot"}, ctx.Args()[2:]...)...)
+	fmt.Println("0:" + ctx.Args()[0] + "1: " + ctx.Args()[1] + "2: " + ctx.Args()[2])
+	command := exec.Command("/proc/self/exe", append([]string{"newroot"}, ctx.Args()[0:]...)...)
 
 	command.SysProcAttr = &syscall.SysProcAttr{ //add some namespaces: UTS, PID, MNT
 		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
@@ -51,12 +52,14 @@ func NewRoot(ctx *cli.Context) error {
 	fmt.Println("inside NewRoot")
 	fmt.Println(ctx.Args()[:])
 
-	if err := syscall.Chroot("./OSimages/TinyCore"); err != nil {
+	check(os.Chdir("./OSimages/TinyCore/"))
+
+	if err := syscall.Chroot("."); err != nil {
 		fmt.Errorf("ERROR: Chroot error ", err)
 		os.Exit(1)
 	}
 
-	command := exec.Command(ctx.Args()[2], ctx.Args()[3:]...)
+	command := exec.Command(ctx.Args()[0], ctx.Args()[1:]...)
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
