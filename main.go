@@ -18,8 +18,9 @@ func main() {
 func makeCmd() *cli.App {
 
 	app := cli.NewApp()
-	app.Name = "greet"
-	app.Usage = "meowwwwwwww out loud"
+	app.Name = "CFS"
+	app.Usage = "sudo ./cfs <action_command> <OS_image> <command_to_run_inside_the_container>"
+	app.Version = "0.0.2"
 
 	fmt.Println(os.Args)
 
@@ -27,19 +28,19 @@ func makeCmd() *cli.App {
 		{
 			Name:        "run",
 			ShortName:   "r",
-			Description: "run fast, break things...",
+			Description: "run a container with task",
 			Action:      cmd.Run,
 		},
 		{
 			Name:        "child",
 			ShortName:   "c",
-			Description: "children... how annoying!",
+			Description: "child process called by run, not meant for direct usage",
 			Action:      cmd.Child,
 		},
 		{
 			Name:        "newroot",
 			ShortName:   "n",
-			Description: "chroot!",
+			Description: "Chroot. Not meant for direct usage",
 			Action:      cmd.NewRoot,
 		},
 	}

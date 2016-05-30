@@ -21,25 +21,7 @@ func Run(ctx *cli.Context) error {
 	command.Stderr = os.Stderr
 
 	if err := command.Run(); err != nil {
-		fmt.Println("ERROR", err)
-		os.Exit(1)
-	}
-	return nil
-}
-
-func Child(ctx *cli.Context) error {
-	check(syscall.Mount("rootfs", "rootfs", "", syscall.MS_BIND, ""))
-	check(os.MkdirAll("rootfs/oldrootfs", 0700))
-	check(syscall.PivotRoot("rootfs", "rootfs/oldrootfs"))
-	check(os.Chdir("/"))
-
-	command := exec.Command(ctx.Args()[0], ctx.Args()[1:]...)
-	command.Stdin = os.Stdin
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-
-	if err := command.Run(); err != nil {
-		fmt.Println("ERROR", err)
+		fmt.Println("ERROR executing the command calling NewRoot: ", err)
 		os.Exit(1)
 	}
 	return nil
@@ -62,11 +44,29 @@ func NewRoot(ctx *cli.Context) error {
 	command.Stderr = os.Stderr
 
 	if err := command.Run(); err != nil {
-		fmt.Println("ERROR", err)
+		fmt.Println("ERROR while running the command inside the container with chroot: ", err)
 		os.Exit(1)
 	}
 	return nil
 
+}
+
+func Child(ctx *cli.Context) error {
+	check(syscall.Mount("rootfs", "rootfs", "", syscall.MS_BIND, ""))
+	check(os.MkdirAll("rootfs/oldrootfs", 0700))
+	check(syscall.PivotRoot("rootfs", "rootfs/oldrootfs"))
+	check(os.Chdir("/"))
+
+	command := exec.Command(ctx.Args()[0], ctx.Args()[1:]...)
+	command.Stdin = os.Stdin
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+
+	if err := command.Run(); err != nil {
+		fmt.Println("ERROR while running the command inside the container with pivot_root: ", err)
+		os.Exit(1)
+	}
+	return nil
 }
 
 func check(err error) {
