@@ -11,8 +11,6 @@ import (
 
 func Run(ctx *cli.Context) error {
 	_ = "breakpoint"
-	fmt.Println("inside Run...")
-	fmt.Println("0:" + ctx.Args()[0] + "1: " + ctx.Args()[1] + "2: " + ctx.Args()[2])
 	command := exec.Command("/proc/self/exe", append([]string{"newroot"}, ctx.Args()[0:]...)...)
 
 	command.SysProcAttr = &syscall.SysProcAttr{ //add some namespaces: UTS, PID, MNT
@@ -35,7 +33,7 @@ func Child(ctx *cli.Context) error {
 	check(syscall.PivotRoot("rootfs", "rootfs/oldrootfs"))
 	check(os.Chdir("/"))
 
-	command := exec.Command(os.Args[2], os.Args[3:]...)
+	command := exec.Command(ctx.Args()[0], ctx.Args()[1:]...)
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
@@ -49,7 +47,6 @@ func Child(ctx *cli.Context) error {
 
 func NewRoot(ctx *cli.Context) error {
 
-	fmt.Println("inside NewRoot")
 	fmt.Println(ctx.Args()[:])
 
 	check(os.Chdir("./OSimages/TinyCore/"))
