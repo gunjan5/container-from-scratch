@@ -29,7 +29,7 @@ func Run(args []string) error {
 
 func NewRoot(args []string) error {
 
-	fmt.Println(ctx.Args()[:])
+	fmt.Println(args)
 
 	check(os.Chdir("./OSimages/" + args[0]))
 
