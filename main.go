@@ -1,7 +1,5 @@
 package main
 
-la la la
-
 import (
 	"fmt"
 	"os"
