@@ -24,6 +24,7 @@ $ sudo ./cfs run SlitazOS sh
 root
 / # pwd
 /
+/ # 
 ```
 ```bash
 $ sudo ./cfs run TinyCore ls
