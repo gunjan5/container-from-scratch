@@ -11,7 +11,10 @@ import (
 func main() {
 
 	app := makeCmd()
-	app.Run(os.Args)
+
+	if len(os.Args) > 0 {
+		app.Run(os.Args)
+	}
 
 }
 
@@ -26,22 +29,28 @@ func makeCmd() *cli.App {
 
 	app.Commands = []cli.Command{
 		{
-			Name:        "run",
-			ShortName:   "r",
-			Description: "run a container with task",
-			Action:      cmd.Run,
+			Name:        "server",
+			ShortName:   "s",
+			Description: "Start the REST server for CFS",
+			Action:      cmd.Serve,
 		},
 		{
-			Name:        "child",
-			ShortName:   "c",
-			Description: "child process called by run, not meant for direct usage",
-			Action:      cmd.Child,
+			Name:        "run",
+			ShortName:   "r",
+			Description: "run a container with a task",
+			Action:      cmd.Run,
 		},
 		{
 			Name:        "newroot",
 			ShortName:   "n",
 			Description: "Chroot. Not meant for direct usage",
 			Action:      cmd.NewRoot,
+		},
+		{
+			Name:        "child",
+			ShortName:   "c",
+			Description: "child process called by run, not meant for direct usage",
+			Action:      cmd.Child,
 		},
 	}
 

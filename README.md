@@ -4,7 +4,7 @@ Make container from scratch using Golang
 ## Where do containers come from? :bird: & :honeybee:
 ![how is it made](https://raw.githubusercontent.com/gunjan5/container-from-scratch/master/container.png)
 
-## How to run this thing (only tested on Ubuntu):
+## How to run this thing (tested on Ubuntu):
 - Download and build for your platform:
 ```bash
 $ git clone https://github.com/gunjan5/container-from-scratch.git
