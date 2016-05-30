@@ -49,14 +49,14 @@ func NewRoot(ctx *cli.Context) error {
 
 	fmt.Println(ctx.Args()[:])
 
-	check(os.Chdir("./OSimages/TinyCore/"))
+	check(os.Chdir("./OSimages/" + ctx.Args()[0]))
 
 	if err := syscall.Chroot("."); err != nil {
 		fmt.Errorf("ERROR: Chroot error ", err)
 		os.Exit(1)
 	}
 
-	command := exec.Command(ctx.Args()[0], ctx.Args()[1:]...)
+	command := exec.Command(ctx.Args()[1], ctx.Args()[2:]...)
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
