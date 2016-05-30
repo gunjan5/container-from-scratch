@@ -28,12 +28,12 @@ func makeCmd() *cli.App {
 	fmt.Println(os.Args)
 
 	app.Commands = []cli.Command{
-		{
-			Name:        "server",
-			ShortName:   "s",
-			Description: "Start the REST server for CFS",
-			Action:      cmd.Serve,
-		},
+		// {
+		// 	Name:        "server",
+		// 	ShortName:   "s",
+		// 	Description: "Start the REST server for CFS",
+		// 	Action:      cmd.Serve,
+		// },
 		{
 			Name:        "run",
 			ShortName:   "r",
