@@ -10,6 +10,7 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/gorilla/mux"
 	"github.com/gunjan5/container-from-scratch/cmd"
+	"github.com/gunjan5/container-from-scratch/container"
 )
 
 const (
@@ -17,12 +18,12 @@ const (
 	PORT = ":1337"
 )
 
-var containers = []Container{Container{"run", "TinyCore", "ls"}}
+var containers = []Container{}
 
 type Container struct {
-	State   string
-	Image   string
-	Command string
+	State   string `json:"state"`
+	Image   string `json:"image"`
+	Command string `json:"command"`
 }
 
 func main() {
@@ -72,6 +73,11 @@ func postContainerHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Errorf("Error marshaling json: %v ", err)
 	}
+	err = container.Run([]string{c.Image, c.Command})
+	if err != nil {
+		fmt.Errorf("Error starting the container: %v", err)
+	}
+
 	w.Write(result)
 
 }
