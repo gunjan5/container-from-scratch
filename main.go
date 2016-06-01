@@ -69,15 +69,15 @@ func postContainerHandler(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal(body, &c)
 	containers = append(containers, c)
 
-	result, err := json.Marshal(containers)
-	if err != nil {
-		fmt.Errorf("Error marshaling json: %v ", err)
-	}
 	err = container.Run([]string{c.Image, c.Command})
 	if err != nil {
 		fmt.Errorf("Error starting the container: %v", err)
 	}
 
+	result, err := json.Marshal(containers)
+	if err != nil {
+		fmt.Errorf("Error marshaling json: %v ", err)
+	}
 	w.Write(result)
 
 }
