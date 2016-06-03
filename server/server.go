@@ -70,9 +70,11 @@ func postContainerHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Errorf("Error: %v while reading request body: %v ", r.Body)
 	}
+	fmt.Println(body)
 
 	json.Unmarshal(body, &c)
 	containers = append(containers, c)
+	fmt.Println(c)
 
 	err = container.Run([]string{c.Image, c.Command})
 	if err != nil {
