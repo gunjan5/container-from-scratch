@@ -43,8 +43,7 @@ bin      core.gz  dev      etc      init     lib      linuxrc  opt      root    
 `(POST) 127.0.0.1:1337/run`
 
 - JSON structure examples:
-
-..- Run a new container
+..* Run a new container
   ```
   {
     "state": "run",
@@ -52,7 +51,6 @@ bin      core.gz  dev      etc      init     lib      linuxrc  opt      root    
     "command": "pwd"
   }
   ```
-
 ..* Stop a running container with it's Container ID
 ```json
   {
@@ -64,6 +62,7 @@ bin      core.gz  dev      etc      init     lib      linuxrc  opt      root    
 - CURL call examples: 
 
 `curl -H "Content-Type: application/json" -X POST -d '{"state":"run","image":"TinyCore","command":"ls"}' http://localhost:1337/run`
+
 `curl -H "Content-Type: application/json" -X POST -d '{"id":"d78347b9-d7c1-4e22-b2fc-782c8111cfcb","state":"stop"}' http://localhost:1337/run`
 
 
