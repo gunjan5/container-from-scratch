@@ -42,7 +42,7 @@ func MakeServer() {
 (___/ \___)(_)\_)(__)(__)(__) \___)(_) (_)
 
 		`)
-	fmt.Printf("CFS Server running at: %s%s", IP, PORT)
+	fmt.Printf("CFS Server running at: %s%s \n\n", IP, PORT)
 
 	http.ListenAndServe(IP+PORT, nil)
 

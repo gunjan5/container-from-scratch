@@ -7,7 +7,7 @@ import (
 )
 
 func Serve(ctx *cli.Context) error {
-	server.MakeServer()
+	go server.MakeServer()
 	return nil
 
 }
