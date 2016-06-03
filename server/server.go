@@ -56,8 +56,42 @@ func MakeServer() {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Welcome to Container From Scratch (CFS)!")
-	fmt.Fprintf(w, "Go to %s%s/run (GET/POST) for more", IP, PORT)
+	fmt.Fprintln(w, `
+  ___  ____  ___       ___  _____  _  _  ____   __    ____  _  _  ____  ____    ____  ____  _____  __  __ 
+ / __)( ___)/ __)()   / __)(  _  )( \( )(_  _) /__\  (_  _)( \( )( ___)(  _ \  ( ___)(  _ \(  _  )(  \/  )
+( (__  )__) \__ \    ( (__  )(_)(  )  (   )(  /(__)\  _)(_  )  (  )__)  )   /   )__)  )   / )(_)(  )    ( 
+ \___)(__)  (___/()   \___)(_____)(_)\_) (__)(__)(__)(____)(_)\_)(____)(_)\_)  (__)  (_)\_)(_____)(_/\/\_)
+ ___   ___  ____    __   ____  ___  _   _ 
+/ __) / __)(  _ \  /__\ (_  _)/ __)( )_( )
+\__ \( (__  )   / /(__)\  )( ( (__  ) _ ( 
+(___/ \___)(_)\_)(__)(__)(__) \___)(_) (_)
+
+		`)
+
+	fmt.Fprintln(w, "METHODS: ")
+	fmt.Fprintf(w, "(GET) %s%s/containers\n", IP, PORT)
+	fmt.Fprintf(w, "(GET) %s%s/history\n", IP, PORT)
+	fmt.Fprintf(w, "(POST) %s%s/run\n", IP, PORT)
+	fmt.Fprintln(w, "\n\n\nJSON structure examples:")
+	fmt.Fprintln(w, `
+	//Run a new container
+	{
+		"state": "run",
+		"image": "BusyBox",
+		"command": "pwd"
+	}
+
+	//Stop a running container with it's Container ID
+	{
+		"id": "e7887770-da8e-43db-9ca1-69526d144d7c",
+		"state": "stop"
+	}
+		`)
+
+	fmt.Fprintln(w, "\n\nCURL call example: \n")
+	fmt.Fprintln(w, `curl -H "Content-Type: application/json" -X POST -d '{"state":"run","image":"TinyCore","command":"ls"}' http://localhost:1337/run`)
+	fmt.Fprintln(w, `curl -H "Content-Type: application/json" -X POST -d '{"id":"d78347b9-d7c1-4e22-b2fc-782c8111cfcb","state":"stop"}' http://localhost:1337/run`)
+
 }
 
 func getContainerHandler(w http.ResponseWriter, r *http.Request) {
@@ -108,11 +142,11 @@ func postContainerHandler(w http.ResponseWriter, r *http.Request) {
 	case "stop":
 		//TODO: need to implement this properly
 		//how do you even stop a container
-		_, err = uuid.FromString(string(c.ID))
-		if err != nil {
-			fmt.Fprintln(w, "Put some proper container ID in your request yo!")
-			return
-		}
+		// _, err = uuid.FromString(string(c.ID))
+		// if err != nil {
+		// 	fmt.Fprintln(w, "Put some proper container ID in your request yo!")
+		// 	return
+		// }
 		_, ok := containers[c.ID]
 		if !ok {
 			fmt.Fprintln(w, "This container doesn't exist, check the Container ID")
