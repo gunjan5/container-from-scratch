@@ -19,8 +19,7 @@ func Run(args []string) error {
 	command.Stderr = os.Stderr
 
 	if err := command.Run(); err != nil {
-		fmt.Println("ERROR executing the command calling NewRoot: ", err)
-		os.Exit(1)
+		return fmt.Errorf("ERROR executing the command calling NewRoot: ", err)
 	}
 
 	return nil
@@ -34,8 +33,7 @@ func NewRoot(args []string) error {
 	check(os.Chdir("./OSimages/" + args[0]))
 
 	if err := syscall.Chroot("."); err != nil {
-		fmt.Errorf("ERROR: Chroot error ", err)
-		os.Exit(1)
+		return fmt.Errorf("ERROR: Chroot error ", err)
 	}
 
 	command := exec.Command(args[1], args[2:]...)
@@ -44,8 +42,7 @@ func NewRoot(args []string) error {
 	command.Stderr = os.Stderr
 
 	if err := command.Run(); err != nil {
-		fmt.Println("ERROR while running the command inside the container with chroot: ", err)
-		os.Exit(1)
+		return fmt.Errorf("ERROR while running the command inside the container with chroot: ", err)
 	}
 	return nil
 
@@ -63,8 +60,7 @@ func Child(args []string) error {
 	command.Stderr = os.Stderr
 
 	if err := command.Run(); err != nil {
-		fmt.Println("ERROR while running the command inside the container with pivot_root: ", err)
-		os.Exit(1)
+		return fmt.Errorf("ERROR while running the command inside the container with pivot_root: ", err)
 	}
 	return nil
 }

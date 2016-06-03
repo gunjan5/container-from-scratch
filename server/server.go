@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gunjan5/container-from-scratch/container"
+	"github.com/satori/go.uuid"
 )
 
 const (
@@ -15,18 +16,24 @@ const (
 	PORT = ":1337"
 )
 
-var containers = []Container{}
+type CID string
 
 type Container struct {
+	ID      CID    `json:"id"`
 	State   string `json:"state"`
 	Image   string `json:"image"`
 	Command string `json:"command"`
 }
 
+var containers = map[CID]Container{}
+var history = []Container{}
+
 func MakeServer() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", index)
-	router.HandleFunc("/run", getContainerHandler).Methods("GET")
+	router.HandleFunc("/history", getHistoryHandler).Methods("GET")
+	router.HandleFunc("/containers", getContainerHandler).Methods("GET")
+
 	router.HandleFunc("/run", postContainerHandler).Methods("POST")
 
 	http.Handle("/", router)
@@ -63,6 +70,18 @@ func getContainerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(result)
 
 }
+
+func getHistoryHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	result, err := json.Marshal(history)
+	if err != nil {
+		fmt.Errorf("Error marshaling json: %v ", err)
+	}
+	w.Write(result)
+
+}
+
 func postContainerHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var c Container
@@ -70,21 +89,52 @@ func postContainerHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Errorf("Error: %v while reading request body: %v ", r.Body)
 	}
-	fmt.Println(body)
 
 	json.Unmarshal(body, &c)
-	containers = append(containers, c)
-	fmt.Println(c)
 
-	err = container.Run([]string{c.Image, c.Command})
-	if err != nil {
-		fmt.Errorf("Error starting the container: %v", err)
+	switch c.State {
+	case "run":
+		u := uuid.NewV4()
+		c.ID = CID(u.String())
+		err = container.Run([]string{c.Image, c.Command})
+		if err != nil {
+			fmt.Errorf("Error starting the container: %v", err)
+			c.State = "Stopped: ERROR"
+			//break
+		}
+		c.State = "Running"
+		containers[c.ID] = c
+
+	case "stop":
+		//TODO: need to implement this properly
+		//how do you even stop a container
+		_, err = uuid.FromString(string(c.ID))
+		if err != nil {
+			fmt.Fprintln(w, "Put some proper container ID in your request yo!")
+			return
+		}
+		_, ok := containers[c.ID]
+		if !ok {
+			fmt.Fprintln(w, "This container doesn't exist, check the Container ID")
+			return
+		}
+		c.State = "Stopped"
+		delete(containers, c.ID)
+
+	default:
+		panic("Unrecognized container state")
+
 	}
 
-	result, err := json.Marshal(containers)
+	history = append(history, c)
+
+	fmt.Println(c)
+
+	result, err := json.Marshal(c)
 	if err != nil {
 		fmt.Errorf("Error marshaling json: %v ", err)
 	}
+
 	w.Write(result)
 
 }
