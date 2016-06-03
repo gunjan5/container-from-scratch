@@ -12,12 +12,18 @@ import (
 )
 
 const (
-	IP   = "127.0.0.1"
+	//IP address of the server
+	IP = "127.0.0.1"
+	//PORT of the server
 	PORT = ":1337"
 )
 
+//CID is Container ID UUID
 type CID string
 
+//TODO: add new struct for history with timestamp (maybe some composition?)
+
+//Container structure
 type Container struct {
 	ID      CID    `json:"id"`
 	State   string `json:"state"`
@@ -28,6 +34,7 @@ type Container struct {
 var containers = map[CID]Container{}
 var history = []Container{}
 
+//MakeServer creates the server mux and register handlers
 func MakeServer() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", index)
@@ -88,7 +95,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 		`)
 
-	fmt.Fprintln(w, "\n\nCURL call example: \n")
+	fmt.Fprintln(w, "\n\nCURL call example:")
 	fmt.Fprintln(w, `curl -H "Content-Type: application/json" -X POST -d '{"state":"run","image":"TinyCore","command":"ls"}' http://localhost:1337/run`)
 	fmt.Fprintln(w, `curl -H "Content-Type: application/json" -X POST -d '{"id":"d78347b9-d7c1-4e22-b2fc-782c8111cfcb","state":"stop"}' http://localhost:1337/run`)
 
@@ -99,7 +106,7 @@ func getContainerHandler(w http.ResponseWriter, r *http.Request) {
 
 	result, err := json.Marshal(containers)
 	if err != nil {
-		fmt.Errorf("Error marshaling json: %v ", err)
+		fmt.Printf("ERROR: Error marshaling json: %v\n", err)
 	}
 	w.Write(result)
 
@@ -110,7 +117,7 @@ func getHistoryHandler(w http.ResponseWriter, r *http.Request) {
 
 	result, err := json.Marshal(history)
 	if err != nil {
-		fmt.Errorf("Error marshaling json: %v ", err)
+		fmt.Printf("ERROR: Error marshaling json: %v\n", err)
 	}
 	w.Write(result)
 
@@ -121,7 +128,7 @@ func postContainerHandler(w http.ResponseWriter, r *http.Request) {
 	var c Container
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Errorf("Error: %v while reading request body: %v ", r.Body)
+		fmt.Printf("ERROR: %v while reading request body: %v\n", err, r.Body)
 	}
 
 	json.Unmarshal(body, &c)
@@ -132,7 +139,7 @@ func postContainerHandler(w http.ResponseWriter, r *http.Request) {
 		c.ID = CID(u.String())
 		err = container.Run([]string{c.Image, c.Command})
 		if err != nil {
-			fmt.Errorf("Error starting the container: %v", err)
+			fmt.Printf("ERROR: Error starting the container: %v\n", err)
 			c.State = "Stopped: ERROR"
 			//break
 		}
@@ -166,7 +173,7 @@ func postContainerHandler(w http.ResponseWriter, r *http.Request) {
 
 	result, err := json.Marshal(c)
 	if err != nil {
-		fmt.Errorf("Error marshaling json: %v ", err)
+		fmt.Printf("ERROR: Error marshaling json: %v\n", err)
 	}
 
 	w.Write(result)
