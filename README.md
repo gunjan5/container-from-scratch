@@ -38,8 +38,11 @@ bin      core.gz  dev      etc      init     lib      linuxrc  opt      root    
 ## REST server:
 - Start the CFS server `sudo ./cfs server`
 - REST calls: 
+
 ```(GET) 127.0.0.1:1337/containers```
+
 ```(GET) 127.0.0.1:1337/history```
+
 ```(POST) 127.0.0.1:1337/run```
 
 - JSON structure examples:
@@ -52,16 +55,18 @@ bin      core.gz  dev      etc      init     lib      linuxrc  opt      root    
   }
   ```
 
-```json
-//Stop a running container with it's Container ID
+  ```json
+  //Stop a running container with it's Container ID
   {
     "id": "e7887770-da8e-43db-9ca1-69526d144d7c",
     "state": "stop"
   }
-```
+  ```
     
 - CURL call examples: 
+
 ```curl -H "Content-Type: application/json" -X POST -d '{"state":"run","image":"TinyCore","command":"ls"}' http://localhost:1337/run```
+
 ```curl -H "Content-Type: application/json" -X POST -d '{"id":"d78347b9-d7c1-4e22-b2fc-782c8111cfcb","state":"stop"}' http://localhost:1337/run```
 
 
@@ -115,7 +120,8 @@ bin      core.gz  dev      etc      init     lib      linuxrc  opt      root    
   Multilayer filesystem, so some base layers (e.g linux base layers) can be shared by multiple containers.
   Layers are usually read-only, and containers make copy if they have to modify the layer.
   ```
-## Coolness :sunglasses:
+
+### Coolness :sunglasses:
 ```
   ___  ____  ___       ___  _____  _  _  ____   __    ____  _  _  ____  ____    ____  ____  _____  __  __ 
  / __)( ___)/ __)()   / __)(  _  )( \( )(_  _) /__\  (_  _)( \( )( ___)(  _ \  ( ___)(  _ \(  _  )(  \/  )
