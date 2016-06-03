@@ -43,7 +43,7 @@ bin      core.gz  dev      etc      init     lib      linuxrc  opt      root    
 `(POST) 127.0.0.1:1337/run`
 
 - JSON structure examples:
-..* Run a new container
+⋅⋅* Run a new container
   ```
   {
     "state": "run",
@@ -51,7 +51,7 @@ bin      core.gz  dev      etc      init     lib      linuxrc  opt      root    
     "command": "pwd"
   }
   ```
-..* Stop a running container with it's Container ID
+⋅⋅* Stop a running container with it's Container ID
 ```json
   {
     "id": "e7887770-da8e-43db-9ca1-69526d144d7c",
