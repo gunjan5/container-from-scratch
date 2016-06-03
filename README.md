@@ -1,10 +1,11 @@
 # container-from-scratch
 Make container from scratch using Golang
 
+
 ## Where do containers come from? :bird: & :honeybee:
 ![how is it made](https://raw.githubusercontent.com/gunjan5/container-from-scratch/master/container.png)
 
-## How to run this thing (tested on Ubuntu):
+## How to run this thing from CLI(tested on Ubuntu):
 - Download and build for your platform:
 ```bash
 $ git clone https://github.com/gunjan5/container-from-scratch.git
@@ -34,6 +35,36 @@ $ sudo ./cfs run TinyCore ls
 bin      core.gz  dev      etc      init     lib      linuxrc  opt      root     sbin     tmp      usr      var
 ```
 
+## REST server:
+- Start the CFS server `sudo ./cfs server`
+- REST calls: 
+`(GET) 127.0.0.1:1337/containers`
+`(GET) 127.0.0.1:1337/history`
+`(POST) 127.0.0.1:1337/run`
+
+- JSON structure examples:
+
+..- Run a new container
+  ```
+  {
+    "state": "run",
+    "image": "BusyBox",
+    "command": "pwd"
+  }
+  ```
+
+..* Stop a running container with it's Container ID
+```json
+  {
+    "id": "e7887770-da8e-43db-9ca1-69526d144d7c",
+    "state": "stop"
+  }
+```
+    
+- CURL call examples: 
+
+`curl -H "Content-Type: application/json" -X POST -d '{"state":"run","image":"TinyCore","command":"ls"}' http://localhost:1337/run`
+`curl -H "Content-Type: application/json" -X POST -d '{"id":"d78347b9-d7c1-4e22-b2fc-782c8111cfcb","state":"stop"}' http://localhost:1337/run`
 
 
 
@@ -87,8 +118,20 @@ bin      core.gz  dev      etc      init     lib      linuxrc  opt      root    
   Layers are usually read-only, and containers make copy if they have to modify the layer.
   ```
 
+```
+  ___  ____  ___       ___  _____  _  _  ____   __    ____  _  _  ____  ____    ____  ____  _____  __  __ 
+ / __)( ___)/ __)()   / __)(  _  )( \( )(_  _) /__\  (_  _)( \( )( ___)(  _ \  ( ___)(  _ \(  _  )(  \/  )
+( (__  )__) \__ \    ( (__  )(_)(  )  (   )(  /(__)\  _)(_  )  (  )__)  )   /   )__)  )   / )(_)(  )    ( 
+ \___)(__)  (___/()   \___)(_____)(_)\_) (__)(__)(__)(____)(_)\_)(____)(_)\_)  (__)  (_)\_)(_____)(_/\/\_)
+ ___   ___  ____    __   ____  ___  _   _ 
+/ __) / __)(  _ \  /__\ (_  _)/ __)( )_( )
+\__ \( (__  )   / /(__)\  )( ( (__  ) _ ( 
+(___/ \___)(_)\_)(__)(__)(__) \___)(_) (_)
+```
 
 ### Credit:
 - This is based on @doctor_julz's blog post about containers
 - Container image from @onsijoe's talk at CF Summit
+
+
 
